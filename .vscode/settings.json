@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "drawfunctions.h": "c",
+        "callbackfunctions.h": "c"
+    }
+}
