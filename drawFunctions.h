@@ -9,7 +9,6 @@
 #define NOT_USED_VAR(X) (void)(X)
 // timer callback func variablesw
 #define timerID (0)
-#define timeInMS (500)
 //end of timer callback func variables
 
 /************************************
@@ -24,7 +23,6 @@ struct Vector3f{
 };
 struct Car{
     struct Vector3f carPosition;
-    float carSpeed;
 };
 struct Tank{
     struct Vector3f tankTranslate;
@@ -33,6 +31,8 @@ struct Tank{
 //Keeps info about whole game state
 struct gameState{
     struct Car carNumber[MAX_CARS_ALLOWED];
+    float carSpeed;
+    int timeInMS;
     struct Tank tankMainPlayer;
     int WindowWidth;
     int WindowHeight;

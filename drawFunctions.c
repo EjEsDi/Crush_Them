@@ -1,6 +1,7 @@
 #include "drawFunctions.h"
 #include "callbackFunctions.h"
 #include <GL/glut.h>
+#include <time.h>
 
 /************************************
     Functions definitions start here
@@ -11,6 +12,9 @@ void init(void){
     glClearDepth(1.0);
     glLineWidth(1);
     glShadeModel(GL_FLAT);
+    gs.timeInMS = 300;
+    // TODO Where should I have this function? Maybe in timer?, decide when u rebuild drawing cars
+    initRenderingObjects(&roadScale, &roadRotation, &roadTranslation, &gs); 
 }
 
 void drawRoad(const struct Vector3f aScale,const struct Vector3f aRotation,const struct Vector3f aTranslation){
@@ -25,13 +29,12 @@ void drawRoad(const struct Vector3f aScale,const struct Vector3f aRotation,const
         glLineWidth(1);
 
 
-        // all sizes are 1m and then they get scaled with glScale into proper sizes.
-        GLfloat width = 1;
+        GLfloat width = 1; // 1m wide * scale
         GLfloat height = 0.1; // road is just above 0, because lookAt points at 0 on yaxis
         GLfloat depth = 0; 
 
-        glColor3f(0, 1.0, 1.0); //TODO road color only one and not rainbow if i use 4
-        glBegin(GL_QUADS);
+        glColor3f(0.3, 0.3, 0.3);
+        glBegin(GL_POLYGON);
             glVertex3f(-width,-height, depth);//bottom left
             glVertex3f(width, -height, depth);//bottom right
             glVertex3f(width, height, depth);//top right
@@ -57,8 +60,8 @@ void drawRoad(const struct Vector3f aScale,const struct Vector3f aRotation,const
     glPopMatrix();
 }
 void drawCubeTank(const struct Tank tank){
+    
     glPushMatrix();
-        
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glEnable( GL_DEPTH_TEST );
         glScalef(1, 1, 3); // size of tank, adjustable only here, change that?
@@ -66,6 +69,7 @@ void drawCubeTank(const struct Tank tank){
         glBegin(GL_QUADS);
             /* blue - green - red - light blue - */
 
+            //blue
             glColor3f(0, 0, 1);
             glVertex3f(-0.5, 0, -0.5);
             glVertex3f(-0.5, 1, -0.5);
@@ -80,14 +84,14 @@ void drawCubeTank(const struct Tank tank){
             glVertex3f(0.5, 0, 0.5); 
             
             //sides
-            // dark green - right
+            // purple - right
             glColor3f(1, 0, 1);
             glVertex3f(0.5, 0, -0.5);
             glVertex3f(0.5, 1, -0.5);
             glVertex3f(0.5, 1, +0.5);
             glVertex3f(0.5, 0, +0.5); 
 
-            //lblue - left
+            //purple - left
             glColor3f(1, 0, 1);
             glVertex3f(-0.5, 0, -0.5);
             glVertex3f(-0.5, 1, -0.5);
@@ -125,54 +129,54 @@ void drawCar(const struct Car car){
         //glRotatef(aRotation.y, 0, 1, 0);
         //glRotatef(aRotation.z, 0, 0, 1);
         glTranslatef(car.carPosition.x, car.carPosition.y, car.carPosition.z);
-
+        
         glBegin(GL_QUADS);
             /* blue - green - red - light blue - */
 
             //front and back
             //blue - front
             glColor3f(0, 0, 1);
-            glVertex3f(-0.5, -0.5, -0.5);
-            glVertex3f(-0.5, 0.5, -0.5);
-            glVertex3f(0.5, 0.5, -0.5);
-            glVertex3f(0.5, -0.5, -0.5); 
+            glVertex3f(-0.5, 0, -0.5);
+            glVertex3f(-0.5, 1, -0.5);
+            glVertex3f(0.5, 1, -0.5);
+            glVertex3f(0.5, 0, -0.5); 
 
             //purple - back
             glColor3f(1, 0, 1);
-            glVertex3f(-0.5, -0.5, +0.5);
-            glVertex3f(-0.5, 0.5, +0.5);
-            glVertex3f(0.5, 0.5, 0.5);
-            glVertex3f(0.5, -0.5, 0.5); 
+            glVertex3f(-0.5, 0, +0.5);
+            glVertex3f(-0.5, 1, +0.5);
+            glVertex3f(0.5, 1, 0.5);
+            glVertex3f(0.5, 0, 0.5); 
             
             //sides
             //purple - right
             glColor3f(1, 0, 1);
-            glVertex3f(0.5, -0.5, -0.5);
-            glVertex3f(0.5, 0.5, -0.5);
-            glVertex3f(0.5, 0.5, +0.5);
-            glVertex3f(0.5, -0.5, +0.5); 
+            glVertex3f(0.5, 0, -0.5);
+            glVertex3f(0.5, 1, -0.5);
+            glVertex3f(0.5, 1, +0.5);
+            glVertex3f(0.5, 0, +0.5); 
 
             //lblue - left
             glColor3f(1, 0, 0);
-            glVertex3f(-0.5, -0.5, -0.5);
-            glVertex3f(-0.5, 0.5, -0.5);
-            glVertex3f(-0.5, 0.5, +0.5);
-            glVertex3f(-0.5, -0.5, +0.5); 
+            glVertex3f(-0.5, 0, -0.5);
+            glVertex3f(-0.5, 1, -0.5);
+            glVertex3f(-0.5, 1, +0.5);
+            glVertex3f(-0.5, 0, +0.5); 
 
             // top and bottom
             //white
             glColor3f(1, 1, 1);
-            glVertex3f(-0.5, -0.5, +0.5);
-            glVertex3f(+0.5, -0.5, +0.5);
-            glVertex3f(+0.5, -0.5, -0.5);
-            glVertex3f(-0.5, -0.5, -0.5);
+            glVertex3f(-0.5, 0, +0.5);
+            glVertex3f(+0.5, 0, +0.5);
+            glVertex3f(+0.5, 0, -0.5);
+            glVertex3f(-0.5, 0, -0.5);
 
             //yellow
             glColor3f(1, 1, 0);
-            glVertex3f(0.5, +0.5, +0.5);
-            glVertex3f(-0.5, +0.5, +0.5);
-            glVertex3f(-0.5, +0.5, -0.5);
-            glVertex3f(0.5, +0.5, -0.5);
+            glVertex3f(0.5, 1, +0.5);
+            glVertex3f(-0.5, 1, +0.5);
+            glVertex3f(-0.5, 1, -0.5);
+            glVertex3f(0.5, 1, -0.5);
         glDisable( GL_DEPTH_TEST );
         glEnd();
     glPopMatrix();
@@ -196,24 +200,26 @@ void initRenderingObjects(struct Vector3f *aScale, struct Vector3f *aRotation, s
     // tank translate
     tank.tankTranslate.x = 0; // its 0 on start, it changes during gameplay
     tank.tankTranslate.y = 0; // should always stay 0
-    tank.tankTranslate.z = 5; // TODO: can be changed, for now it forces tank on begining of screen(NOT ROAD)
+    tank.tankTranslate.z = 5; // TODO: can be changed, for now it forces tank on begining of screen(NOT BEGINING OF ROAD!)
     gamestate->tankMainPlayer = tank;
-
+    gs.carSpeed = 1; //TODO: is this needed?
+    //TODO move this in time event ?
     //TODO Fix gameplay here
     //TODO all cars should spawn in back, on max range, and then drive towards player
-    //TODO dont let cars go out of road
-    //Initialize cars, should be reedited in future.
+    //TODO for now its just predefined cars. Need to make cars spawn randomly on begining of road, on timer, and then move forward.
     int min_distance = -100;
-    for(int i = 0; i < 15; i++){
-        min_distance += 10;
-        if(i%2 == 0)
-            gamestate->carNumber[i].carPosition.x = (rand() % 5);
-        else
-            gamestate->carNumber[i].carPosition.x = -(rand() % 5);
-        gamestate->carNumber[i].carPosition.y = 0.5;
-        gamestate->carNumber[i].carPosition.z = min_distance;
+    srand(time(NULL));
+    int setOfCarPositionsAllowedValues[3] = {-3,0,3};
+
+    for(int i = 0; i < MAX_CARS_ALLOWED; i++){
+        int pos = rand() % 3;
+        min_distance += 15;
+        gs.carNumber[i].carPosition.x = (setOfCarPositionsAllowedValues[pos]);
+        gs.carNumber[i].carPosition.y = 0; // puts car on the road
+        gs.carNumber[i].carPosition.z = min_distance;
         if (min_distance == -10){
-            min_distance = -95;
+            min_distance = -100;
         }
-    }
+    } 
+    //Initialize cars, should be reedited in future.
 }
