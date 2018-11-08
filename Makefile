@@ -7,15 +7,15 @@ LDLIBS  = -lglut -lGLU -lGL
 $(PROGRAM): crush_them.o drawFunctions.o callbackFunctions.o
 	$(CC) $(LDFLAGS) -o $(PROGRAM) crush_them.o drawFunctions.o callbackFunctions.o $(LDLIBS) 
 
-crush_them.o: crush_them.c
-	$(CC) -c $(LDFLAGS) crush_them.c $(LDLIBS)
-
 drawFunctions.o: drawFunctions.c
 	$(CC) -c $(LDFLAGS) drawFunctions.c $(LDLIBS)
 
 callbackFunctions.o: callbackFunctions.c
 	$(CC) -c $(LDFLAGS) callbackFunctions.c $(LDLIBS)
 
+crush_them.o: crush_them.c
+	$(CC) -c $(LDFLAGS) crush_them.c $(LDLIBS)
+	
 .PHONY: beauty clean dist
 
 beauty:

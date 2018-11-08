@@ -6,15 +6,25 @@
 /************************************
     Functions definitions start here
 *************************************/
+//TODO: There is something wrong in drawing or Makefile. 
+//TODO: sometimes(after doing make) tank shows up in rly weird spot
+//TODO: make sure that make is working then rest
 
 void init(void){
-    glClearColor(0.0, 0.0 , 0.0, 0.0);
+    glClearColor(0.6, 0.8 , 1, 0.0);
     glClearDepth(1.0);
     glLineWidth(1);
     glShadeModel(GL_FLAT);
-    gs.timeInMS = 300;
-    // TODO Where should I have this function? Maybe in timer?, decide when u rebuild drawing cars
+    gs.timeInMS = 20;
+    gs.timeCarSpawn = 1500;
     initRenderingObjects(&roadScale, &roadRotation, &roadTranslation, &gs); 
+}
+
+void drawSun(){
+    glPushMatrix();
+    glTranslatef(30, 30, -5);
+    glutSolidSphere(7, 50, 50);
+    glPopMatrix();
 }
 
 void drawRoad(const struct Vector3f aScale,const struct Vector3f aRotation,const struct Vector3f aTranslation){
@@ -30,7 +40,7 @@ void drawRoad(const struct Vector3f aScale,const struct Vector3f aRotation,const
 
 
         GLfloat width = 1; // 1m wide * scale
-        GLfloat height = 0.1; // road is just above 0, because lookAt points at 0 on yaxis
+        GLfloat height = 0.1; // road is just above 0, because lookAt points at 0 on y-axis
         GLfloat depth = 0; 
 
         glColor3f(0.3, 0.3, 0.3);
@@ -40,8 +50,8 @@ void drawRoad(const struct Vector3f aScale,const struct Vector3f aRotation,const
             glVertex3f(width, height, depth);//top right
             glVertex3f(-width, height, depth);//top left
         glEnd();
+
         //draw lanes on road
-        
         glEnable(GL_LINE_STIPPLE);
         glLineStipple (3, 0xF00F); // dashed lines
         glLineWidth(5);
@@ -55,10 +65,10 @@ void drawRoad(const struct Vector3f aScale,const struct Vector3f aRotation,const
                 glVertex3f(width/3, height, depth-0.001);
         glEnd();
         glDisable(GL_LINE_STIPPLE);
-        
         glDisable(GL_DEPTH_TEST);
     glPopMatrix();
 }
+
 void drawCubeTank(const struct Tank tank){
     
     glPushMatrix();
@@ -113,7 +123,6 @@ void drawCubeTank(const struct Tank tank){
             glVertex3f(-0.5, 1, -0.5);
             glVertex3f(0.5, 1, -0.5);
             
-        glDisable( GL_DEPTH_TEST );
         glEnd();
         
     glPopMatrix();
@@ -121,14 +130,14 @@ void drawCubeTank(const struct Tank tank){
 void drawCar(const struct Car car){
     
     glPushMatrix();
-        //TODO check glRotate, when you want it to rotate?
+        //TODO check glRotate, when you want it to rotate? during crush or smth
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glEnable(GL_DEPTH_TEST);
         glScalef(1, 1, 1);
-        //glRotatef(aRotation.x, 1, 0, 0);
-        //glRotatef(aRotation.y, 0, 1, 0);
-        //glRotatef(aRotation.z, 0, 0, 1);
         glTranslatef(car.carPosition.x, car.carPosition.y, car.carPosition.z);
+        // glRotatef(0, 1, 0, 0);
+        // glRotatef(0, 0, 1, 0);
+        // glRotatef(60, 0, 0, 1);
         
         glBegin(GL_QUADS);
             /* blue - green - red - light blue - */
@@ -188,11 +197,11 @@ void initRenderingObjects(struct Vector3f *aScale, struct Vector3f *aRotation, s
     //roadScalef
     aScale->x = 6; // road width will be 6m - prone to change -- if it changes, need to account change with car positions and how much tank can move to left and right
     aScale->y = 1; // road will be 1m thick - no reason to change
-    aScale->z = 1000; // road length will be 500m - prone to change
+    aScale->z = 1000; // road length will be 1000m - prone to change // its not rly 1000, its 200m long cuz of matrices order
     //roadRotation
-    aRotation->x = 90; 
-    aRotation->y = 0;
-    aRotation->z = 0;
+    aRotation->x = 90;  //angle
+    aRotation->y = 0;  //angle
+    aRotation->z = 0;  //angle
     //roadTranslation
     aTranslation->x = 0;
     aTranslation->y = 0;
@@ -200,26 +209,12 @@ void initRenderingObjects(struct Vector3f *aScale, struct Vector3f *aRotation, s
     // tank translate
     tank.tankTranslate.x = 0; // its 0 on start, it changes during gameplay
     tank.tankTranslate.y = 0; // should always stay 0
-    tank.tankTranslate.z = 5; // TODO: can be changed, for now it forces tank on begining of screen(NOT BEGINING OF ROAD!)
+    tank.tankTranslate.z = 31.5; // TODO: can be changed, for now it forces tank on begining of screen(NOT BEGINING OF ROAD!)
     gamestate->tankMainPlayer = tank;
-    gs.carSpeed = 1; //TODO: is this needed?
-    //TODO move this in time event ?
-    //TODO Fix gameplay here
-    //TODO all cars should spawn in back, on max range, and then drive towards player
-    //TODO for now its just predefined cars. Need to make cars spawn randomly on begining of road, on timer, and then move forward.
-    int min_distance = -100;
-    srand(time(NULL));
-    int setOfCarPositionsAllowedValues[3] = {-3,0,3};
-
-    for(int i = 0; i < MAX_CARS_ALLOWED; i++){
-        int pos = rand() % 3;
-        min_distance += 15;
-        gs.carNumber[i].carPosition.x = (setOfCarPositionsAllowedValues[pos]);
-        gs.carNumber[i].carPosition.y = 0; // puts car on the road
-        gs.carNumber[i].carPosition.z = min_distance;
-        if (min_distance == -10){
-            min_distance = -100;
-        }
-    } 
-    //Initialize cars, should be reedited in future.
+    gs.carSpeed = 1; //TODO: is this needed? idea is to use this * times of clicking W and to get move speed, but not sure if needed
+    gs.numOfCars = 1;
+    // Initialize first car.
+    gs.carNumber[0].carPosition.x = 0;
+    gs.carNumber[0].carPosition.y = 0;
+    gs.carNumber[0].carPosition.z = -100;
 }

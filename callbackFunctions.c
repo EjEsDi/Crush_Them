@@ -2,6 +2,8 @@
 #include "drawFunctions.h"
 #include <GL/glut.h>
 #include <stdio.h>
+#include <time.h>
+#include <stdbool.h>
 
 /************************************
     Functions definitions start here
@@ -14,17 +16,19 @@ void onDisplay(void){
 
     //setting camera position and where it looks at
     glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();// TODO:not best position of camera, if i need to put on begining of road
-    gluLookAt(  0, 3, 20, // camera position 
+    glLoadIdentity();
+    gluLookAt(  0, 3, 100, // camera position 
                 0, 0, 0, // camera looks at this spot
-                0, 1, 0  // normal vector 
+                0, 2, 0  // normal vector 
             ); 
     
     //Rendering section
     drawRoad(roadScale, roadRotation, roadTranslation);
     drawCubeTank(gs.tankMainPlayer);
-    for(int i = 0; i < MAX_CARS_ALLOWED; i++)
-        drawCar(gs.carNumber[i]);
+    for(int i = 0; i < gs.numOfCars; i++){
+        drawCar(gs.carNumber[i]); 
+    }
+    drawSun();
     // draw all on main buffer
     glutSwapBuffers();
 }
@@ -37,13 +41,13 @@ void onReshape(int w, int h){
     //projection of what camera sees
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(60, gs.WindowWidth/(GLfloat)gs.WindowHeight, 1.0, 2000.0); // angle, ratio, near clip, far clip
+    gluPerspective(60, gs.WindowWidth/(GLfloat)gs.WindowHeight, 1.0, 200.0); // angle, ratio, near clip, far clip
 }
 
 void onKeyboardInput(unsigned char key, int x, int y){
     NOT_USED_VAR(x);
     NOT_USED_VAR(y);
-    //TODO : Check if speed is properly working and if it works as intended
+    //TODO : Speed could/should be adjusted, to match spawns and movement, realistically, not big deal rn tho
     switch(key){
         case 27: // ESC BUTTON
             exit(0);
@@ -51,6 +55,7 @@ void onKeyboardInput(unsigned char key, int x, int y){
         case 'g': // GO
         case 'G':
             if(gs.actionOnGoing == 0){
+                glutTimerFunc(gs.timeCarSpawn, onTimer, timerID1);
                 glutTimerFunc(gs.timeInMS, onTimer, timerID);
                 gs.actionOnGoing = 1;
             }
@@ -61,51 +66,69 @@ void onKeyboardInput(unsigned char key, int x, int y){
                 gs.actionOnGoing = 0;
             }
             break;
-        case 's': // slow down instead of stop
+        case 's': // slow down car
         case 'S':
-            if(gs.actionOnGoing){
-                if(!gs.timeInMS == 500)
-                    gs.timeInMS += 100;
-            }               
             break;
         // left
         case 'a': 
         case 'A': 
-            if(gs.tankMainPlayer.tankTranslate.x - 3 > -4) // left wall is not hit yet
+            if(gs.tankMainPlayer.tankTranslate.x - 3 >= -4) // left wall is not hit yet
                 gs.tankMainPlayer.tankTranslate.x -= 3;
+            glutPostRedisplay();
             break;
         // right
         case 'd':
         case 'D':
-            if(gs.tankMainPlayer.tankTranslate.x + 3 < 4) // right wall is not hit yet
+            if(gs.tankMainPlayer.tankTranslate.x + 3 <= 4) // right wall is not hit yet
                 gs.tankMainPlayer.tankTranslate.x += 3;
+            glutPostRedisplay();
             break;
         case 'w':
-        case 'W': // can be used to speed up
-            if(gs.actionOnGoing){
-                if(!gs.timeInMS == 100)
-                    gs.timeInMS -= 100;
-                glutTimerFunc(gs.timeInMS, onTimer, timerID);
-            }  
+        case 'W': // can be used to speed up 
             break;
     }    
     glutPostRedisplay();
 }
 
 void onTimer(int timer){
-    //TODO for now just preset cars are moving.
-    //Wait for other funcs to be fixed, then change here accordingly.
-    
+    //TODO when first car passes tank(-100 on z-axis for now)
+    // when counter = 0?
+    // when to do it, when first car is of screen would be good
+    //todo what to do when numofcars > max cars allowed, exit game for now?
+    srand(time(NULL));
     if(timer == timerID){
-        for(int i = 0; i < MAX_CARS_ALLOWED; i++){
-            gs.carNumber[i].carPosition.z++;
+        //this timer moves cars
+        for(int i = 0; i < gs.numOfCars; i++){
+            gs.carNumber[i].carPosition.z += 1;
+        }
+    }else if(timer == timerID1){
+        //This timer makes cars
+        int setOfCarXPositionsAllowedValues[9] = {-3.33,0,3.33,0,-3.33, 3.33, 3.33,-3.33,0};
+        int setOfCarZPositionsAllowedValues[4] = {-100,-110,-120,-130};
+        gs.carNumber[gs.numOfCars].carPosition.x = setOfCarXPositionsAllowedValues[rand()%9];
+        gs.carNumber[gs.numOfCars].carPosition.y = 0; // puts car on the road
+        gs.carNumber[gs.numOfCars].carPosition.z = setOfCarZPositionsAllowedValues[rand()%4];
+        gs.numOfCars++;
+        gs.carNumber[gs.numOfCars].carPosition.x = setOfCarXPositionsAllowedValues[rand()%9];
+        gs.carNumber[gs.numOfCars].carPosition.y = 0; // puts car on the road
+        gs.carNumber[gs.numOfCars].carPosition.z = setOfCarZPositionsAllowedValues[rand()%4];
+        gs.numOfCars++;
+        gs.carNumber[gs.numOfCars].carPosition.x = setOfCarXPositionsAllowedValues[rand()%9];
+        gs.carNumber[gs.numOfCars].carPosition.y = 0; // puts car on the road
+        gs.carNumber[gs.numOfCars].carPosition.z = setOfCarZPositionsAllowedValues[rand()%4];
+        gs.numOfCars++;
+        if((gs.numOfCars >= MAX_CARS_ALLOWED)){
+            gs.actionOnGoing = 0;
+            return;
         }
     }else return;
-    
-    glutPostRedisplay();
 
     if(gs.actionOnGoing){
-        glutTimerFunc(gs.timeInMS, onTimer, timerID);
+        glutPostRedisplay();
+        if(timer == timerID)
+            glutTimerFunc(gs.timeInMS, onTimer, timerID);
+        else if(timer == timerID1)
+            glutTimerFunc(gs.timeCarSpawn, onTimer, timerID1);
     }
 }
 

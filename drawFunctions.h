@@ -5,10 +5,11 @@
     Macros definitions start here
 *************************************/
 
-#define MAX_CARS_ALLOWED 512
+#define MAX_CARS_ALLOWED 4096
 #define NOT_USED_VAR(X) (void)(X)
 // timer callback func variablesw
 #define timerID (0)
+#define timerID1 (1)
 //end of timer callback func variables
 
 /************************************
@@ -32,7 +33,9 @@ struct Tank{
 struct gameState{
     struct Car carNumber[MAX_CARS_ALLOWED];
     float carSpeed;
+    int numOfCars;
     int timeInMS;
+    int timeCarSpawn;
     struct Tank tankMainPlayer;
     int WindowWidth;
     int WindowHeight;
@@ -45,5 +48,6 @@ void initRenderingObjects(struct Vector3f *aScale, struct Vector3f *aRotation, s
 void drawRoad(const struct Vector3f aScale,const struct Vector3f aRotation,const struct Vector3f aTranslation);
 void drawCubeTank(const struct Tank tank);
 void drawCar(const struct Car cars);
+void drawSun();
 
 #endif
