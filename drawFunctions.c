@@ -16,14 +16,15 @@ void init(void){
     glLineWidth(1);
     glShadeModel(GL_FLAT);
     gs.timeInMS = 20;
-    gs.timeCarSpawn = 1500;
+    gs.timeCarSpawn = 1000;
     initRenderingObjects(&roadScale, &roadRotation, &roadTranslation, &gs); 
 }
 
 void drawSun(){
     glPushMatrix();
-    glTranslatef(30, 30, -5);
-    glutSolidSphere(7, 50, 50);
+    glLoadIdentity();
+        glTranslatef(20, 10, -30);
+    glutSolidSphere(1, 50, 50);
     glPopMatrix();
 }
 
@@ -68,13 +69,13 @@ void drawRoad(const struct Vector3f aScale,const struct Vector3f aRotation,const
         glDisable(GL_DEPTH_TEST);
     glPopMatrix();
 }
-
 void drawCubeTank(const struct Tank tank){
     
     glPushMatrix();
+        //TODO: Because I want to know where my tank is, I will need Scalef and translatef to be sent to here.
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glEnable( GL_DEPTH_TEST );
-        glScalef(1, 1, 3); // size of tank, adjustable only here, change that?
+        glScalef(1, 1, 3); // size of tank, adjustable only here, change that? 
         glTranslatef(tank.tankTranslate.x, tank.tankTranslate.y, tank.tankTranslate.z);
         glBegin(GL_QUADS);
             /* blue - green - red - light blue - */
@@ -130,7 +131,7 @@ void drawCubeTank(const struct Tank tank){
 void drawCar(const struct Car car){
     
     glPushMatrix();
-        //TODO check glRotate, when you want it to rotate? during crush or smth
+        //TODO check glRotate, when you want it to rotate? during crush or smth, will need Struct instead hardcode numbers for rotation
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glEnable(GL_DEPTH_TEST);
         glScalef(1, 1, 1);
@@ -138,7 +139,6 @@ void drawCar(const struct Car car){
         // glRotatef(0, 1, 0, 0);
         // glRotatef(0, 0, 1, 0);
         // glRotatef(60, 0, 0, 1);
-        
         glBegin(GL_QUADS);
             /* blue - green - red - light blue - */
 
@@ -214,7 +214,13 @@ void initRenderingObjects(struct Vector3f *aScale, struct Vector3f *aRotation, s
     gs.carSpeed = 1; //TODO: is this needed? idea is to use this * times of clicking W and to get move speed, but not sure if needed
     gs.numOfCars = 1;
     // Initialize first car.
-    gs.carNumber[0].carPosition.x = 0;
-    gs.carNumber[0].carPosition.y = 0;
-    gs.carNumber[0].carPosition.z = -100;
+    srand(time(NULL));
+    int setOfCarXPositionsAllowedValues[3] = {-3.33,0,3.33};
+    int setOfCarZPositionsAllowedValues[6] = {-150,-140,-130,-100,-120,-110};
+    for(int i = 0; i < MAX_CARS_ALLOWED; i++){
+        gs.carNumber[i].carPosition.x = setOfCarXPositionsAllowedValues[rand()%3];
+        gs.carNumber[i].carPosition.y = 0;
+        gs.carNumber[i].carPosition.z = setOfCarZPositionsAllowedValues[rand()%6];
+    }
+    
 }

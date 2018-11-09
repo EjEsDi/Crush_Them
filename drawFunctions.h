@@ -5,7 +5,7 @@
     Macros definitions start here
 *************************************/
 
-#define MAX_CARS_ALLOWED 4096
+#define MAX_CARS_ALLOWED 10
 #define NOT_USED_VAR(X) (void)(X)
 // timer callback func variablesw
 #define timerID (0)

@@ -19,7 +19,7 @@ void onDisplay(void){
     glLoadIdentity();
     gluLookAt(  0, 3, 100, // camera position 
                 0, 0, 0, // camera looks at this spot
-                0, 2, 0  // normal vector 
+                0, 1, 0  // normal vector 
             ); 
     
     //Rendering section
@@ -90,37 +90,24 @@ void onKeyboardInput(unsigned char key, int x, int y){
     glutPostRedisplay();
 }
 
-void onTimer(int timer){
-    //TODO when first car passes tank(-100 on z-axis for now)
-    // when counter = 0?
-    // when to do it, when first car is of screen would be good
-    //todo what to do when numofcars > max cars allowed, exit game for now?
-    srand(time(NULL));
+void onTimer(int timer){  
+    int setOfCarXPositionsAllowedValues[3] = {-3.33,0,3.33};
     if(timer == timerID){
         //this timer moves cars
         for(int i = 0; i < gs.numOfCars; i++){
             gs.carNumber[i].carPosition.z += 1;
+            //translate * 3 is because of how tank is made(scale<-translate),EDIT THERE WHEN NEEDED
+            if(gs.carNumber[i].carPosition.z >= tank.tankTranslate.z*3){ 
+                gs.carNumber[i].carPosition.x = setOfCarXPositionsAllowedValues[rand()%3];
+                gs.carNumber[i].carPosition.z = -130;
+            }
         }
     }else if(timer == timerID1){
         //This timer makes cars
-        int setOfCarXPositionsAllowedValues[9] = {-3.33,0,3.33,0,-3.33, 3.33, 3.33,-3.33,0};
-        int setOfCarZPositionsAllowedValues[4] = {-100,-110,-120,-130};
-        gs.carNumber[gs.numOfCars].carPosition.x = setOfCarXPositionsAllowedValues[rand()%9];
-        gs.carNumber[gs.numOfCars].carPosition.y = 0; // puts car on the road
-        gs.carNumber[gs.numOfCars].carPosition.z = setOfCarZPositionsAllowedValues[rand()%4];
-        gs.numOfCars++;
-        gs.carNumber[gs.numOfCars].carPosition.x = setOfCarXPositionsAllowedValues[rand()%9];
-        gs.carNumber[gs.numOfCars].carPosition.y = 0; // puts car on the road
-        gs.carNumber[gs.numOfCars].carPosition.z = setOfCarZPositionsAllowedValues[rand()%4];
-        gs.numOfCars++;
-        gs.carNumber[gs.numOfCars].carPosition.x = setOfCarXPositionsAllowedValues[rand()%9];
-        gs.carNumber[gs.numOfCars].carPosition.y = 0; // puts car on the road
-        gs.carNumber[gs.numOfCars].carPosition.z = setOfCarZPositionsAllowedValues[rand()%4];
-        gs.numOfCars++;
-        if((gs.numOfCars >= MAX_CARS_ALLOWED)){
-            gs.actionOnGoing = 0;
+        if(gs.numOfCars < MAX_CARS_ALLOWED)
+            gs.numOfCars++;
+        else
             return;
-        }
     }else return;
 
     if(gs.actionOnGoing){
