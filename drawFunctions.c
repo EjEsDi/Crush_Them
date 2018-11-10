@@ -15,28 +15,28 @@ void init(void){
     glClearDepth(1.0);
     glLineWidth(1);
     glShadeModel(GL_FLAT);
-    gs.timeInMS = 20;
-    gs.timeCarSpawn = 1000;
-    initRenderingObjects(&roadScale, &roadRotation, &roadTranslation, &gs); 
+    initRenderingObjects(&gs); 
 }
 
 void drawSun(){
     glPushMatrix();
     glLoadIdentity();
-        glTranslatef(20, 10, -30);
+    glTranslatef(20, 10, -30);
     glutSolidSphere(1, 50, 50);
     glPopMatrix();
 }
 
-void drawRoad(const struct Vector3f aScale,const struct Vector3f aRotation,const struct Vector3f aTranslation){
+void drawRoad(const struct Road road){
     
     glPushMatrix();
         glEnable(GL_DEPTH_TEST);
-        glScalef(aScale.x, aScale.y, aScale.z);
-        glRotatef(aRotation.x, 1, 0, 0);
-        glRotatef(aRotation.y, 0, 1, 0);
-        glRotatef(aRotation.z, 0, 0, 1);
-        glTranslatef(aTranslation.x, aTranslation.y, aTranslation.z);
+        
+        glScalef(road.roadScale.x, road.roadScale.y, road.roadScale.z);
+        glRotatef(road.roadRotation.x, 1, 0, 0);
+        glRotatef(road.roadRotation.y, 0, 1, 0);
+        glRotatef(road.roadRotation.z, 0, 0, 1);
+        glTranslatef(road.roadTranslation.x, road.roadTranslation.y, road.roadTranslation.z);
+        
         glLineWidth(1);
 
 
@@ -72,10 +72,9 @@ void drawRoad(const struct Vector3f aScale,const struct Vector3f aRotation,const
 void drawCubeTank(const struct Tank tank){
     
     glPushMatrix();
-        //TODO: Because I want to know where my tank is, I will need Scalef and translatef to be sent to here.
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glEnable( GL_DEPTH_TEST );
-        glScalef(1, 1, 3); // size of tank, adjustable only here, change that? 
+        glScalef(tank.tankScale.x, tank.tankScale.y, tank.tankScale.z);
         glTranslatef(tank.tankTranslate.x, tank.tankTranslate.y, tank.tankTranslate.z);
         glBegin(GL_QUADS);
             /* blue - green - red - light blue - */
@@ -134,11 +133,11 @@ void drawCar(const struct Car car){
         //TODO check glRotate, when you want it to rotate? during crush or smth, will need Struct instead hardcode numbers for rotation
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glEnable(GL_DEPTH_TEST);
-        glScalef(1, 1, 1);
+        glScalef(car.carScale.x, car.carScale.y, car.carScale.z);
         glTranslatef(car.carPosition.x, car.carPosition.y, car.carPosition.z);
-        // glRotatef(0, 1, 0, 0);
-        // glRotatef(0, 0, 1, 0);
-        // glRotatef(60, 0, 0, 1);
+        //glRotatef(car.carRotate.x, 1, 0, 0);
+        //glRotatef(car.carRotate.y, 0, 1, 0);
+        //glRotatef(car.carRotate.z, 0, 0, 1);
         glBegin(GL_QUADS);
             /* blue - green - red - light blue - */
 
@@ -190,37 +189,57 @@ void drawCar(const struct Car car){
         glEnd();
     glPopMatrix();
 }
-void initRenderingObjects(struct Vector3f *aScale, struct Vector3f *aRotation, struct Vector3f *aTranslation,struct gameState *gamestate){
-    //Should I put Scale,Rotation and Trasnaltion in init() function?
-    //Road should be initialized on very start, should I mix it with those funcs or keep here?
-    //Road should be initialized once only, do I need to keep checking on it? Future versions of game?
-    //roadScalef
-    aScale->x = 6; // road width will be 6m - prone to change -- if it changes, need to account change with car positions and how much tank can move to left and right
-    aScale->y = 1; // road will be 1m thick - no reason to change
-    aScale->z = 1000; // road length will be 1000m - prone to change // its not rly 1000, its 200m long cuz of matrices order
-    //roadRotation
-    aRotation->x = 90;  //angle
-    aRotation->y = 0;  //angle
-    aRotation->z = 0;  //angle
-    //roadTranslation
-    aTranslation->x = 0;
-    aTranslation->y = 0;
-    aTranslation->z = 0;
-    // tank translate
-    tank.tankTranslate.x = 0; // its 0 on start, it changes during gameplay
-    tank.tankTranslate.y = 0; // should always stay 0
-    tank.tankTranslate.z = 31.5; // TODO: can be changed, for now it forces tank on begining of screen(NOT BEGINING OF ROAD!)
-    gamestate->tankMainPlayer = tank;
-    gs.carSpeed = 1; //TODO: is this needed? idea is to use this * times of clicking W and to get move speed, but not sure if needed
-    gs.numOfCars = 1;
-    // Initialize first car.
-    srand(time(NULL));
-    int setOfCarXPositionsAllowedValues[3] = {-3.33,0,3.33};
-    int setOfCarZPositionsAllowedValues[6] = {-150,-140,-130,-100,-120,-110};
-    for(int i = 0; i < MAX_CARS_ALLOWED; i++){
-        gs.carNumber[i].carPosition.x = setOfCarXPositionsAllowedValues[rand()%3];
-        gs.carNumber[i].carPosition.y = 0;
-        gs.carNumber[i].carPosition.z = setOfCarZPositionsAllowedValues[rand()%6];
-    }
+void initRenderingObjects(){
     
+    gs.road.roadScale.x = 6; // road width will be 6m - prone to change -- if it changes, need to account change with car positions and how much tank can move to left and right
+    gs.road.roadScale.y = 1; // road will be 1m thick - no reason to change
+    gs.road.roadScale.z = 1000; //? road length will be 1000m - prone to change // its not rly 1000 right now, it is but its not.
+    //Issue with road scale is that its just from -100 to +100 on z axis. Is this because of matrix order?
+    //if i put roadscale.z on 200, it will shrink road a lot.
+
+    gs.road.roadRotation.x = 90; //angle
+    gs.road.roadRotation.y = 0;  //angle
+    gs.road.roadRotation.z = 0;  //angle
+
+    gs.road.roadTranslation.x = 0;
+    gs.road.roadTranslation.y = 0;
+    gs.road.roadTranslation.z = 0;
+
+    gs.tankMainPlayer.tankTranslate.x = 0;
+    gs.tankMainPlayer.tankTranslate.y = 0;
+    gs.tankMainPlayer.tankTranslate.z = 31.25; //? This number somewhat positions tank on start of road, in current setup(10.11.2018)
+
+    gs.tankMainPlayer.tankScale.x = 1;
+    gs.tankMainPlayer.tankScale.y = 1;
+    gs.tankMainPlayer.tankScale.z = 3;
+
+    gs.tankMainPlayer.tankSpeed = 1; //? same as for car speed for now idea is to use this * times of clicking W and to get speed
+    
+    // Init cars
+    gs.car.numOfCars = 1;
+
+    srand(time(NULL));
+    gs.car.setOfCarXPositionsAllowedValues[0] = -3.33;
+    gs.car.setOfCarXPositionsAllowedValues[1] = 0;
+    gs.car.setOfCarXPositionsAllowedValues[2] = 3.33;
+    gs.car.ZSpawnPoint = -130;
+
+    for(int i = 0; i < MAX_CARS_ALLOWED; i++){
+        gs.carArray[i].carSpeed = 1; //? not sure when this is gonna be needed
+        
+        gs.carArray[i].carScale.x = 1;
+        gs.carArray[i].carScale.y = 1;
+        gs.carArray[i].carScale.z = 1;
+        
+        gs.carArray[i].carRotate.x = 0;
+        gs.carArray[i].carRotate.y = 0;
+        gs.carArray[i].carRotate.z = 0;
+
+        gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
+        gs.carArray[i].carPosition.y = 0;
+        gs.carArray[i].carPosition.z = gs.car.ZSpawnPoint;
+    }
+    //Timers for callback onTimer function
+    gs.timeInMS = 20; // 20 ms
+    gs.car.timeCarSpawn = 1000;   // 1 sec
 }
