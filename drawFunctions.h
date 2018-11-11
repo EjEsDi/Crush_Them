@@ -11,6 +11,7 @@
 // timer callback func variables
 #define timerID (0)
 #define timerID1 (1)
+#define timerID2 (2)
 //end of timer callback func variables
 
 //Create game state.
@@ -57,6 +58,7 @@ struct gameState{
     int WindowWidth;
     int WindowHeight;
     int actionOnGoing;
+    int cameraMovement;
 };
 
 void init(void);

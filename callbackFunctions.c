@@ -27,7 +27,7 @@ void onDisplay(void){
     for(int i = 0; i < gs.car.numOfCars; i++){
         drawCar(gs.carArray[i]); 
     }
-    drawSun(); // TODO fix sun :)
+    //drawSun(); // TODO fix sun :)
     // draw all on main buffer
     glutSwapBuffers();
 }
@@ -39,7 +39,7 @@ void onReshape(int w, int h){
     //projection of what camera sees
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(60, gs.WindowWidth/(GLfloat)gs.WindowHeight, 0.1, 250.0); // angle, ratio, near clip, far clip
+    gluPerspective(60, gs.WindowWidth/(GLfloat)gs.WindowHeight, 0.1, 300.0); // angle, ratio, near clip, far clip
 }
 
 void onKeyboardInput(unsigned char key, int x, int y){
@@ -95,7 +95,7 @@ void onTimer(int timer){
             gs.carArray[i].carPosition.z += 1;
             //?translate * 3 is because of how tank is made(scale<-translate),EDIT THERE WHEN NEEDED
             //?why is it working like this? Somewhat numbers playing to get 31.5*3 > 100 and road ends on 100, I think
-            if(gs.carArray[i].carPosition.z >= gs.tankMainPlayer.tankTranslate.z * gs.tankMainPlayer.tankScale.z){ 
+            if(gs.carArray[i].carPosition.z - 10 >= gs.tankMainPlayer.tankTranslate.z * gs.tankMainPlayer.tankScale.z){ 
                 gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
                 gs.carArray[i].carPosition.z = gs.car.ZSpawnPoint;
             }
@@ -106,7 +106,12 @@ void onTimer(int timer){
             gs.car.numOfCars++;
         else
             return;
-    }else 
+    }else if(timer == timerID2){
+            gs.tankMainPlayer.tankTranslate.z--;
+            gs.cameraMovement = gs.tankMainPlayer.tankTranslate.z;
+            //gs.road.roadTranslation.z += 0.1;
+            glutPostRedisplay();
+    }else
         return;
 
     if(gs.actionOnGoing){

@@ -35,12 +35,10 @@ void drawRoad(const struct Road road){
         glRotatef(road.roadRotation.x, 1, 0, 0);
         glRotatef(road.roadRotation.y, 0, 1, 0);
         glRotatef(road.roadRotation.z, 0, 0, 1);
-
+        
         glLineWidth(1);
+        struct Vector3f v3f = {1, 1, 1};
 
-
-        struct Vector3f v3f = {1, 1, 0};
-        // should road have depth?
         glColor3f(0.3, 0.3, 0.3);
         glBegin(GL_POLYGON);
             glVertex3f(-v3f.x,-v3f.y, v3f.z);//bottom left
@@ -48,9 +46,7 @@ void drawRoad(const struct Road road){
             glVertex3f(v3f.x, v3f.y, v3f.z);//top right
             glVertex3f(-v3f.x, v3f.y, v3f.z);//top left
         glEnd();
-        //TODO: figure when u start moving road, figure how are lanes behaving.
-        //And change them if  needed.
-        //draw lanes on road
+        
         glEnable(GL_LINE_STIPPLE);
         glLineStipple (3, 0xF00F); // dashed lines
         glLineWidth(4);
@@ -67,6 +63,7 @@ void drawRoad(const struct Road road){
         glDisable(GL_DEPTH_TEST);
     glPopMatrix();
 }
+
 void drawCubeTank(const struct Tank tank){
     
     glPushMatrix();
@@ -190,9 +187,8 @@ void drawCar(const struct Car car){
 void initRenderingObjects(){
     
     gs.road.roadScale.x = 6; // road width will be 6m - prone to change -- if it changes, need to account change with car positions and how much tank can move to left and right
-    gs.road.roadScale.y = 1; // road will be 1m thick - no reason to change
+    gs.road.roadScale.y = 1; // 
     gs.road.roadScale.z = 1000; // road is 1000m long. Drawing only 200m because of projection.
-
 
     gs.road.roadRotation.x = 90; //angle
     gs.road.roadRotation.y = 0;  //angle
@@ -203,7 +199,7 @@ void initRenderingObjects(){
     gs.road.roadTranslation.z = 0;
 
     gs.tankMainPlayer.tankTranslate.x = 0;
-    gs.tankMainPlayer.tankTranslate.y = 0;
+    gs.tankMainPlayer.tankTranslate.y = -1; // need to fix inside tank drawing , and put 0 here. Its gonna be same effect, just cleaner
     gs.tankMainPlayer.tankTranslate.z = 31.25; //? This number somewhat positions tank on start of road, in current setup(10.11.2018)
 
     gs.tankMainPlayer.tankScale.x = 1;
@@ -211,7 +207,7 @@ void initRenderingObjects(){
     gs.tankMainPlayer.tankScale.z = 3;
 
     gs.tankMainPlayer.tankSpeed = 1; //? same as for car speed for now idea is to use this * times of clicking W and to get speed
-    
+    gs.cameraMovement = gs.tankMainPlayer.tankTranslate.z;
     // Init cars
     gs.car.numOfCars = 1;
 
@@ -233,7 +229,7 @@ void initRenderingObjects(){
         gs.carArray[i].carRotate.z = 0;
 
         gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
-        gs.carArray[i].carPosition.y = 0;
+        gs.carArray[i].carPosition.y = -1; //need to fix inside car drawing , and put 0 here. Its gonna be same effect, just cleaner
         gs.carArray[i].carPosition.z = gs.car.ZSpawnPoint;
     }
     //Timers for callback onTimer function
