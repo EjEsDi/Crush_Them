@@ -30,40 +30,38 @@ void drawRoad(const struct Road road){
     
     glPushMatrix();
         glEnable(GL_DEPTH_TEST);
-        
         glScalef(road.roadScale.x, road.roadScale.y, road.roadScale.z);
+        glTranslatef(road.roadTranslation.x, road.roadTranslation.y, road.roadTranslation.z);
         glRotatef(road.roadRotation.x, 1, 0, 0);
         glRotatef(road.roadRotation.y, 0, 1, 0);
         glRotatef(road.roadRotation.z, 0, 0, 1);
-        glTranslatef(road.roadTranslation.x, road.roadTranslation.y, road.roadTranslation.z);
-        
+
         glLineWidth(1);
 
 
-        GLfloat width = 1; // 1m wide * scale
-        GLfloat height = 0.1; // road is just above 0, because lookAt points at 0 on y-axis
-        GLfloat depth = 0; 
-
+        struct Vector3f v3f = {1, 1, 0};
+        // should road have depth?
         glColor3f(0.3, 0.3, 0.3);
         glBegin(GL_POLYGON);
-            glVertex3f(-width,-height, depth);//bottom left
-            glVertex3f(width, -height, depth);//bottom right
-            glVertex3f(width, height, depth);//top right
-            glVertex3f(-width, height, depth);//top left
+            glVertex3f(-v3f.x,-v3f.y, v3f.z);//bottom left
+            glVertex3f(v3f.x, -v3f.y, v3f.z);//bottom right
+            glVertex3f(v3f.x, v3f.y, v3f.z);//top right
+            glVertex3f(-v3f.x, v3f.y, v3f.z);//top left
         glEnd();
-
+        //TODO: figure when u start moving road, figure how are lanes behaving.
+        //And change them if  needed.
         //draw lanes on road
         glEnable(GL_LINE_STIPPLE);
         glLineStipple (3, 0xF00F); // dashed lines
-        glLineWidth(5);
+        glLineWidth(4);
         glBegin(GL_LINES);
                 glColor3f(1, 1, 1);
                 //left line
-                glVertex3f(-width/3, -height, depth-0.001); // z-axis, -0.001 is just so we see lines
-                glVertex3f(-width/3, height, depth-0.001);  // they are just tiny bit above road it self
+                glVertex3f(-v3f.x/3, -v3f.y, v3f.z-0.1); // z-axis, -0.001 is just so we see lines
+                glVertex3f(-v3f.x/3, v3f.y, v3f.z-0.1);  // they are just tiny bit above road it self
                 //right line                                // better solution?
-                glVertex3f(width/3, -height, depth-0.001); 
-                glVertex3f(width/3, height, depth-0.001);
+                glVertex3f(v3f.x/3, -v3f.y, v3f.z-0.1); 
+                glVertex3f(v3f.x/3, v3f.y, v3f.z-0.1);
         glEnd();
         glDisable(GL_LINE_STIPPLE);
         glDisable(GL_DEPTH_TEST);
@@ -193,9 +191,8 @@ void initRenderingObjects(){
     
     gs.road.roadScale.x = 6; // road width will be 6m - prone to change -- if it changes, need to account change with car positions and how much tank can move to left and right
     gs.road.roadScale.y = 1; // road will be 1m thick - no reason to change
-    gs.road.roadScale.z = 1000; //? road length will be 1000m - prone to change // its not rly 1000 right now, it is but its not.
-    //Issue with road scale is that its just from -100 to +100 on z axis. Is this because of matrix order?
-    //if i put roadscale.z on 200, it will shrink road a lot.
+    gs.road.roadScale.z = 1000; // road is 1000m long. Drawing only 200m because of projection.
+
 
     gs.road.roadRotation.x = 90; //angle
     gs.road.roadRotation.y = 0;  //angle

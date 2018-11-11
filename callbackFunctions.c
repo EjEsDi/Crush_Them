@@ -36,11 +36,10 @@ void onReshape(int w, int h){
     gs.WindowWidth = w;
     gs.WindowHeight = h;
     glViewport(0,0, gs.WindowWidth, gs.WindowHeight); //width and height of screen where stuff is drawn in end
-    
     //projection of what camera sees
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(60, gs.WindowWidth/(GLfloat)gs.WindowHeight, 1.0, 200.0); // angle, ratio, near clip, far clip
+    gluPerspective(60, gs.WindowWidth/(GLfloat)gs.WindowHeight, 0.1, 250.0); // angle, ratio, near clip, far clip
 }
 
 void onKeyboardInput(unsigned char key, int x, int y){
