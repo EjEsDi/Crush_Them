@@ -12,6 +12,7 @@
 #define timerID (0)
 #define timerID1 (1)
 #define timerID2 (2)
+#define timerID3 (3)
 //end of timer callback func variables
 
 //Create game state.

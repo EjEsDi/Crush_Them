@@ -17,7 +17,6 @@ void init(void){
     glShadeModel(GL_FLAT);
     initRenderingObjects(&gs); 
 }
-
 void drawSun(){
     glPushMatrix();
     glLoadIdentity();
@@ -25,13 +24,12 @@ void drawSun(){
     glutSolidSphere(1, 50, 50);
     glPopMatrix();
 }
-
 void drawRoad(const struct Road road){
     
     glPushMatrix();
         glEnable(GL_DEPTH_TEST);
-        glScalef(road.roadScale.x, road.roadScale.y, road.roadScale.z);
         glTranslatef(road.roadTranslation.x, road.roadTranslation.y, road.roadTranslation.z);
+        glScalef(road.roadScale.x, road.roadScale.y, road.roadScale.z);
         glRotatef(road.roadRotation.x, 1, 0, 0);
         glRotatef(road.roadRotation.y, 0, 1, 0);
         glRotatef(road.roadRotation.z, 0, 0, 1);
@@ -63,14 +61,13 @@ void drawRoad(const struct Road road){
         glDisable(GL_DEPTH_TEST);
     glPopMatrix();
 }
-
 void drawCubeTank(const struct Tank tank){
     
     glPushMatrix();
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glEnable( GL_DEPTH_TEST );
-        glScalef(tank.tankScale.x, tank.tankScale.y, tank.tankScale.z);
         glTranslatef(tank.tankTranslate.x, tank.tankTranslate.y, tank.tankTranslate.z);
+        glScalef(tank.tankScale.x, tank.tankScale.y, tank.tankScale.z);
         glBegin(GL_QUADS);
             /* blue - green - red - light blue - */
 
@@ -128,8 +125,8 @@ void drawCar(const struct Car car){
         //TODO check glRotate, when you want it to rotate? during crush or smth, will need Struct instead hardcode numbers for rotation
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glEnable(GL_DEPTH_TEST);
-        glScalef(car.carScale.x, car.carScale.y, car.carScale.z);
         glTranslatef(car.carPosition.x, car.carPosition.y, car.carPosition.z);
+        glScalef(car.carScale.x, car.carScale.y, car.carScale.z);
         //glRotatef(car.carRotate.x, 1, 0, 0);
         //glRotatef(car.carRotate.y, 0, 1, 0);
         //glRotatef(car.carRotate.z, 0, 0, 1);
@@ -200,16 +197,16 @@ void initRenderingObjects(){
 
     gs.tankMainPlayer.tankTranslate.x = 0;
     gs.tankMainPlayer.tankTranslate.y = -1; // need to fix inside tank drawing , and put 0 here. Its gonna be same effect, just cleaner
-    gs.tankMainPlayer.tankTranslate.z = 31.25; //? This number somewhat positions tank on start of road, in current setup(10.11.2018)
-
+    gs.tankMainPlayer.tankTranslate.z = 100; 
+    gs.cameraMovement = 100;
     gs.tankMainPlayer.tankScale.x = 1;
     gs.tankMainPlayer.tankScale.y = 1;
     gs.tankMainPlayer.tankScale.z = 3;
 
     gs.tankMainPlayer.tankSpeed = 1; //? same as for car speed for now idea is to use this * times of clicking W and to get speed
-    gs.cameraMovement = gs.tankMainPlayer.tankTranslate.z;
+    
     // Init cars
-    gs.car.numOfCars = 1;
+    gs.car.numOfCars = 1; // used for drawing cars.
 
     srand(time(NULL));
     gs.car.setOfCarXPositionsAllowedValues[0] = -3.33;

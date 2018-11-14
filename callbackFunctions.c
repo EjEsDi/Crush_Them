@@ -16,17 +16,19 @@ void onDisplay(void){
     //setting camera position and where it looks at
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(  0, 3, 100, // camera position 
-                0, 0, 0, // camera looks at this spot
+    gluLookAt(  0, 3, gs.tankMainPlayer.tankTranslate.z+7, // camera position 
+                0, 0, gs.cameraMovement-20, // camera looks at this spot
                 0, 1, 0  // normal vector 
             ); 
-    
+    glutPostRedisplay();
     //Rendering section
     drawRoad(gs.road);
     drawCubeTank(gs.tankMainPlayer);
+    
     for(int i = 0; i < gs.car.numOfCars; i++){
         drawCar(gs.carArray[i]); 
     }
+    
     //drawSun(); // TODO fix sun :)
     // draw all on main buffer
     glutSwapBuffers();
@@ -39,7 +41,7 @@ void onReshape(int w, int h){
     //projection of what camera sees
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(60, gs.WindowWidth/(GLfloat)gs.WindowHeight, 0.1, 300.0); // angle, ratio, near clip, far clip
+    gluPerspective(60, gs.WindowWidth/(GLfloat)gs.WindowHeight, 1, 300.0); // angle, ratio, near clip, far clip
 }
 
 void onKeyboardInput(unsigned char key, int x, int y){
@@ -54,6 +56,9 @@ void onKeyboardInput(unsigned char key, int x, int y){
             if(gs.actionOnGoing == 0){
                 glutTimerFunc(gs.car.timeCarSpawn, onTimer, timerID1);
                 glutTimerFunc(gs.timeInMS, onTimer, timerID); //TODO delta movement
+                glutTimerFunc(50, onTimer, timerID2); // todo figure good timer
+                glutTimerFunc(50, onTimer, timerID3); // same. Fix in onTimer function as well
+                glutPostRedisplay();
                 gs.actionOnGoing = 1;
             }
             break;
@@ -93,9 +98,7 @@ void onTimer(int timer){
         //this timer moves cars
         for(int i = 0; i < gs.car.numOfCars; i++){
             gs.carArray[i].carPosition.z += 1;
-            //?translate * 3 is because of how tank is made(scale<-translate),EDIT THERE WHEN NEEDED
-            //?why is it working like this? Somewhat numbers playing to get 31.5*3 > 100 and road ends on 100, I think
-            if(gs.carArray[i].carPosition.z - 10 >= gs.tankMainPlayer.tankTranslate.z * gs.tankMainPlayer.tankScale.z){ 
+            if(gs.carArray[i].carPosition.z - 10 >= gs.tankMainPlayer.tankTranslate.z + 10){ // car and tank move towards each other on Z
                 gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
                 gs.carArray[i].carPosition.z = gs.car.ZSpawnPoint;
             }
@@ -107,10 +110,13 @@ void onTimer(int timer){
         else
             return;
     }else if(timer == timerID2){
-            gs.tankMainPlayer.tankTranslate.z--;
-            gs.cameraMovement = gs.tankMainPlayer.tankTranslate.z;
-            //gs.road.roadTranslation.z += 0.1;
-            glutPostRedisplay();
+        if(gs.actionOnGoing){
+            gs.tankMainPlayer.tankTranslate.z -= 1;
+            gs.cameraMovement -= 1;
+            
+        }
+    }else if(timer == timerID3){
+        gs.road.roadTranslation.z += 1;
     }else
         return;
 
@@ -120,5 +126,9 @@ void onTimer(int timer){
             glutTimerFunc(gs.timeInMS, onTimer, timerID);
         else if(timer == timerID1)
             glutTimerFunc(gs.car.timeCarSpawn, onTimer, timerID1);
+        else if(timer == timerID2)
+            glutTimerFunc(50, onTimer, timerID2);
+        else if(timer == timerID3)
+            glutTimerFunc(50, onTimer, timerID3);
     }
 }
