@@ -51,7 +51,7 @@ void drawRoad(const struct Road road){
         glBegin(GL_LINES);
                 glColor3f(1, 1, 1);
                 //left line
-                glVertex3f(-v3f.x/3, -v3f.y, v3f.z-0.1); // z-axis, -0.001 is just so we see lines
+                glVertex3f(-v3f.x/3, -v3f.y, v3f.z-0.1); // z-axis, -0.01 is just so we see lines
                 glVertex3f(-v3f.x/3, v3f.y, v3f.z-0.1);  // they are just tiny bit above road it self
                 //right line                                // better solution?
                 glVertex3f(v3f.x/3, -v3f.y, v3f.z-0.1); 
@@ -182,10 +182,11 @@ void drawCar(const struct Car car){
     glPopMatrix();
 }
 void initRenderingObjects(){
-    
+    gs.deltaTime = 1.0/60;
     gs.road.roadScale.x = 6; // road width will be 6m - prone to change -- if it changes, need to account change with car positions and how much tank can move to left and right
     gs.road.roadScale.y = 1; // 
-    gs.road.roadScale.z = 1000; // road is 1000m long. Drawing only 200m because of projection.
+    gs.road.roadScale.z = 300; // road is 300m long.
+    //Road is starting in 0,0,300 and goes until 0,0,-300
 
     gs.road.roadRotation.x = 90; //angle
     gs.road.roadRotation.y = 0;  //angle
@@ -195,10 +196,34 @@ void initRenderingObjects(){
     gs.road.roadTranslation.y = 0;
     gs.road.roadTranslation.z = 0;
 
+    gs.road2.roadScale.x = 6; // road width will be 6m - prone to change -- if it changes, need to account change with car positions and how much tank can move to left and right
+    gs.road2.roadScale.y = 1; // 
+    gs.road2.roadScale.z = 300; // road2 is 300m long. 
+    //Road is starting in 0,0,-300 and goes until 0,0,-900
+    gs.road2.roadRotation.x = 90; //angle
+    gs.road2.roadRotation.y = 0;  //angle
+    gs.road2.roadRotation.z = 0;  //angle
+
+    gs.road2.roadTranslation.x = 0;
+    gs.road2.roadTranslation.y = 0;
+    gs.road2.roadTranslation.z = -600;
+
+    gs.road3.roadScale.x = 6; // road width will be 6m - prone to change -- if it changes, need to account change with car positions and how much tank can move to left and right
+    gs.road3.roadScale.y = 1; // 
+    gs.road3.roadScale.z = 300; // road3 is 300m long
+    
+    gs.road3.roadRotation.x = 90; //angle
+    gs.road3.roadRotation.y = 0;  //angle
+    gs.road3.roadRotation.z = 0;  //angle
+    //Road 3 is 300m long and is starting on 0,0,-900 goes until 0,0,-1500
+    gs.road3.roadTranslation.x = 0;
+    gs.road3.roadTranslation.y = 0;
+    gs.road3.roadTranslation.z = -1200;
+
     gs.tankMainPlayer.tankTranslate.x = 0;
     gs.tankMainPlayer.tankTranslate.y = -1; // need to fix inside tank drawing , and put 0 here. Its gonna be same effect, just cleaner
-    gs.tankMainPlayer.tankTranslate.z = 100; 
-    gs.cameraMovement = 100;
+    gs.tankMainPlayer.tankTranslate.z = 280; 
+    gs.cameraMovement = 0;
     gs.tankMainPlayer.tankScale.x = 1;
     gs.tankMainPlayer.tankScale.y = 1;
     gs.tankMainPlayer.tankScale.z = 3;
@@ -212,7 +237,7 @@ void initRenderingObjects(){
     gs.car.setOfCarXPositionsAllowedValues[0] = -3.33;
     gs.car.setOfCarXPositionsAllowedValues[1] = 0;
     gs.car.setOfCarXPositionsAllowedValues[2] = 3.33;
-    gs.car.ZSpawnPoint = -130;
+    gs.car.ZSpawnPoint = 300; // How far away from tank, cars should spawn
 
     for(int i = 0; i < MAX_CARS_ALLOWED; i++){
         gs.carArray[i].carSpeed = 1; //? not sure when this is gonna be needed

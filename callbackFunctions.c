@@ -16,13 +16,16 @@ void onDisplay(void){
     //setting camera position and where it looks at
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(  0, 3, gs.tankMainPlayer.tankTranslate.z+7, // camera position 
+    gluLookAt(  0, 3, gs.tankMainPlayer.tankTranslate.z+10, // camera position 
                 0, 0, gs.cameraMovement-20, // camera looks at this spot
                 0, 1, 0  // normal vector 
             ); 
+            //
     glutPostRedisplay();
     //Rendering section
     drawRoad(gs.road);
+    drawRoad(gs.road2);
+    drawRoad(gs.road3);
     drawCubeTank(gs.tankMainPlayer);
     
     for(int i = 0; i < gs.car.numOfCars; i++){
@@ -57,7 +60,6 @@ void onKeyboardInput(unsigned char key, int x, int y){
                 glutTimerFunc(gs.car.timeCarSpawn, onTimer, timerID1);
                 glutTimerFunc(gs.timeInMS, onTimer, timerID); //TODO delta movement
                 glutTimerFunc(50, onTimer, timerID2); // todo figure good timer
-                glutTimerFunc(50, onTimer, timerID3); // same. Fix in onTimer function as well
                 glutPostRedisplay();
                 gs.actionOnGoing = 1;
             }
@@ -100,7 +102,7 @@ void onTimer(int timer){
             gs.carArray[i].carPosition.z += 1;
             if(gs.carArray[i].carPosition.z - 10 >= gs.tankMainPlayer.tankTranslate.z + 10){ // car and tank move towards each other on Z
                 gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
-                gs.carArray[i].carPosition.z = gs.car.ZSpawnPoint;
+                gs.carArray[i].carPosition.z = gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint;
             }
         }
     }else if(timer == timerID1){
@@ -113,10 +115,20 @@ void onTimer(int timer){
         if(gs.actionOnGoing){
             gs.tankMainPlayer.tankTranslate.z -= 1;
             gs.cameraMovement -= 1;
-            
+            if(gs.tankMainPlayer.tankTranslate.z == gs.road2.roadTranslation.z){
+                // Road 1 should be copied in back, behind road 3
+                gs.road.roadTranslation.z = gs.road3.roadTranslation.z - 2*gs.road.roadScale.z;
+                glutPostRedisplay();
+            }else if(gs.tankMainPlayer.tankTranslate.z == gs.road3.roadTranslation.z){
+                // Road 2 should be copied in back, behind road 1
+                gs.road2.roadTranslation.z = gs.road.roadTranslation.z - 2*gs.road2.roadScale.z;
+                glutPostRedisplay();
+            }else if(gs.tankMainPlayer.tankTranslate.z == gs.road.roadTranslation.z){
+                // Road 3 should be copied in back, behind road 2
+                gs.road3.roadTranslation.z = gs.road2.roadTranslation.z - 2*gs.road3.roadScale.z;
+                glutPostRedisplay();
+            }
         }
-    }else if(timer == timerID3){
-        gs.road.roadTranslation.z += 1;
     }else
         return;
 
@@ -128,7 +140,5 @@ void onTimer(int timer){
             glutTimerFunc(gs.car.timeCarSpawn, onTimer, timerID1);
         else if(timer == timerID2)
             glutTimerFunc(50, onTimer, timerID2);
-        else if(timer == timerID3)
-            glutTimerFunc(50, onTimer, timerID3);
     }
 }

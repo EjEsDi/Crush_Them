@@ -54,12 +54,15 @@ struct gameState{
     struct Car car; //? do I need both car and carArray or all should be in array
     //? i want some things to stay for all cars, some just specific tho
     struct Road road;
+    struct Road road2;
+    struct Road road3;
     struct Tank tankMainPlayer;
     int timeInMS;
     int WindowWidth;
     int WindowHeight;
     int actionOnGoing;
     int cameraMovement;
+    float deltaTime;
 };
 
 void init(void);
