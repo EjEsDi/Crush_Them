@@ -46,7 +46,7 @@ void drawRoad(const struct Road road){
         glEnd();
         
         glEnable(GL_LINE_STIPPLE);
-        glLineStipple (3, 0xF00F); // dashed lines
+        glLineStipple (3, 0xFFFF); // dashed lines
         glLineWidth(4);
         glBegin(GL_LINES);
                 glColor3f(1, 1, 1);
@@ -182,7 +182,6 @@ void drawCar(const struct Car car){
     glPopMatrix();
 }
 void initRenderingObjects(){
-    gs.deltaTime = 1.0/60;
     gs.road.roadScale.x = 6; // road width will be 6m - prone to change -- if it changes, need to account change with car positions and how much tank can move to left and right
     gs.road.roadScale.y = 1; // 
     gs.road.roadScale.z = 300; // road is 300m long.
@@ -228,7 +227,7 @@ void initRenderingObjects(){
     gs.tankMainPlayer.tankScale.y = 1;
     gs.tankMainPlayer.tankScale.z = 3;
 
-    gs.tankMainPlayer.tankSpeed = 1; //? same as for car speed for now idea is to use this * times of clicking W and to get speed
+    gs.tankMainPlayer.tankSpeed = 30; //? same as for car speed for now idea is to use this * times of clicking W and to get speed
     
     // Init cars
     gs.car.numOfCars = 1; // used for drawing cars.

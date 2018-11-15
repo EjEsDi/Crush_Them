@@ -16,7 +16,7 @@ void onDisplay(void){
     //setting camera position and where it looks at
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(  0, 3, gs.tankMainPlayer.tankTranslate.z+10, // camera position 
+    gluLookAt(  0, 3, gs.tankMainPlayer.tankTranslate.z+7.5, // camera position 
                 0, 0, gs.cameraMovement-20, // camera looks at this spot
                 0, 1, 0  // normal vector 
             ); 
@@ -44,7 +44,7 @@ void onReshape(int w, int h){
     //projection of what camera sees
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(60, gs.WindowWidth/(GLfloat)gs.WindowHeight, 1, 300.0); // angle, ratio, near clip, far clip
+    gluPerspective(60, gs.WindowWidth/(GLfloat)gs.WindowHeight, 1, 200.0); // angle, ratio, near clip, far clip
 }
 
 void onKeyboardInput(unsigned char key, int x, int y){
@@ -59,7 +59,7 @@ void onKeyboardInput(unsigned char key, int x, int y){
             if(gs.actionOnGoing == 0){
                 glutTimerFunc(gs.car.timeCarSpawn, onTimer, timerID1);
                 glutTimerFunc(gs.timeInMS, onTimer, timerID); //TODO delta movement
-                glutTimerFunc(50, onTimer, timerID2); // todo figure good timer
+                glutTimerFunc(gs.tankMainPlayer.tankSpeed, onTimer, timerID2); // todo figure good timer
                 glutPostRedisplay();
                 gs.actionOnGoing = 1;
             }
@@ -115,6 +115,9 @@ void onTimer(int timer){
         if(gs.actionOnGoing){
             gs.tankMainPlayer.tankTranslate.z -= 1;
             gs.cameraMovement -= 1;
+            gs.road.roadTranslation.z++;
+            gs.road2.roadTranslation.z++;
+            gs.road3.roadTranslation.z++;
             if(gs.tankMainPlayer.tankTranslate.z == gs.road2.roadTranslation.z){
                 // Road 1 should be copied in back, behind road 3
                 gs.road.roadTranslation.z = gs.road3.roadTranslation.z - 2*gs.road.roadScale.z;
@@ -139,6 +142,6 @@ void onTimer(int timer){
         else if(timer == timerID1)
             glutTimerFunc(gs.car.timeCarSpawn, onTimer, timerID1);
         else if(timer == timerID2)
-            glutTimerFunc(50, onTimer, timerID2);
+            glutTimerFunc(gs.tankMainPlayer.tankSpeed, onTimer, timerID2);
     }
 }

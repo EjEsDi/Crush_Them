@@ -71,5 +71,4 @@ void drawRoad(const struct Road road);
 void drawCubeTank(const struct Tank tank);
 void drawCar(const struct Car cars);
 void drawSun();
-
 #endif
