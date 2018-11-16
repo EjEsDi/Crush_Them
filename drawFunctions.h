@@ -61,8 +61,7 @@ struct gameState{
     int WindowWidth;
     int WindowHeight;
     int actionOnGoing;
-    int cameraMovement;
-    float deltaTime;
+    float cameraMovement;
 };
 
 void init(void);

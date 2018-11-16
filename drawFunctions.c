@@ -15,7 +15,7 @@ void init(void){
     glClearDepth(1.0);
     glLineWidth(1);
     glShadeModel(GL_FLAT);
-    initRenderingObjects(&gs); 
+    initRenderingObjects(); 
 }
 void drawSun(){
     glPushMatrix();

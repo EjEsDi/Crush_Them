@@ -115,21 +115,15 @@ void onTimer(int timer){
         if(gs.actionOnGoing){
             gs.tankMainPlayer.tankTranslate.z -= 1;
             gs.cameraMovement -= 1;
-            gs.road.roadTranslation.z++;
-            gs.road2.roadTranslation.z++;
-            gs.road3.roadTranslation.z++;
             if(gs.tankMainPlayer.tankTranslate.z == gs.road2.roadTranslation.z){
                 // Road 1 should be copied in back, behind road 3
                 gs.road.roadTranslation.z = gs.road3.roadTranslation.z - 2*gs.road.roadScale.z;
-                glutPostRedisplay();
             }else if(gs.tankMainPlayer.tankTranslate.z == gs.road3.roadTranslation.z){
                 // Road 2 should be copied in back, behind road 1
                 gs.road2.roadTranslation.z = gs.road.roadTranslation.z - 2*gs.road2.roadScale.z;
-                glutPostRedisplay();
             }else if(gs.tankMainPlayer.tankTranslate.z == gs.road.roadTranslation.z){
                 // Road 3 should be copied in back, behind road 2
                 gs.road3.roadTranslation.z = gs.road2.roadTranslation.z - 2*gs.road3.roadScale.z;
-                glutPostRedisplay();
             }
         }
     }else
