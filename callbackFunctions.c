@@ -16,7 +16,7 @@ void onDisplay(void){
     //setting camera position and where it looks at
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(  0, 3, gs.tankMainPlayer.tankTranslate.z+7.5, // camera position 
+    gluLookAt(  0, 2, gs.tankMainPlayer.tankTranslate.z+10, // camera position 
                 0, 0, gs.cameraMovement-20, // camera looks at this spot
                 0, 1, 0  // normal vector 
             ); 
@@ -27,7 +27,7 @@ void onDisplay(void){
     drawRoad(gs.road2);
     drawRoad(gs.road3);
     drawCubeTank(gs.tankMainPlayer);
-    
+
     for(int i = 0; i < gs.car.numOfCars; i++){
         drawCar(gs.carArray[i]); 
     }
@@ -52,14 +52,15 @@ void onKeyboardInput(unsigned char key, int x, int y){
     NOT_USED_VAR(y);
     switch(key){
         case 27: // ESC BUTTON
+            printf("Number of cars crashed: %d\n", gs.numberOfCrushes);
             exit(0);
             break;
         case 'g': // GO
         case 'G':
             if(gs.actionOnGoing == 0){
                 glutTimerFunc(gs.car.timeCarSpawn, onTimer, timerID1);
-                glutTimerFunc(gs.timeInMS, onTimer, timerID); //TODO delta movement
-                glutTimerFunc(gs.tankMainPlayer.tankSpeed, onTimer, timerID2); // todo figure good timer
+                glutTimerFunc(gs.car.carSpeed, onTimer, timerID); //TODO delta movement
+                glutTimerFunc(gs.tankMainPlayer.tankSpeed, onTimer, timerID2);
                 glutPostRedisplay();
                 gs.actionOnGoing = 1;
             }
@@ -95,15 +96,22 @@ void onKeyboardInput(unsigned char key, int x, int y){
 }
 
 void onTimer(int timer){  
-    
+    //? For car colision with tank, cars and tank need to be same speed, why is that? Is it ok to be?
     if(timer == timerID){
         //this timer moves cars
         for(int i = 0; i < gs.car.numOfCars; i++){
             gs.carArray[i].carPosition.z += 1;
-            if(gs.carArray[i].carPosition.z - 10 >= gs.tankMainPlayer.tankTranslate.z + 10){ // car and tank move towards each other on Z
+            if(gs.carArray[i].carPosition.z - 10 >= gs.tankMainPlayer.tankTranslate.z + 10){ // respawn car
                 gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
                 gs.carArray[i].carPosition.z = gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint;
+            }else if(gs.carArray[i].carPosition.z == gs.tankMainPlayer.tankTranslate.z &&
+                    gs.carArray[i].carPosition.x == gs.tankMainPlayer.tankTranslate.x &&
+                    gs.carArray[i].carPosition.y == gs.tankMainPlayer.tankTranslate.y){ // Colision check
+                gs.numberOfCrushes++;
+                gs.carArray[i].carPosition.z = gs.tankMainPlayer.tankTranslate.z - 70 - gs.car.ZSpawnPoint;// figure number instead -70 if needed
+                gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
             }
+
         }
     }else if(timer == timerID1){
         //This timer makes cars spawn in proper timers, by increasing number of cars that can be spawned.
@@ -132,7 +140,7 @@ void onTimer(int timer){
     if(gs.actionOnGoing){
         glutPostRedisplay();
         if(timer == timerID)
-            glutTimerFunc(gs.timeInMS, onTimer, timerID);
+            glutTimerFunc(gs.car.carSpeed, onTimer, timerID);
         else if(timer == timerID1)
             glutTimerFunc(gs.car.timeCarSpawn, onTimer, timerID1);
         else if(timer == timerID2)

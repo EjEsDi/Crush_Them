@@ -51,17 +51,16 @@ struct Road{
 //Keeps info about whole game state
 struct gameState{
     struct Car carArray[MAX_CARS_ALLOWED];
-    struct Car car; //? do I need both car and carArray or all should be in array
-    //? i want some things to stay for all cars, some just specific tho
+    struct Car car;
     struct Road road;
     struct Road road2;
     struct Road road3;
     struct Tank tankMainPlayer;
-    int timeInMS;
     int WindowWidth;
     int WindowHeight;
     int actionOnGoing;
     float cameraMovement;
+    int numberOfCrushes;
 };
 
 void init(void);

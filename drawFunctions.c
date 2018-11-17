@@ -203,6 +203,7 @@ void initRenderingObjects(){
     gs.road2.roadRotation.y = 0;  //angle
     gs.road2.roadRotation.z = 0;  //angle
 
+    //Road 3 is 300m long and is starting on 0,0,-300 goes until 0,0,-900
     gs.road2.roadTranslation.x = 0;
     gs.road2.roadTranslation.y = 0;
     gs.road2.roadTranslation.z = -600;
@@ -214,33 +215,33 @@ void initRenderingObjects(){
     gs.road3.roadRotation.x = 90; //angle
     gs.road3.roadRotation.y = 0;  //angle
     gs.road3.roadRotation.z = 0;  //angle
+
     //Road 3 is 300m long and is starting on 0,0,-900 goes until 0,0,-1500
     gs.road3.roadTranslation.x = 0;
     gs.road3.roadTranslation.y = 0;
     gs.road3.roadTranslation.z = -1200;
 
     gs.tankMainPlayer.tankTranslate.x = 0;
-    gs.tankMainPlayer.tankTranslate.y = -1; // need to fix inside tank drawing , and put 0 here. Its gonna be same effect, just cleaner
+    gs.tankMainPlayer.tankTranslate.y = -1; // need to fix inside tank drawing , and put 0 here. Its gonna be same effect, just cleaner ?
     gs.tankMainPlayer.tankTranslate.z = 280; 
     gs.cameraMovement = 0;
     gs.tankMainPlayer.tankScale.x = 1;
     gs.tankMainPlayer.tankScale.y = 1;
     gs.tankMainPlayer.tankScale.z = 3;
 
-    gs.tankMainPlayer.tankSpeed = 30; //? same as for car speed for now idea is to use this * times of clicking W and to get speed
+    gs.tankMainPlayer.tankSpeed = 30; 
     
     // Init cars
     gs.car.numOfCars = 1; // used for drawing cars.
 
     srand(time(NULL));
-    gs.car.setOfCarXPositionsAllowedValues[0] = -3.33;
+    gs.car.setOfCarXPositionsAllowedValues[0] = -3.;
     gs.car.setOfCarXPositionsAllowedValues[1] = 0;
-    gs.car.setOfCarXPositionsAllowedValues[2] = 3.33;
+    gs.car.setOfCarXPositionsAllowedValues[2] = 3.;
     gs.car.ZSpawnPoint = 300; // How far away from tank, cars should spawn
-
+    gs.car.carSpeed = 30; 
+    
     for(int i = 0; i < MAX_CARS_ALLOWED; i++){
-        gs.carArray[i].carSpeed = 1; //? not sure when this is gonna be needed
-        
         gs.carArray[i].carScale.x = 1;
         gs.carArray[i].carScale.y = 1;
         gs.carArray[i].carScale.z = 1;
@@ -250,10 +251,11 @@ void initRenderingObjects(){
         gs.carArray[i].carRotate.z = 0;
 
         gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
-        gs.carArray[i].carPosition.y = -1; //need to fix inside car drawing , and put 0 here. Its gonna be same effect, just cleaner
+        gs.carArray[i].carPosition.y = -1; //need to fix inside car drawing , and put 0 here. Its gonna be same effect, just cleaner ?
         gs.carArray[i].carPosition.z = gs.car.ZSpawnPoint;
     }
     //Timers for callback onTimer function
-    gs.timeInMS = 20; // 20 ms
     gs.car.timeCarSpawn = 1000;   // 1 sec
+
+    gs.numberOfCrushes = 0;
 }
