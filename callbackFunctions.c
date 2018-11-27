@@ -1,6 +1,7 @@
 #include "callbackFunctions.h"
 #include "drawFunctions.h"
 #include <GL/glut.h>
+#include <GL/gl.h>
 #include <stdio.h>
 #include <time.h>
 #include <stdbool.h>
@@ -16,16 +17,21 @@ void onDisplay(void){
     //setting camera position and where it looks at
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(  0, 2, gs.tankMainPlayer.tankTranslate.z+10, // camera position 
+    gluLookAt(  0, 3, gs.tankMainPlayer.tankTranslate.z+10, // camera position 
                 0, 0, gs.cameraMovement-20, // camera looks at this spot
                 0, 1, 0  // normal vector 
             ); 
-            //
+    
     glutPostRedisplay();
     //Rendering section
     drawRoad(gs.road);
     drawRoad(gs.road2);
     drawRoad(gs.road3);
+    drawScore();
+
+    //drawSideRoad(gs.sideRoad);
+    //drawSideRoad(gs.sideRoad2);
+    //drawSideRoad(gs.sideRoad3);
     drawCubeTank(gs.tankMainPlayer);
 
     for(int i = 0; i < gs.car.numOfCars; i++){
@@ -52,7 +58,6 @@ void onKeyboardInput(unsigned char key, int x, int y){
     NOT_USED_VAR(y);
     switch(key){
         case 27: // ESC BUTTON
-            printf("Number of cars crashed: %d\n", gs.numberOfCrushes);
             exit(0);
             break;
         case 'g': // GO
