@@ -101,7 +101,6 @@ void onKeyboardInput(unsigned char key, int x, int y){
 }
 
 void onTimer(int timer){  
-    //? For car colision with tank, cars and tank need to be same speed, why is that? Is it ok to be?
     if(timer == timerID){
         //this timer moves cars
         for(int i = 0; i < gs.car.numOfCars; i++){
