@@ -1,5 +1,6 @@
 #include "callbackFunctions.h"
 #include "drawFunctions.h"
+#include "lightingFunctions.h"
 #include <GL/glut.h>
 #include <GL/gl.h>
 #include <stdio.h>
@@ -11,19 +12,24 @@
 *************************************/
 
 void onDisplay(void){
+    //Light position
+    GLfloat light_position[] = {0,0,0,0};
     //remove old content
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     //setting camera position and where it looks at
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
     gluLookAt(  0, 3, gs.tankMainPlayer.tankTranslate.z+10, // camera position 
                 0, 0, gs.cameraMovement-20, // camera looks at this spot
                 0, 1, 0  // normal vector 
-            ); 
+            );
+    
     
     glutPostRedisplay();
     //Rendering section
+    //light();
     drawRoad(gs.road);
     drawRoad(gs.road2);
     drawRoad(gs.road3);
@@ -32,13 +38,12 @@ void onDisplay(void){
     //drawSideRoad(gs.sideRoad);
     //drawSideRoad(gs.sideRoad2);
     //drawSideRoad(gs.sideRoad3);
-    drawCubeTank(gs.tankMainPlayer);
 
     for(int i = 0; i < gs.car.numOfCars; i++){
         drawCar(gs.carArray[i]); 
     }
     
-    //drawSun(); // TODO fix sun :)
+    drawCubeTank(gs.tankMainPlayer);
     // draw all on main buffer
     glutSwapBuffers();
 }
@@ -115,7 +120,6 @@ void onTimer(int timer){
                 gs.carArray[i].carPosition.z = gs.tankMainPlayer.tankTranslate.z - 70 - gs.car.ZSpawnPoint;// figure number instead -70 if needed
                 gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
             }
-
         }
     }else if(timer == timerID1){
         //This timer makes cars spawn in proper timers, by increasing number of cars that can be spawned.

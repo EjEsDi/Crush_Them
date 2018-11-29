@@ -1,5 +1,6 @@
 #include "drawFunctions.h"
 #include "callbackFunctions.h"
+#include "lightingFunctions.h"
 #include <GL/glut.h>
 #include <GL/gl.h>
 #include <time.h>
@@ -89,40 +90,40 @@ void drawScore(){
 
 void drawCubeTank(const struct Tank tank){
     glPushMatrix();
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glTranslatef(tank.tankTranslate.x, tank.tankTranslate.y, tank.tankTranslate.z);
         glScalef(tank.tankScale.x, tank.tankScale.y, tank.tankScale.z);
         glBegin(GL_QUADS);
-            /* blue - green - red - light blue - */
-
+            //material();
+        /* blue - green - red - light blue - */
             //blue
             glColor3f(0, 0, 1);
             glVertex3f(-0.5, 0, -0.5);
             glVertex3f(-0.5, 1, -0.5);
             glVertex3f(0.5, 1, -0.5);
-            glVertex3f(0.5, 0, -0.5); 
+            glVertex3f(0.5, 0, -0.5);
 
             //green - back
             glColor3f(0, 1, 0);
             glVertex3f(-0.5, 0, +0.5);
             glVertex3f(-0.5, 1, +0.5);
             glVertex3f(0.5, 1, 0.5);
-            glVertex3f(0.5, 0, 0.5); 
-            
+            glVertex3f(0.5, 0, 0.5);
+
             //sides
             // purple - right
             glColor3f(1, 0, 1);
             glVertex3f(0.5, 0, -0.5);
             glVertex3f(0.5, 1, -0.5);
             glVertex3f(0.5, 1, +0.5);
-            glVertex3f(0.5, 0, +0.5); 
+            glVertex3f(0.5, 0, +0.5);
 
             //purple - left
             glColor3f(1, 0, 1);
             glVertex3f(-0.5, 0, -0.5);
             glVertex3f(-0.5, 1, -0.5);
             glVertex3f(-0.5, 1, +0.5);
-            glVertex3f(-0.5, 0, +0.5); 
+            glVertex3f(-0.5, 0, +0.5);
 
             // top and bottom
             //white
@@ -141,10 +142,9 @@ void drawCubeTank(const struct Tank tank){
         glEnd();
     glPopMatrix();
 }
-
 void drawCar(const struct Car car){
     glPushMatrix();
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // test this, is this doing anything now?
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // test this, is this doing anything now?
         glTranslatef(car.carPosition.x, car.carPosition.y, car.carPosition.z);
         glScalef(car.carScale.x, car.carScale.y, car.carScale.z);
         //glRotatef(car.carRotate.x, 1, 0, 0);
