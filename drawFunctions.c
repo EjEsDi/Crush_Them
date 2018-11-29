@@ -17,6 +17,7 @@ void init(void){
     glLineWidth(1);
     glShadeModel(GL_SMOOTH);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_NORMALIZE);
     initRenderingObjects(); 
 }
 void drawSun(){
@@ -92,16 +93,17 @@ void drawCubeTank(const struct Tank tank){
         glTranslatef(tank.tankTranslate.x, tank.tankTranslate.y, tank.tankTranslate.z);
         glScalef(tank.tankScale.x, tank.tankScale.y, tank.tankScale.z);
         glBegin(GL_QUADS);
-        /* blue - green - red - light blue - */
-            //blue
-            glColor3f(0, 0, 1);
+            //blue - front
+            glNormal3f(0, 0, 1);
+            setVertexColor(0, 0, 1);
             glVertex3f(-0.5, 0, -0.5);
             glVertex3f(-0.5, 1, -0.5);
             glVertex3f(0.5, 1, -0.5);
             glVertex3f(0.5, 0, -0.5);
 
             //green - back
-            glColor3f(0, 1, 0);
+            glNormal3f(0, 0, -1);
+            setVertexColor(0, 1, 0);
             glVertex3f(-0.5, 0, +0.5);
             glVertex3f(-0.5, 1, +0.5);
             glVertex3f(0.5, 1, 0.5);
@@ -109,29 +111,33 @@ void drawCubeTank(const struct Tank tank){
 
             //sides
             // purple - right
-            glColor3f(1, 0, 1);
+            glNormal3f(1.0, 0.0, 0.0);
+            setVertexColor(1, 0, 1);
             glVertex3f(0.5, 0, -0.5);
             glVertex3f(0.5, 1, -0.5);
             glVertex3f(0.5, 1, +0.5);
             glVertex3f(0.5, 0, +0.5);
 
-            //purple - left
-            glColor3f(1, 0, 1);
+            //orange- left
+            glNormal3f(-1.0, 0.0, 0.0);
+            setVertexColor(1, 0.3, 0.3);
             glVertex3f(-0.5, 0, -0.5);
             glVertex3f(-0.5, 1, -0.5);
             glVertex3f(-0.5, 1, +0.5);
             glVertex3f(-0.5, 0, +0.5);
 
             // top and bottom
-            //white
-            glColor3f(1, 1, 1);
+            //white - bottom
+            glNormal3f(0, -1, 0);
+            setVertexColor(1, 1, 1);
             glVertex3f(-0.5, 0, +0.5);
             glVertex3f(+0.5, 0, +0.5);
             glVertex3f(+0.5, 0, -0.5);
             glVertex3f(-0.5, 0, -0.5);
 
-            //yellow
-            glColor3f(1, 1, 0);
+            //yellow - top
+            glNormal3f(0.0, 1.0, 0.0);
+            setVertexColor(1, 1, 0);
             glVertex3f(0.5, 1, +0.5);
             glVertex3f(-0.5, 1, +0.5);
             glVertex3f(-0.5, 1, -0.5);

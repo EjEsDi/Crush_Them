@@ -13,28 +13,28 @@
 
 void onDisplay(void){
     //Light position
-    //GLfloat light_position[] = {1,1,1,0};
+    GLfloat light_position[] = {0,0,1,0};
     //remove old content
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     //setting camera position and where it looks at
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    //glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
     gluLookAt(  0, 3, gs.tankMainPlayer.tankTranslate.z+10, // camera position 
                 0, 0, gs.cameraMovement-20, // camera looks at this spot
                 0, 1, 0  // normal vector 
             );
-    
-    
+    light();
+    material(); //? after I assign all colors to each object, do I need this ?
     glutPostRedisplay();
     //Rendering section
-    //light();
-    //material();
     drawRoad(gs.road);
     drawRoad(gs.road2);
     drawRoad(gs.road3);
+    glDisable(GL_LIGHTING);
     drawScore();
+    glEnable(GL_LIGHTING);
 
     //drawSideRoad(gs.sideRoad);
     //drawSideRoad(gs.sideRoad2);

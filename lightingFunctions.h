@@ -6,4 +6,5 @@
 //idea right now is to have car, tank, road, fences
 void light();
 void material();
+void setVertexColor(float R, float G, float B);
 #endif
