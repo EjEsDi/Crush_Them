@@ -67,9 +67,7 @@ void drawScore(){
                 glLoadIdentity(); // identity
                 gluOrtho2D(0.0, gs.WindowWidth, 0.0, gs.WindowHeight); // work within window
                     //add score drawing with bitmap
-                    char *scoreAsString = malloc(sizeof(int));
-                    if(scoreAsString == NULL)
-                        exit(1);
+                    char scoreAsString[32];
                     int a = sprintf(scoreAsString,"Crushed: %d",gs.numberOfCrushes);
                     if(a < 0)
                         exit(1);
@@ -94,7 +92,6 @@ void drawCubeTank(const struct Tank tank){
         glTranslatef(tank.tankTranslate.x, tank.tankTranslate.y, tank.tankTranslate.z);
         glScalef(tank.tankScale.x, tank.tankScale.y, tank.tankScale.z);
         glBegin(GL_QUADS);
-            //material();
         /* blue - green - red - light blue - */
             //blue
             glColor3f(0, 0, 1);
