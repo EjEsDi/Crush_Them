@@ -12,13 +12,13 @@
 *************************************/
 
 void init(void){
-    glClearColor(0.6, 0.8, 1, 0.0);
+    initRenderingObjects(); 
+    glClearColor(gs.sky.skyColor.x, gs.sky.skyColor.y, gs.sky.skyColor.z, 0);
     glClearDepth(1.0);
     glLineWidth(1);
     glShadeModel(GL_SMOOTH);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_NORMALIZE);
-    initRenderingObjects(); 
 }
 void drawSun(){
     glPushMatrix();
@@ -26,6 +26,60 @@ void drawSun(){
     glTranslatef(20, 10, -30);
     glutSolidSphere(1, 50, 50);
     glPopMatrix();
+}
+void drawSquare(){
+    //?Could send lights/colors here per object...
+        glBegin(GL_QUADS);
+            //green - front
+            glNormal3f(0, 1, 0);
+            setVertexColor(0, 0, 1);
+            glVertex3f(-0.5, 0, -0.5);
+            glVertex3f(-0.5, 1, -0.5);
+            glVertex3f(0.5, 1, -0.5);
+            glVertex3f(0.5, 0, -0.5);
+
+            //green - back
+            glNormal3f(0, 0, -1);
+            setVertexColor(0, 1, 0);
+            glVertex3f(-0.5, 0, +0.5);
+            glVertex3f(-0.5, 1, +0.5);
+            glVertex3f(0.5, 1, 0.5);
+            glVertex3f(0.5, 0, 0.5);
+
+            //sides
+            // purple - right
+            glNormal3f(1.0, 0.0, 0.0);
+            setVertexColor(1, 0, 1);
+            glVertex3f(0.5, 0, -0.5);
+            glVertex3f(0.5, 1, -0.5);
+            glVertex3f(0.5, 1, +0.5);
+            glVertex3f(0.5, 0, +0.5);
+
+            //brown- left
+            glNormal3f(-1.0, 0.0, 0.0);
+            setVertexColor(1, 0.6, 0);
+            glVertex3f(-0.5, 0, -0.5);
+            glVertex3f(-0.5, 1, -0.5);
+            glVertex3f(-0.5, 1, +0.5);
+            glVertex3f(-0.5, 0, +0.5);
+
+            // top and bottom
+            //white - bottom
+            glNormal3f(0, -1, 0);
+            setVertexColor(1, 1, 1);
+            glVertex3f(-0.5, 0, +0.5);
+            glVertex3f(+0.5, 0, +0.5);
+            glVertex3f(+0.5, 0, -0.5);
+            glVertex3f(-0.5, 0, -0.5);
+
+            //yellow - top
+            glNormal3f(0.0, 1.0, 0.0);
+            setVertexColor(1, 1, 0);
+            glVertex3f(0.5, 1, +0.5);
+            glVertex3f(-0.5, 1, +0.5);
+            glVertex3f(-0.5, 1, -0.5);
+            glVertex3f(0.5, 1, -0.5);
+        glEnd();
 }
 void drawRoad(const struct Road road){
     glPushMatrix();
@@ -38,8 +92,9 @@ void drawRoad(const struct Road road){
         glLineWidth(1);
         struct Vector3f v3f = {1, 1, 1};
 
-        glColor3f(0.3, 0.3, 0.3);
+        setVertexColor(0.3, 0.3, 0.3);
         glBegin(GL_POLYGON);
+            glNormal3f(0, 1, 0);
             glVertex3f(-v3f.x,-v3f.y, v3f.z);//bottom left
             glVertex3f(v3f.x, -v3f.y, v3f.z);//bottom right
             glVertex3f(v3f.x, v3f.y, v3f.z);//top right
@@ -48,11 +103,13 @@ void drawRoad(const struct Road road){
 
         glLineWidth(4);
         glBegin(GL_LINES);
-                glColor3f(1, 1, 1);
+                setVertexColor(1, 1, 1);
                 //left line
+                glNormal3f(0, 1, 0);
                 glVertex3f(-v3f.x/3, -v3f.y, v3f.z-0.1); // z-axis, -0.01 is just so we see lines
                 glVertex3f(-v3f.x/3, v3f.y, v3f.z-0.1);  // they are just tiny bit above road it self
                 //right line                                // better solution?
+                glNormal3f(0, 1, 0);
                 glVertex3f(v3f.x/3, -v3f.y, v3f.z-0.1); 
                 glVertex3f(v3f.x/3, v3f.y, v3f.z-0.1);
         glEnd();
@@ -86,121 +143,21 @@ void drawScore(){
     glPopMatrix(); // Pop 1st copy matrix
     glutPostRedisplay(); // print all on screen
 }
-
 void drawCubeTank(const struct Tank tank){
     glPushMatrix();
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glTranslatef(tank.tankTranslate.x, tank.tankTranslate.y, tank.tankTranslate.z);
         glScalef(tank.tankScale.x, tank.tankScale.y, tank.tankScale.z);
-        glBegin(GL_QUADS);
-            //blue - front
-            glNormal3f(0, 0, 1);
-            setVertexColor(0, 0, 1);
-            glVertex3f(-0.5, 0, -0.5);
-            glVertex3f(-0.5, 1, -0.5);
-            glVertex3f(0.5, 1, -0.5);
-            glVertex3f(0.5, 0, -0.5);
-
-            //green - back
-            glNormal3f(0, 0, -1);
-            setVertexColor(0, 1, 0);
-            glVertex3f(-0.5, 0, +0.5);
-            glVertex3f(-0.5, 1, +0.5);
-            glVertex3f(0.5, 1, 0.5);
-            glVertex3f(0.5, 0, 0.5);
-
-            //sides
-            // purple - right
-            glNormal3f(1.0, 0.0, 0.0);
-            setVertexColor(1, 0, 1);
-            glVertex3f(0.5, 0, -0.5);
-            glVertex3f(0.5, 1, -0.5);
-            glVertex3f(0.5, 1, +0.5);
-            glVertex3f(0.5, 0, +0.5);
-
-            //orange- left
-            glNormal3f(-1.0, 0.0, 0.0);
-            setVertexColor(1, 0.3, 0.3);
-            glVertex3f(-0.5, 0, -0.5);
-            glVertex3f(-0.5, 1, -0.5);
-            glVertex3f(-0.5, 1, +0.5);
-            glVertex3f(-0.5, 0, +0.5);
-
-            // top and bottom
-            //white - bottom
-            glNormal3f(0, -1, 0);
-            setVertexColor(1, 1, 1);
-            glVertex3f(-0.5, 0, +0.5);
-            glVertex3f(+0.5, 0, +0.5);
-            glVertex3f(+0.5, 0, -0.5);
-            glVertex3f(-0.5, 0, -0.5);
-
-            //yellow - top
-            glNormal3f(0.0, 1.0, 0.0);
-            setVertexColor(1, 1, 0);
-            glVertex3f(0.5, 1, +0.5);
-            glVertex3f(-0.5, 1, +0.5);
-            glVertex3f(-0.5, 1, -0.5);
-            glVertex3f(0.5, 1, -0.5);
-        glEnd();
+        drawSquare();
     glPopMatrix();
 }
 void drawCar(const struct Car car){
     glPushMatrix();
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // test this, is this doing anything now?
         glTranslatef(car.carPosition.x, car.carPosition.y, car.carPosition.z);
         glScalef(car.carScale.x, car.carScale.y, car.carScale.z);
-        //glRotatef(car.carRotate.x, 1, 0, 0);
-        //glRotatef(car.carRotate.y, 0, 1, 0);
-        //glRotatef(car.carRotate.z, 0, 0, 1);
-        glBegin(GL_QUADS);
-            /* blue - green - red - light blue - */
-
-            //front and back
-            //blue - front
-            glColor3f(0, 0, 1);
-            glVertex3f(-0.5, 0, -0.5);
-            glVertex3f(-0.5, 1, -0.5);
-            glVertex3f(0.5, 1, -0.5);
-            glVertex3f(0.5, 0, -0.5); 
-
-            //purple - back
-            glColor3f(1, 0, 1);
-            glVertex3f(-0.5, 0, +0.5);
-            glVertex3f(-0.5, 1, +0.5);
-            glVertex3f(0.5, 1, 0.5);
-            glVertex3f(0.5, 0, 0.5); 
-            
-            //sides
-            //purple - right
-            glColor3f(1, 0, 1);
-            glVertex3f(0.5, 0, -0.5);
-            glVertex3f(0.5, 1, -0.5);
-            glVertex3f(0.5, 1, +0.5);
-            glVertex3f(0.5, 0, +0.5); 
-
-            //lblue - left
-            glColor3f(1, 0, 0);
-            glVertex3f(-0.5, 0, -0.5);
-            glVertex3f(-0.5, 1, -0.5);
-            glVertex3f(-0.5, 1, +0.5);
-            glVertex3f(-0.5, 0, +0.5); 
-
-            // top and bottom
-            //white
-            glColor3f(1, 1, 1);
-            glVertex3f(-0.5, 0, +0.5);
-            glVertex3f(+0.5, 0, +0.5);
-            glVertex3f(+0.5, 0, -0.5);
-            glVertex3f(-0.5, 0, -0.5);
-
-            //yellow
-            glColor3f(1, 1, 0);
-            glVertex3f(0.5, 1, +0.5);
-            glVertex3f(-0.5, 1, +0.5);
-            glVertex3f(-0.5, 1, -0.5);
-            glVertex3f(0.5, 1, -0.5);
-        glEnd();
+        glRotatef(car.carRotate.x, 1, 0, 0);
+        glRotatef(car.carRotate.y, 0, 1, 0);
+        glRotatef(car.carRotate.z, 0, 0, 1);
+        drawSquare();
     glPopMatrix();
 }
 void tankInit(){
@@ -271,7 +228,7 @@ void carsInit(){
         gs.carArray[i].carScale.z = 1;
         
         gs.carArray[i].carRotate.x = 0;
-        gs.carArray[i].carRotate.y = 0;
+        gs.carArray[i].carRotate.y = 180; //cars need to go forward
         gs.carArray[i].carRotate.z = 0;
 
         gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
@@ -344,11 +301,18 @@ void drawSideRoad(const struct Road road){
         glEnd();
     glPopMatrix();
 }*/
+void skyInit(){
+    gs.sky.skyColor.x = 0.6;
+    gs.sky.skyColor.y = 0.8;
+    gs.sky.skyColor.z = 1;
+    gs.sky.dayTimer = 30;
+}
 void initRenderingObjects(){
     roadInit();
     carsInit();
     //rightSideRoadInit();
     tankInit();
+    skyInit();
 
     gs.cameraMovement = 0;
     gs.numberOfCrushes = 0;

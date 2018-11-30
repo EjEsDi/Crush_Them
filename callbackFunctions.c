@@ -13,20 +13,19 @@
 
 void onDisplay(void){
     //Light position
-    GLfloat light_position[] = {0,0,1,0};
+    
     //remove old content
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     //setting camera position and where it looks at
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-    gluLookAt(  0, 3, gs.tankMainPlayer.tankTranslate.z+10, // camera position 
-                0, 0, gs.cameraMovement-20, // camera looks at this spot
+    gluLookAt(  0, 3, gs.tankMainPlayer.tankTranslate.z+8, // camera position 
+                0, 0, gs.cameraMovement-10, // camera looks at this spot
                 0, 1, 0  // normal vector 
             );
+
     light();
-    material(); //? after I assign all colors to each object, do I need this ?
     glutPostRedisplay();
     //Rendering section
     drawRoad(gs.road);
@@ -70,8 +69,9 @@ void onKeyboardInput(unsigned char key, int x, int y){
         case 'G':
             if(gs.actionOnGoing == 0){
                 glutTimerFunc(gs.car.timeCarSpawn, onTimer, timerID1);
-                glutTimerFunc(gs.car.carSpeed, onTimer, timerID); //TODO delta movement
+                glutTimerFunc(gs.car.carSpeed, onTimer, timerID);
                 glutTimerFunc(gs.tankMainPlayer.tankSpeed, onTimer, timerID2);
+                glutTimerFunc(gs.sky.dayTimer, onTimer,timerID3);//TODO this needs sun and moon. Change timer 
                 glutPostRedisplay();
                 gs.actionOnGoing = 1;
             }
@@ -105,7 +105,7 @@ void onKeyboardInput(unsigned char key, int x, int y){
     }    
     glutPostRedisplay();
 }
-
+int flag = 0; //TODO move into GS?
 void onTimer(int timer){  
     if(timer == timerID){
         //this timer moves cars
@@ -116,14 +116,14 @@ void onTimer(int timer){
                 gs.carArray[i].carPosition.z = gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint;
             }else if(gs.carArray[i].carPosition.z == gs.tankMainPlayer.tankTranslate.z &&
                     gs.carArray[i].carPosition.x == gs.tankMainPlayer.tankTranslate.x &&
-                    gs.carArray[i].carPosition.y == gs.tankMainPlayer.tankTranslate.y){ // Colision check
+                    gs.carArray[i].carPosition.y == gs.tankMainPlayer.tankTranslate.y){ // Colision check TODO: not ideal way to check collision
                 gs.numberOfCrushes++;
                 gs.carArray[i].carPosition.z = gs.tankMainPlayer.tankTranslate.z - 70 - gs.car.ZSpawnPoint;// figure number instead -70 if needed
                 gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
             }
         }
     }else if(timer == timerID1){
-        //This timer makes cars spawn in proper timers, by increasing number of cars that can be spawned.
+        //This timer makes cars spawn in proper timers
         if(gs.car.numOfCars < MAX_CARS_ALLOWED)
             gs.car.numOfCars++;
         else
@@ -143,7 +143,30 @@ void onTimer(int timer){
                 gs.road3.roadTranslation.z = gs.road2.roadTranslation.z - 2*gs.road3.roadScale.z;
             }
         }
-    }else
+    }else if(timer == timerID3){
+        
+        if(gs.actionOnGoing){
+            //Decerement until first reaches 0, that will be night color
+            if(flag == 0){
+                gs.sky.skyColor.x = (gs.sky.skyColor.x - 0.001);
+                gs.sky.skyColor.y = (gs.sky.skyColor.y - 0.001);
+                gs.sky.skyColor.z = (gs.sky.skyColor.z - 0.001);
+                if(gs.sky.skyColor.x < 0)
+                    flag = 1;
+            }
+            if(flag == 1){
+                gs.sky.skyColor.x = (gs.sky.skyColor.x + 0.001);
+                gs.sky.skyColor.y = (gs.sky.skyColor.y + 0.001);
+                gs.sky.skyColor.z = (gs.sky.skyColor.z + 0.001);
+                if(gs.sky.skyColor.x > 0.6)
+                    flag = 0;
+            }
+            //Increment until u reach day.. (0.6, 0.8, 1, 0) <- day color
+            glClearColor(gs.sky.skyColor.x, gs.sky.skyColor.y, gs.sky.skyColor.z, 0);
+            glutPostRedisplay();
+        }
+    }
+    else
         return;
 
     if(gs.actionOnGoing){
@@ -154,5 +177,7 @@ void onTimer(int timer){
             glutTimerFunc(gs.car.timeCarSpawn, onTimer, timerID1);
         else if(timer == timerID2)
             glutTimerFunc(gs.tankMainPlayer.tankSpeed, onTimer, timerID2);
+        else if(timer == timerID3)
+            glutTimerFunc(gs.sky.dayTimer, onTimer, timerID3);
     }
 }
