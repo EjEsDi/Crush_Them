@@ -22,9 +22,10 @@ void init(void){
 }
 void drawSun(){
     glPushMatrix();
-    glLoadIdentity();
-    glTranslatef(20, 10, -30);
-    glutSolidSphere(1, 50, 50);
+        glLoadIdentity();
+        glTranslatef(20, 10, -30);
+        setVertexColor(1, 1, 0);
+        glutSolidSphere(1, 50, 50);
     glPopMatrix();
 }
 void drawSquare(){
@@ -306,6 +307,7 @@ void skyInit(){
     gs.sky.skyColor.y = 0.8;
     gs.sky.skyColor.z = 1;
     gs.sky.dayTimer = 30;
+    gs.sky.flag = 0; // while its 0 its day, when 1 its night
 }
 void initRenderingObjects(){
     roadInit();
@@ -313,7 +315,7 @@ void initRenderingObjects(){
     //rightSideRoadInit();
     tankInit();
     skyInit();
-
     gs.cameraMovement = 0;
+    gs.lightModifier = 0.0;
     gs.numberOfCrushes = 0;
 }

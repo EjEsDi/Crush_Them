@@ -8,11 +8,11 @@
 #define MAX_CARS_ALLOWED 10
 #define NOT_USED_VAR(X) (void)(X)
 
-// timer callback func variables, TODO rename these timers into something meaningful
-#define timerID (0)
-#define timerID1 (1)
-#define timerID2 (2)
-#define timerID3 (3)
+// timer callback func variables
+#define carSpeedTimer (0)
+#define carSpawnTimer (1)
+#define tankMovementTimer (2)
+#define skyColorTimer (3)
 //end of timer callback func variables
 
 //Create game state.
@@ -51,6 +51,7 @@ struct Road{
 struct Sky{
     struct Vector3f skyColor;
     int dayTimer;
+    int flag;
 };
 //Keeps info about whole game state
 struct gameState{
@@ -65,6 +66,7 @@ struct gameState{
     int actionOnGoing;
     float cameraMovement;
     int numberOfCrushes;
+    float lightModifier;
 };
 
 void init(void);
