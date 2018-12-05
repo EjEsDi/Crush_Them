@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdbool.h>
+#include "image.h"
 
 /************************************
     Functions definitions start here
@@ -34,12 +35,17 @@ void onDisplay(void){
     glDisable(GL_LIGHTING);
     drawScore();
     glEnable(GL_LIGHTING);
-    //drawSun();
-    //drawSideRoad(gs.sideRoad);
-    //drawSideRoad(gs.sideRoad2);
-    //drawSideRoad(gs.sideRoad3);
-
-    for(int i = 0; i < gs.car.numOfCars; i++){
+    drawSun();
+    drawMoon();
+    glEnable(GL_COLOR_MATERIAL);
+    drawSideRoad(gs.rightSideRoad);
+    drawSideRoad(gs.rightSideRoad2);
+    drawSideRoad(gs.rightSideRoad3);
+    drawSideRoad(gs.leftSideRoad);
+    drawSideRoad(gs.leftSideRoad2);
+    drawSideRoad(gs.leftSideRoad3);
+    glDisable(GL_COLOR_MATERIAL); 
+    for (int i = 0; i < gs.car.numOfCars; i++){
         drawCar(gs.carArray[i]); 
     }
     
@@ -55,7 +61,7 @@ void onReshape(int w, int h){
     //projection of what camera sees
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(60, gs.WindowWidth/(GLfloat)gs.WindowHeight, 1, 200.0); // angle, ratio, near clip, far clip
+    gluPerspective(60, gs.WindowWidth/(GLfloat)gs.WindowHeight, 1, 300.0); // angle, ratio, near clip, far clip
 }
 
 void onKeyboardInput(unsigned char key, int x, int y){
@@ -63,6 +69,7 @@ void onKeyboardInput(unsigned char key, int x, int y){
     NOT_USED_VAR(y);
     switch(key){
         case 27: // ESC BUTTON
+            glDeleteTextures(2, names);
             exit(0);
             break;
         case 'g': // GO
@@ -71,7 +78,7 @@ void onKeyboardInput(unsigned char key, int x, int y){
                 glutTimerFunc(gs.car.timeCarSpawn, onTimer, carSpeedTimer);
                 glutTimerFunc(gs.car.carSpeed, onTimer, carSpawnTimer);
                 glutTimerFunc(gs.tankMainPlayer.tankSpeed, onTimer, tankMovementTimer);
-                glutTimerFunc(gs.sky.dayTimer, onTimer, skyColorTimer); //TODO this needs sun and moon. Change timer
+                glutTimerFunc(gs.sky.dayTimer, onTimer, skyColorTimer);
                 glutPostRedisplay();
                 gs.actionOnGoing = 1;
             }
@@ -107,8 +114,7 @@ void onKeyboardInput(unsigned char key, int x, int y){
 }
 
 void onTimer(int timer){
-    if (timer == carSpeedTimer)
-    {
+    if (timer == carSpeedTimer){
         //this timer moves cars
         for(int i = 0; i < gs.car.numOfCars; i++){
             gs.carArray[i].carPosition.z += 1;
@@ -124,37 +130,42 @@ void onTimer(int timer){
             }
         }
     }
-    else if (timer == carSpawnTimer)
-    {
+    else if (timer == carSpawnTimer){
         //This timer makes cars spawn in proper timers
         if(gs.car.numOfCars < MAX_CARS_ALLOWED)
             gs.car.numOfCars++;
         else
             return;
     }
-    else if (timer == tankMovementTimer)
-    {
+    else if (timer == tankMovementTimer){
         if(gs.actionOnGoing){
             gs.tankMainPlayer.tankTranslate.z -= 1;
             gs.cameraMovement -= 1;
             if(gs.tankMainPlayer.tankTranslate.z == gs.road2.roadTranslation.z){
                 // Road 1 should be copied in back, behind road 3
                 gs.road.roadTranslation.z = gs.road3.roadTranslation.z - 2*gs.road.roadScale.z;
+                gs.leftSideRoad.roadTranslation.z = gs.leftSideRoad3.roadTranslation.z - 2 * gs.leftSideRoad.roadScale.z;
+                gs.rightSideRoad.roadTranslation.z = gs.rightSideRoad3.roadTranslation.z - 2 * gs.rightSideRoad.roadScale.z;
             }else if(gs.tankMainPlayer.tankTranslate.z == gs.road3.roadTranslation.z){
                 // Road 2 should be copied in back, behind road 1
                 gs.road2.roadTranslation.z = gs.road.roadTranslation.z - 2*gs.road2.roadScale.z;
+                gs.leftSideRoad2.roadTranslation.z = gs.leftSideRoad.roadTranslation.z - 2 * gs.leftSideRoad2.roadScale.z;
+                gs.rightSideRoad2.roadTranslation.z = gs.rightSideRoad.roadTranslation.z - 2 * gs.rightSideRoad2.roadScale.z;
             }else if(gs.tankMainPlayer.tankTranslate.z == gs.road.roadTranslation.z){
                 // Road 3 should be copied in back, behind road 2
                 gs.road3.roadTranslation.z = gs.road2.roadTranslation.z - 2*gs.road3.roadScale.z;
+                gs.leftSideRoad3.roadTranslation.z = gs.leftSideRoad2.roadTranslation.z - 2 * gs.leftSideRoad3.roadScale.z;
+                gs.rightSideRoad3.roadTranslation.z = gs.rightSideRoad2.roadTranslation.z - 2 * gs.rightSideRoad3.roadScale.z;
             }
         }
     }else if(timer == skyColorTimer){
-        
+        gs.sun.sunRotate.z += 0.30;
+        gs.moon.moonRotate.z += 0.30;
+        glutPostRedisplay();
         if(gs.actionOnGoing){
-            
             //Decerement until first reaches 0, that will be night color
             if (gs.sky.flag == 0)
-            {
+            {   
                 gs.sky.skyColor.x = (gs.sky.skyColor.x - 0.001);
                 gs.sky.skyColor.y = (gs.sky.skyColor.y - 0.001);
                 gs.sky.skyColor.z = (gs.sky.skyColor.z - 0.001);

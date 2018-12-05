@@ -11,7 +11,6 @@ void light(){
     GLfloat light_ambient[] = {0, 0, 0, 1};
     GLfloat light_diffuse[] = {1, 1, 1, 1};
     GLfloat light_specular[] = {1, 1, 1, 1};
-    //GLfloat model_ambient[] = {0.5, .5, .5, 1};
     
     // Light parameters
     
@@ -19,7 +18,7 @@ void light(){
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
     glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
     glLightfv(GL_LIGHT0, GL_POSITION, light_position); //? Can be in init or main? Dont need to call light this many times from onDisplay
-    //glLightModelfv(GL_LIGHT_MODEL_AMBIENT, model_ambient);
+
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
 }
