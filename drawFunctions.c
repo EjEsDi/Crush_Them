@@ -21,12 +21,10 @@ void init(void){
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_NORMALIZE);
     glEnable(GL_TEXTURE_2D);
-
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 }
 
 /* Draw functions */
-
 void drawSun(){
     glPushMatrix();
         glLoadIdentity();
@@ -47,12 +45,6 @@ void drawMoon(){
         glTranslatef(gs.moon.moonTranslate.x, gs.moon.moonTranslate.y, gs.moon.moonTranslate.z);
         setVertexColor(0.7, 0.7, 0.7);
         glutSolidSphere(1, 50, 50);
-    glPopMatrix();
-
-    // ? is this rotating moon around it self?
-    glPushMatrix();
-        glLoadIdentity();
-        glRotatef(gs.moon.moonRotate.z, 0, 0, 1);
     glPopMatrix();
 }
 void drawSquare(){
@@ -177,6 +169,16 @@ void drawCubeTank(const struct Tank tank){
         glScalef(tank.tankScale.x, tank.tankScale.y, tank.tankScale.z);
         drawSquare();
     glPopMatrix();
+    glPushMatrix();
+        glTranslatef(tank.tankTranslate.x, tank.tankTranslate.y + tank.tankScale.y, tank.tankTranslate.z);
+        glScalef(tank.tankScale.x / 1.2, tank.tankScale.y / 1.2, tank.tankScale.z / 1.2);
+        drawSquare();
+    glPopMatrix();
+    glPushMatrix();
+        glTranslatef(tank.tankTranslate.x, tank.tankTranslate.y + tank.tankScale.y*1.5, tank.tankTranslate.z-2);
+        glScalef(0.2, 0.2, 1);
+        glutSolidSphere(1, 20, 20);
+    glPopMatrix();
 }
 void drawCar(const struct Car car){
     glPushMatrix();
@@ -200,9 +202,9 @@ void drawSideRoad(const struct Road road){
         glLineWidth(1);
         struct Vector3f v3f = {1, 1, 1};
         glBindTexture(GL_TEXTURE_2D, names[0]);
-        glColor3f(.45, .27, .13);
+        setVertexColor(.45, .27, .13);
+        glNormal3f(0, 1, 0);
         glBegin(GL_QUADS);
-            glNormal3f(0, 1, 0);
             glTexCoord2f(-2, -2);
             glVertex3f(-v3f.x,-v3f.y, v3f.z);//bottom left
             glTexCoord2f(2, -2);
@@ -215,7 +217,9 @@ void drawSideRoad(const struct Road road){
         glBindTexture(GL_TEXTURE_2D, 0);
     glPopMatrix();
 }
-/* Object initializer functions */
+
+/* Object initializer functions */ // Move these in separate file?
+
 void tankInit(){
     gs.tankMainPlayer.tankTranslate.x = 0;
     gs.tankMainPlayer.tankTranslate.y = -1; // need to fix inside tank drawing , and put 0 here. Its gonna be same effect, just cleaner ?
@@ -389,18 +393,22 @@ void sunInit(){
     gs.sun.sunRotate.y = 0;
     gs.sun.sunRotate.z = 0;
     gs.sun.sunTranslate.x = 0;
-    gs.sun.sunTranslate.y = 45;
+    gs.sun.sunTranslate.y = 45; // it doesnt go trough road with this value
     gs.sun.sunTranslate.z = -50;
+    gs.sun.lightCoef.x = 0;
+    gs.sun.lightCoef.y = 1;
+    gs.sun.lightCoef.z = 1;
+    gs.sun.mod = 0.0033; //TODO: fix math in code, this number is paper math
+    gs.sun.quadrant = 1;
 }
 void moonInit(){
     gs.moon.moonRotate.x = 0;
     gs.moon.moonRotate.y = 0;
     gs.moon.moonRotate.z = 0;
     gs.moon.moonTranslate.x = 0;
-    gs.moon.moonTranslate.y = -45;
+    gs.moon.moonTranslate.y = -45; // it doesnt go trough road with this value
     gs.moon.moonTranslate.z = -50;
 }
-
 void imageInit(){
     //Code taken from class and edited for own needs.
     Image * image;

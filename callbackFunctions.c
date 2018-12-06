@@ -29,22 +29,29 @@ void onDisplay(void){
     light();
     glutPostRedisplay();
     //Rendering section
+
     drawRoad(gs.road);
     drawRoad(gs.road2);
     drawRoad(gs.road3);
-    glDisable(GL_LIGHTING);
-    drawScore();
-    glEnable(GL_LIGHTING);
-    drawSun();
-    drawMoon();
-    glEnable(GL_COLOR_MATERIAL);
     drawSideRoad(gs.rightSideRoad);
     drawSideRoad(gs.rightSideRoad2);
     drawSideRoad(gs.rightSideRoad3);
     drawSideRoad(gs.leftSideRoad);
     drawSideRoad(gs.leftSideRoad2);
     drawSideRoad(gs.leftSideRoad3);
-    glDisable(GL_COLOR_MATERIAL); 
+
+    glDisable(GL_LIGHTING);
+    drawScore();
+    glEnable(GL_LIGHTING);
+
+    glDisable(GL_LIGHT0);
+    lightForSun();
+    drawSun();
+    //drawMoon();
+    glDisable(GL_LIGHT1);
+
+    glEnable(GL_LIGHT0);
+    
     for (int i = 0; i < gs.car.numOfCars; i++){
         drawCar(gs.carArray[i]); 
     }
@@ -89,9 +96,6 @@ void onKeyboardInput(unsigned char key, int x, int y){
                 gs.actionOnGoing = 0;
             }
             break;
-        case 's': // slow down tank
-        case 'S':
-            break;
         // left
         case 'a': 
         case 'A': //TODO delta movement
@@ -106,14 +110,12 @@ void onKeyboardInput(unsigned char key, int x, int y){
                 gs.tankMainPlayer.tankTranslate.x += 3;
             glutPostRedisplay();
             break;
-        case 'w':
-        case 'W': // can be used to speed up tank
-            break;
     }    
     glutPostRedisplay();
 }
 
 void onTimer(int timer){
+    //? does this need in multiple timer functions
     if (timer == carSpeedTimer){
         //this timer moves cars
         for(int i = 0; i < gs.car.numOfCars; i++){
@@ -129,15 +131,13 @@ void onTimer(int timer){
                 gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
             }
         }
-    }
-    else if (timer == carSpawnTimer){
+    }else if (timer == carSpawnTimer){
         //This timer makes cars spawn in proper timers
         if(gs.car.numOfCars < MAX_CARS_ALLOWED)
             gs.car.numOfCars++;
         else
             return;
-    }
-    else if (timer == tankMovementTimer){
+    }else if (timer == tankMovementTimer){
         if(gs.actionOnGoing){
             gs.tankMainPlayer.tankTranslate.z -= 1;
             gs.cameraMovement -= 1;
@@ -159,10 +159,14 @@ void onTimer(int timer){
             }
         }
     }else if(timer == skyColorTimer){
-        gs.sun.sunRotate.z += 0.30;
-        gs.moon.moonRotate.z += 0.30;
-        glutPostRedisplay();
-        if(gs.actionOnGoing){
+        if(gs.sun.sunRotate.z >= 360){ // instead of moduo 360
+            gs.sun.sunRotate.z = 0;
+            gs.moon.moonRotate.z = 0;
+        }
+        gs.sun.sunRotate.z += 0.30; //TODO: fix math in code, this number is paper math
+        gs.moon.moonRotate.z += 0.30; //TODO: fix math in code, this number is paper math
+
+        if(gs.actionOnGoing){ // TODO: move into separate function
             //Decerement until first reaches 0, that will be night color
             if (gs.sky.flag == 0)
             {   
@@ -186,10 +190,55 @@ void onTimer(int timer){
             }
             //Increment until u reach day.. (0.6, 0.8, 1, 0) <- day color
             glClearColor(gs.sky.skyColor.x, gs.sky.skyColor.y, gs.sky.skyColor.z, 0);
-            glutPostRedisplay();
         }
-    }
-    else
+        if (gs.actionOnGoing)
+        {// TODO: move into separate function
+            // TODO: remove under comments stuff if its not needed or if it doesnt bring any clear explanation
+            if (gs.sun.quadrant == 1 /*&& (gs.sun.lightCoef.x >= -1 && gs.sun.lightCoef.x <= 0) && (gs.sun.lightCoef.y <= 1 && gs.sun.lightCoef.y >= 0)*/)
+            {
+                gs.sun.lightCoef.x -= gs.sun.mod;
+                //gs.sun.lightCoef.y -= gs.sun.mod;
+                if (gs.sun.lightCoef.x <= -1 /*&& gs.sun.lightCoef.y <= 0*/)
+                {
+                    gs.sun.lightCoef.x = -1;
+                    //gs.sun.lightCoef.y = 0;
+                    gs.sun.quadrant = 2;
+                }
+            }
+            else if (gs.sun.quadrant == 2/* && (gs.sun.lightCoef.x >= -1 && gs.sun.lightCoef.x <= 0) && (gs.sun.lightCoef.y <= 0 && gs.sun.lightCoef.y >= -1)*/)
+            {
+                gs.sun.lightCoef.x += gs.sun.mod;
+                //gs.sun.lightCoef.y -= gs.sun.mod;
+                if (gs.sun.lightCoef.x >= 0 /*&& gs.sun.lightCoef.y <= -1*/)
+                {
+                    gs.sun.lightCoef.x = 0;
+                    //gs.sun.lightCoef.y = -1;
+                    gs.sun.quadrant = 3;
+                }
+            }
+            else if (gs.sun.quadrant == 3 /*&& (gs.sun.lightCoef.x >= 0 && gs.sun.lightCoef.x <= 1) && gs.sun.lightCoef.y >= -1 && gs.sun.lightCoef.y <= 0*/)
+            {
+                gs.sun.lightCoef.x += gs.sun.mod;
+                //gs.sun.lightCoef.y += gs.sun.mod;
+                if (gs.sun.lightCoef.x >= 1 /*&& gs.sun.lightCoef.y >= 0*/)
+                {
+                    //gs.sun.lightCoef.y = 1;
+                    gs.sun.lightCoef.x = 1;
+                    gs.sun.quadrant = 4;
+                }
+            }
+            else if (gs.sun.quadrant == 4 /*&& (gs.sun.lightCoef.x <= 1 && gs.sun.lightCoef.x >= 0) && (gs.sun.lightCoef.y >= 0 && gs.sun.lightCoef.y <= 1)*/)
+            {
+                gs.sun.lightCoef.x -= gs.sun.mod;
+                //gs.sun.lightCoef.y += gs.sun.mod;
+                if (gs.sun.lightCoef.x <= 0 /*&& gs.sun.lightCoef.y >= 1*/){
+                    gs.sun.lightCoef.x = 0;
+                    //gs.sun.lightCoef.y = 1;
+                    gs.sun.quadrant = 1;
+                }
+            }
+        }
+    }else
         return;
 
     if(gs.actionOnGoing){

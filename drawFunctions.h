@@ -13,8 +13,6 @@
 #define carSpawnTimer (1)
 #define tankMovementTimer (2)
 #define skyColorTimer (3)
-#define tankMoveLeftFromMiddleTimer (4)
-#define tankMoveRightTimer (5)
 //end of timer callback func variables
 
 //Create game state.
@@ -58,6 +56,9 @@ struct Sky{
 struct Sun{
     struct Vector3f sunRotate;
     struct Vector3f sunTranslate;
+    struct Vector3f lightCoef;
+    int quadrant;
+    float mod;
 };
 struct Moon{
     struct Vector3f moonRotate;
