@@ -27,7 +27,6 @@ void onDisplay(void){
             );
 
     light();
-    glutPostRedisplay();
     //Rendering section
 
     drawRoad(gs.road);
@@ -47,7 +46,6 @@ void onDisplay(void){
     glDisable(GL_LIGHT0);
     lightForSun();
     drawSun();
-    //drawMoon();
     glDisable(GL_LIGHT1);
 
     glEnable(GL_LIGHT0);
@@ -73,8 +71,6 @@ void onReshape(int w, int h){
 bool a_pressed = false;
 bool d_pressed = false;
 int av = 0, dv = 0; // its used as vector of movement of tank,towards left, stands in spot, towards right
-bool prioa = false;
-bool priod = false;
 void onKeyboardInput(unsigned char key, int x, int y){
     NOT_USED_VAR(x);
     NOT_USED_VAR(y);
@@ -102,27 +98,23 @@ void onKeyboardInput(unsigned char key, int x, int y){
             break;
         // left
         case 'a': 
-        case 'A': //TODO delta movement
-            //gs.tankMainPlayer.tankTranslate.x -= 0.1;
+        case 'A':
             if(d_pressed && av != 0){
                 d_pressed = !d_pressed;
                 a_pressed = !a_pressed;
             }else{
                 a_pressed = !a_pressed;
-                prioa = true;
             }
             av = -1;
             break;
         // right
         case 'd':
-        case 'D'://TODO delta movement
-            //gs.tankMainPlayer.tankTranslate.x += 0.1;
+        case 'D':
             if(a_pressed && dv != 0){
                 a_pressed = !a_pressed;
                 d_pressed = !d_pressed;
             }else{
                 d_pressed = !d_pressed;
-                priod = true;
             }
             dv = 1;
             break;
@@ -137,14 +129,12 @@ void onKeyboardUp(unsigned char key, int x, int y){
         case 'a': 
         case 'A':
             a_pressed = false;
-            priod = true;
             av = 0;
             break;
         // right
         case 'd':
         case 'D':
             d_pressed = false;
-            prioa = true;
             dv = 0;
             break;
     }    
@@ -174,10 +164,10 @@ void onTimer(int timer){
         if(gs.actionOnGoing){
             //TODO: if A is pressed and then D is pressed, tank will keep moving to left instead right. Priority should be one who pressed 2nd
             // moves tank left right when keyboard input comes in.
-            if(av == -1 && a_pressed && prioa){
+            if(av == -1 && a_pressed){
                 if(gs.tankMainPlayer.tankTranslate.x >= -3.8)
                     gs.tankMainPlayer.tankTranslate.x -= 0.2;
-            }else if(dv == 1 && d_pressed && priod){
+            }else if(dv == 1 && d_pressed){
                 if(gs.tankMainPlayer.tankTranslate.x <= 3.8)
                     gs.tankMainPlayer.tankTranslate.x += 0.2;
             }
@@ -202,76 +192,8 @@ void onTimer(int timer){
             }
         }
     }else if(timer == skyColorTimer){
-        if(gs.sun.sunRotate.z >= 360){ // instead of moduo 360
-            gs.sun.sunRotate.z = 0;
-            gs.moon.moonRotate.z = 0;
-        }
-        gs.sun.sunRotate.z += 0.30; //TODO: fix math in code, this number is paper math
-        gs.moon.moonRotate.z += 0.30; //TODO: fix math in code, this number is paper math
-
-        if(gs.actionOnGoing){ // TODO: move into separate function
-            //Decerement until first reaches 0, that will be night color
-            if (gs.sky.flag == 0)
-            {   
-                gs.sky.skyColor.x = (gs.sky.skyColor.x - 0.001);
-                gs.sky.skyColor.y = (gs.sky.skyColor.y - 0.001);
-                gs.sky.skyColor.z = (gs.sky.skyColor.z - 0.001);
-                if (gs.lightModifier < 0.4)
-                    gs.lightModifier += 0.001;
-                if(gs.sky.skyColor.x < 0)
-                    gs.sky.flag = 1;
-            }
-            if (gs.sky.flag == 1)
-            {
-                gs.sky.skyColor.x = (gs.sky.skyColor.x + 0.001);
-                gs.sky.skyColor.y = (gs.sky.skyColor.y + 0.001);
-                gs.sky.skyColor.z = (gs.sky.skyColor.z + 0.001);
-                if (gs.lightModifier > 0)
-                    gs.lightModifier -= 0.001;
-                if(gs.sky.skyColor.x > 0.6)
-                    gs.sky.flag = 0;
-            }
-            //Increment until u reach day.. (0.6, 0.8, 1, 0) <- day color
-            glClearColor(gs.sky.skyColor.x, gs.sky.skyColor.y, gs.sky.skyColor.z, 0);
-        }
-        if (gs.actionOnGoing)
-        {// TODO: move into separate function
-            if (gs.sun.quadrant == 1)
-            {
-                gs.sun.lightCoef.x -= gs.sun.mod;
-                if (gs.sun.lightCoef.x <= -1)
-                {
-                    gs.sun.lightCoef.x = -1;
-                    gs.sun.quadrant = 2;
-                }
-            }
-            else if (gs.sun.quadrant == 2)
-            {
-                gs.sun.lightCoef.x += gs.sun.mod;
-                if (gs.sun.lightCoef.x >= 0)
-                {
-                    gs.sun.lightCoef.x = 0;
-                    gs.sun.quadrant = 3;
-                }
-            }
-            else if (gs.sun.quadrant == 3 )
-            {
-                gs.sun.lightCoef.x += gs.sun.mod;
-                if (gs.sun.lightCoef.x >= 1)
-                {
-                    gs.sun.lightCoef.x = 1;
-                    gs.sun.quadrant = 4;
-                }
-            }
-            else if (gs.sun.quadrant == 4)
-            {
-                gs.sun.lightCoef.x -= gs.sun.mod;
-                if (gs.sun.lightCoef.x <= 0){
-                    gs.sun.lightCoef.x = 0;
-                    gs.sun.quadrant = 1;
-                }
-            }
-        }
+        if(gs.actionOnGoing)
+            skyChangeFunction();
     }else
         return;
     if(gs.actionOnGoing){
@@ -284,7 +206,5 @@ void onTimer(int timer){
             glutTimerFunc(gs.tankMainPlayer.tankSpeed, onTimer, tankMovementTimer);
         else if (timer == skyColorTimer)
             glutTimerFunc(gs.sky.dayTimer, onTimer, skyColorTimer);
-    }else{
-        glutPostRedisplay();
     }
 }

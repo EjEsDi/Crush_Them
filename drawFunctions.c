@@ -36,19 +36,74 @@ void drawSun(){
         glutSolidSphere(1, 50, 50);
     glPopMatrix();
 }
-void drawMoon(){
-    glPushMatrix();
-        glLoadIdentity();
-        glRotatef(gs.moon.moonRotate.x, 1, 0, 0);
-        glRotatef(gs.moon.moonRotate.y, 0, 1, 0);
-        glRotatef(gs.moon.moonRotate.z, 0, 0, 1);
-        glTranslatef(gs.moon.moonTranslate.x, gs.moon.moonTranslate.y, gs.moon.moonTranslate.z);
-        setVertexColor(0.7, 0.7, 0.7);
-        glutSolidSphere(1, 50, 50);
-    glPopMatrix();
+void skyChangeFunction(){
+    if (gs.sun.sunRotate.z >= 360){ // instead of moduo 360
+        gs.sun.sunRotate.z = 0;
+    }
+    gs.sun.sunRotate.z += 0.30;   //TODO: fix math in code, this number is paper math
+    //Decerement until first reaches 0, that will be night color
+    if (gs.sky.flag == 0)
+    {
+        gs.sky.skyColor.x = (gs.sky.skyColor.x - 0.001);
+        gs.sky.skyColor.y = (gs.sky.skyColor.y - 0.001);
+        gs.sky.skyColor.z = (gs.sky.skyColor.z - 0.001);
+        if (gs.lightModifier < 0.4)
+            gs.lightModifier += 0.001;
+        if (gs.sky.skyColor.x < 0)
+            gs.sky.flag = 1;
+    }
+    if (gs.sky.flag == 1)
+    {
+        gs.sky.skyColor.x = (gs.sky.skyColor.x + 0.001);
+        gs.sky.skyColor.y = (gs.sky.skyColor.y + 0.001);
+        gs.sky.skyColor.z = (gs.sky.skyColor.z + 0.001);
+        if (gs.lightModifier > 0)
+            gs.lightModifier -= 0.001;
+        if (gs.sky.skyColor.x > 0.6)
+            gs.sky.flag = 0;
+    }
+    //Increment until u reach day.. (0.6, 0.8, 1, 0) <- day color
+    glClearColor(gs.sky.skyColor.x, gs.sky.skyColor.y, gs.sky.skyColor.z, 0);
+    
+
+    if (gs.sun.quadrant == 1)
+    {
+        gs.sun.lightCoef.x -= gs.sun.mod;
+        if (gs.sun.lightCoef.x <= -1)
+        {
+            gs.sun.lightCoef.x = -1;
+            gs.sun.quadrant = 2;
+        }
+    }
+    else if (gs.sun.quadrant == 2)
+    {
+        gs.sun.lightCoef.x += gs.sun.mod;
+        if (gs.sun.lightCoef.x >= 0)
+        {
+            gs.sun.lightCoef.x = 0;
+            gs.sun.quadrant = 3;
+        }
+    }
+    else if (gs.sun.quadrant == 3)
+    {
+        gs.sun.lightCoef.x += gs.sun.mod;
+        if (gs.sun.lightCoef.x >= 1)
+        {
+            gs.sun.lightCoef.x = 1;
+            gs.sun.quadrant = 4;
+        }
+    }
+    else if (gs.sun.quadrant == 4)
+    {
+        gs.sun.lightCoef.x -= gs.sun.mod;
+        if (gs.sun.lightCoef.x <= 0)
+        {
+            gs.sun.lightCoef.x = 0;
+            gs.sun.quadrant = 1;
+        }
+    }
 }
 void drawSquare(){
-    //?Could send lights/colors here per object...
         glBegin(GL_QUADS);
             //green - front
             glNormal3f(0, 1, 0);
@@ -191,7 +246,6 @@ void drawCar(const struct Car car){
     glPopMatrix();
 }
 void drawSideRoad(const struct Road road){
-    // put texture on it
     glPushMatrix();
         glTranslatef(road.roadTranslation.x, road.roadTranslation.y, road.roadTranslation.z);
         glScalef(road.roadScale.x, road.roadScale.y, road.roadScale.z);
@@ -219,16 +273,16 @@ void drawSideRoad(const struct Road road){
 }
 
 bool collisionCheck(struct Tank tank, struct Car car){
-    // Collision x-axis?
+    // Collision x-axis
     bool collisionX = tank.tankTranslate.x + tank.tankScale.x >= car.carTranslate.x &&
         car.carTranslate.x + car.carScale.x >= tank.tankTranslate.x;
-    // Collision y-axis?
+    // Collision y-axis
     bool collisionY = tank.tankTranslate.y + tank.tankScale.y >= car.carTranslate.y &&
         car.carTranslate.y + car.carScale.y >= tank.tankTranslate.y;
-    //Collision z-axis?
+    //Collision z-axis
     bool collisionZ = tank.tankTranslate.z + tank.tankScale.z >= car.carTranslate.z &&
         car.carTranslate.z + car.carScale.z >= tank.tankTranslate.z;
-    // Collision only if on both axes
+    // Collision only if on all three axes
     
     return collisionX && collisionY && collisionZ;
 }
@@ -237,7 +291,7 @@ bool collisionCheck(struct Tank tank, struct Car car){
 
 void tankInit(){
     gs.tankMainPlayer.tankTranslate.x = 0;
-    gs.tankMainPlayer.tankTranslate.y = -1; // need to fix inside tank drawing , and put 0 here. Its gonna be same effect, just cleaner ?
+    gs.tankMainPlayer.tankTranslate.y = -1;
     gs.tankMainPlayer.tankTranslate.z = 280; 
     
     gs.tankMainPlayer.tankScale.x = 1;
@@ -307,7 +361,7 @@ void carsInit(){
         gs.carArray[i].carRotate.z = 0;
 
         gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
-        gs.carArray[i].carTranslate.y = -1; //need to fix inside car drawing , and put 0 here. Its gonna be same effect, just cleaner ?
+        gs.carArray[i].carTranslate.y = -1;
         gs.carArray[i].carTranslate.z = gs.car.ZSpawnPoint;
     }
     //Timers for callback onTimer function
@@ -416,14 +470,6 @@ void sunInit(){
     gs.sun.mod = 0.0033; //TODO: fix math in code, this number is paper math
     gs.sun.quadrant = 1;
 }
-void moonInit(){
-    gs.moon.moonRotate.x = 0;
-    gs.moon.moonRotate.y = 0;
-    gs.moon.moonRotate.z = 0;
-    gs.moon.moonTranslate.x = 0;
-    gs.moon.moonTranslate.y = -45; // it doesnt go trough road with this value
-    gs.moon.moonTranslate.z = -50;
-}
 void imageInit(){
     //Code taken from class and edited for own needs.
     Image * image;
@@ -453,7 +499,6 @@ void initRenderingObjects(){
     tankInit();
     skyInit();
     sunInit();
-    moonInit();
     imageInit();
     gs.cameraMovement = 0;
     gs.lightModifier = 0.0;

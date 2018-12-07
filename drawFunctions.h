@@ -56,10 +56,6 @@ struct Sun{
     int quadrant;
     float mod;
 };
-struct Moon{
-    struct Vector3f moonRotate;
-    struct Vector3f moonTranslate;
-};
 //Keeps info about whole game state
 struct gameState{
     struct Car carArray[MAX_CARS_ALLOWED];
@@ -67,7 +63,6 @@ struct gameState{
     struct Sun sun;
     struct Road road, road2, road3;
     struct Sky sky;
-    struct Moon moon;
     struct Road rightSideRoad, rightSideRoad2, rightSideRoad3;
     struct Road leftSideRoad, leftSideRoad2, leftSideRoad3;
     struct Tank tankMainPlayer;
@@ -86,14 +81,13 @@ void drawRoad(const struct Road road);
 void drawCubeTank(const struct Tank tank);
 void drawCar(const struct Car cars);
 void drawSun();
-void drawMoon();
 void tankInit();
 void roadInit();
 void skyInit();
 void carInit();
 void drawScore();
 void sunInit();
-void moonInit();
+void skyChangeFunction();
 void rightSideRoadInit();
 void leftSideRoadInit();
 void drawSideRoad(const struct Road road);
