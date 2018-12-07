@@ -1,6 +1,7 @@
 #ifndef DRAWFUNCTIONS_H
 #define DRAWFUNCTIONS_H
 #include <GL/gl.h>
+#include <stdbool.h>
 /************************************
     Macros definitions start here
 *************************************/
@@ -8,16 +9,11 @@
 #define MAX_CARS_ALLOWED 10
 #define NOT_USED_VAR(X) (void)(X)
 
-// timer callback func variables
-#define carSpeedTimer (0)
-#define carSpawnTimer (1)
-#define tankMovementTimer (2)
-#define skyColorTimer (3)
-//end of timer callback func variables
+
 
 //Create game state.
 struct gameState gs;
-static GLuint names[1];
+GLuint names[1]; // used for texture
 /************************************
     Structs definitions start here
 *************************************/
@@ -35,7 +31,7 @@ struct Car{
     int numOfCars;
     int timeCarSpawn;
     struct Vector3f carScale;
-    struct Vector3f carPosition;
+    struct Vector3f carTranslate;
     struct Vector3f carRotate;
 };
 struct Tank{
@@ -101,4 +97,5 @@ void moonInit();
 void rightSideRoadInit();
 void leftSideRoadInit();
 void drawSideRoad(const struct Road road);
+bool collisionCheck(struct Tank tank, struct Car car);
 #endif

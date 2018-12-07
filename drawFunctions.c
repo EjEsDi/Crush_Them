@@ -21,7 +21,7 @@ void init(void){
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_NORMALIZE);
     glEnable(GL_TEXTURE_2D);
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 }
 
 /* Draw functions */
@@ -182,7 +182,7 @@ void drawCubeTank(const struct Tank tank){
 }
 void drawCar(const struct Car car){
     glPushMatrix();
-        glTranslatef(car.carPosition.x, car.carPosition.y, car.carPosition.z);
+        glTranslatef(car.carTranslate.x, car.carTranslate.y, car.carTranslate.z);
         glScalef(car.carScale.x, car.carScale.y, car.carScale.z);
         glRotatef(car.carRotate.x, 1, 0, 0);
         glRotatef(car.carRotate.y, 0, 1, 0);
@@ -216,6 +216,21 @@ void drawSideRoad(const struct Road road){
         glEnd();
         glBindTexture(GL_TEXTURE_2D, 0);
     glPopMatrix();
+}
+
+bool collisionCheck(struct Tank tank, struct Car car){
+    // Collision x-axis?
+    bool collisionX = tank.tankTranslate.x + tank.tankScale.x >= car.carTranslate.x &&
+        car.carTranslate.x + car.carScale.x >= tank.tankTranslate.x;
+    // Collision y-axis?
+    bool collisionY = tank.tankTranslate.y + tank.tankScale.y >= car.carTranslate.y &&
+        car.carTranslate.y + car.carScale.y >= tank.tankTranslate.y;
+    //Collision z-axis?
+    bool collisionZ = tank.tankTranslate.z + tank.tankScale.z >= car.carTranslate.z &&
+        car.carTranslate.z + car.carScale.z >= tank.tankTranslate.z;
+    // Collision only if on both axes
+    
+    return collisionX && collisionY && collisionZ;
 }
 
 /* Object initializer functions */ // Move these in separate file?
@@ -291,9 +306,9 @@ void carsInit(){
         gs.carArray[i].carRotate.y = 180; //cars need to go forward
         gs.carArray[i].carRotate.z = 0;
 
-        gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
-        gs.carArray[i].carPosition.y = -1; //need to fix inside car drawing , and put 0 here. Its gonna be same effect, just cleaner ?
-        gs.carArray[i].carPosition.z = gs.car.ZSpawnPoint;
+        gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
+        gs.carArray[i].carTranslate.y = -1; //need to fix inside car drawing , and put 0 here. Its gonna be same effect, just cleaner ?
+        gs.carArray[i].carTranslate.z = gs.car.ZSpawnPoint;
     }
     //Timers for callback onTimer function
     gs.car.timeCarSpawn = 1000;   // 1 sec

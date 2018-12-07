@@ -70,7 +70,11 @@ void onReshape(int w, int h){
     glLoadIdentity();
     gluPerspective(60, gs.WindowWidth/(GLfloat)gs.WindowHeight, 1, 300.0); // angle, ratio, near clip, far clip
 }
-
+bool a_pressed = false;
+bool d_pressed = false;
+int av = 0, dv = 0; // its used as vector of movement of tank,towards left, stands in spot, towards right
+bool prioa = false;
+bool priod = false;
 void onKeyboardInput(unsigned char key, int x, int y){
     NOT_USED_VAR(x);
     NOT_USED_VAR(y);
@@ -99,48 +103,87 @@ void onKeyboardInput(unsigned char key, int x, int y){
         // left
         case 'a': 
         case 'A': //TODO delta movement
-            if(gs.tankMainPlayer.tankTranslate.x - 3 >= -4) // left wall is not hit yet
-                gs.tankMainPlayer.tankTranslate.x -= 3;
-            glutPostRedisplay();
+            //gs.tankMainPlayer.tankTranslate.x -= 0.1;
+            if(d_pressed && av != 0){
+                d_pressed = !d_pressed;
+                a_pressed = !a_pressed;
+            }else{
+                a_pressed = !a_pressed;
+                prioa = true;
+            }
+            av = -1;
             break;
         // right
         case 'd':
         case 'D'://TODO delta movement
-            if(gs.tankMainPlayer.tankTranslate.x + 3 <= 4) // right wall is not hit yet
-                gs.tankMainPlayer.tankTranslate.x += 3;
-            glutPostRedisplay();
+            //gs.tankMainPlayer.tankTranslate.x += 0.1;
+            if(a_pressed && dv != 0){
+                a_pressed = !a_pressed;
+                d_pressed = !d_pressed;
+            }else{
+                d_pressed = !d_pressed;
+                priod = true;
+            }
+            dv = 1;
             break;
     }    
     glutPostRedisplay();
 }
-
+void onKeyboardUp(unsigned char key, int x, int y){
+    NOT_USED_VAR(x);
+    NOT_USED_VAR(y);
+    switch(key){
+        // left
+        case 'a': 
+        case 'A':
+            a_pressed = false;
+            priod = true;
+            av = 0;
+            break;
+        // right
+        case 'd':
+        case 'D':
+            d_pressed = false;
+            prioa = true;
+            dv = 0;
+            break;
+    }    
+    glutPostRedisplay();
+}
 void onTimer(int timer){
-    //? does this need in multiple timer functions
     if (timer == carSpeedTimer){
         //this timer moves cars
         for(int i = 0; i < gs.car.numOfCars; i++){
-            gs.carArray[i].carPosition.z += 1;
-            if(gs.carArray[i].carPosition.z - 10 >= gs.tankMainPlayer.tankTranslate.z + 10){ // respawn car
-                gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
-                gs.carArray[i].carPosition.z = gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint;
-            }else if(gs.carArray[i].carPosition.z == gs.tankMainPlayer.tankTranslate.z &&
-                    gs.carArray[i].carPosition.x == gs.tankMainPlayer.tankTranslate.x &&
-                    gs.carArray[i].carPosition.y == gs.tankMainPlayer.tankTranslate.y){ // Colision check TODO: not ideal way to check collision
+            gs.carArray[i].carTranslate.z += 1;
+            if(gs.carArray[i].carTranslate.z - 10 >= gs.tankMainPlayer.tankTranslate.z + 10){ // respawn car
+                gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
+                gs.carArray[i].carTranslate.z = gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint - 10;
+            }else if(collisionCheck(gs.tankMainPlayer, gs.carArray[i])){
                 gs.numberOfCrushes++;
-                gs.carArray[i].carPosition.z = gs.tankMainPlayer.tankTranslate.z - 70 - gs.car.ZSpawnPoint;// figure number instead -70 if needed
-                gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
+                gs.carArray[i].carTranslate.z = gs.tankMainPlayer.tankTranslate.z - 70 - gs.car.ZSpawnPoint;// figure number instead -70 if needed
+                gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
             }
         }
-    }else if (timer == carSpawnTimer){
+    }else if (timer == carSpawnTimer)    {
         //This timer makes cars spawn in proper timers
-        if(gs.car.numOfCars < MAX_CARS_ALLOWED)
+        if(gs.car.numOfCars <= MAX_CARS_ALLOWED)
             gs.car.numOfCars++;
         else
             return;
     }else if (timer == tankMovementTimer){
         if(gs.actionOnGoing){
-            gs.tankMainPlayer.tankTranslate.z -= 1;
-            gs.cameraMovement -= 1;
+            //TODO: if A is pressed and then D is pressed, tank will keep moving to left instead right. Priority should be one who pressed 2nd
+            // moves tank left right when keyboard input comes in.
+            if(av == -1 && a_pressed && prioa){
+                if(gs.tankMainPlayer.tankTranslate.x >= -3.8)
+                    gs.tankMainPlayer.tankTranslate.x -= 0.2;
+            }else if(dv == 1 && d_pressed && priod){
+                if(gs.tankMainPlayer.tankTranslate.x <= 3.8)
+                    gs.tankMainPlayer.tankTranslate.x += 0.2;
+            }
+            gs.tankMainPlayer.tankTranslate.z -= 1; // keeps moving tank forward
+            gs.cameraMovement -= 1; // keeps moving camera with tank
+            //makes road infinite
             if(gs.tankMainPlayer.tankTranslate.z == gs.road2.roadTranslation.z){
                 // Road 1 should be copied in back, behind road 3
                 gs.road.roadTranslation.z = gs.road3.roadTranslation.z - 2*gs.road.roadScale.z;
@@ -193,54 +236,44 @@ void onTimer(int timer){
         }
         if (gs.actionOnGoing)
         {// TODO: move into separate function
-            // TODO: remove under comments stuff if its not needed or if it doesnt bring any clear explanation
-            if (gs.sun.quadrant == 1 /*&& (gs.sun.lightCoef.x >= -1 && gs.sun.lightCoef.x <= 0) && (gs.sun.lightCoef.y <= 1 && gs.sun.lightCoef.y >= 0)*/)
+            if (gs.sun.quadrant == 1)
             {
                 gs.sun.lightCoef.x -= gs.sun.mod;
-                //gs.sun.lightCoef.y -= gs.sun.mod;
-                if (gs.sun.lightCoef.x <= -1 /*&& gs.sun.lightCoef.y <= 0*/)
+                if (gs.sun.lightCoef.x <= -1)
                 {
                     gs.sun.lightCoef.x = -1;
-                    //gs.sun.lightCoef.y = 0;
                     gs.sun.quadrant = 2;
                 }
             }
-            else if (gs.sun.quadrant == 2/* && (gs.sun.lightCoef.x >= -1 && gs.sun.lightCoef.x <= 0) && (gs.sun.lightCoef.y <= 0 && gs.sun.lightCoef.y >= -1)*/)
+            else if (gs.sun.quadrant == 2)
             {
                 gs.sun.lightCoef.x += gs.sun.mod;
-                //gs.sun.lightCoef.y -= gs.sun.mod;
-                if (gs.sun.lightCoef.x >= 0 /*&& gs.sun.lightCoef.y <= -1*/)
+                if (gs.sun.lightCoef.x >= 0)
                 {
                     gs.sun.lightCoef.x = 0;
-                    //gs.sun.lightCoef.y = -1;
                     gs.sun.quadrant = 3;
                 }
             }
-            else if (gs.sun.quadrant == 3 /*&& (gs.sun.lightCoef.x >= 0 && gs.sun.lightCoef.x <= 1) && gs.sun.lightCoef.y >= -1 && gs.sun.lightCoef.y <= 0*/)
+            else if (gs.sun.quadrant == 3 )
             {
                 gs.sun.lightCoef.x += gs.sun.mod;
-                //gs.sun.lightCoef.y += gs.sun.mod;
-                if (gs.sun.lightCoef.x >= 1 /*&& gs.sun.lightCoef.y >= 0*/)
+                if (gs.sun.lightCoef.x >= 1)
                 {
-                    //gs.sun.lightCoef.y = 1;
                     gs.sun.lightCoef.x = 1;
                     gs.sun.quadrant = 4;
                 }
             }
-            else if (gs.sun.quadrant == 4 /*&& (gs.sun.lightCoef.x <= 1 && gs.sun.lightCoef.x >= 0) && (gs.sun.lightCoef.y >= 0 && gs.sun.lightCoef.y <= 1)*/)
+            else if (gs.sun.quadrant == 4)
             {
                 gs.sun.lightCoef.x -= gs.sun.mod;
-                //gs.sun.lightCoef.y += gs.sun.mod;
-                if (gs.sun.lightCoef.x <= 0 /*&& gs.sun.lightCoef.y >= 1*/){
+                if (gs.sun.lightCoef.x <= 0){
                     gs.sun.lightCoef.x = 0;
-                    //gs.sun.lightCoef.y = 1;
                     gs.sun.quadrant = 1;
                 }
             }
         }
     }else
         return;
-
     if(gs.actionOnGoing){
         glutPostRedisplay();
         if (timer == carSpeedTimer)
@@ -251,5 +284,7 @@ void onTimer(int timer){
             glutTimerFunc(gs.tankMainPlayer.tankSpeed, onTimer, tankMovementTimer);
         else if (timer == skyColorTimer)
             glutTimerFunc(gs.sky.dayTimer, onTimer, skyColorTimer);
+    }else{
+        glutPostRedisplay();
     }
 }

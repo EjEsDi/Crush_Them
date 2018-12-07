@@ -26,7 +26,7 @@ void light(){
 
 void lightForSun(){
     //Light coeffs
-    GLfloat light_position[] = {-gs.sun.lightCoef.x, -gs.sun.lightCoef.y, gs.sun.lightCoef.z, 0};
+    GLfloat light_position[] = {-gs.sun.lightCoef.x, 0, gs.sun.lightCoef.z, 0};
     GLfloat light_ambient[] = {0, 0, 0, 1};
     GLfloat light_diffuse[] = {1, 1, 1, 1};
     //GLfloat light_specular[] = {1, 1, 1, 1};
