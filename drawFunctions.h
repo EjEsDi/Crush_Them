@@ -38,6 +38,9 @@ struct Tank{
     struct Vector3f tankTranslate;
     struct Vector3f tankScale;
     float tankSpeed;
+    int v; // its used as vector of movement of tank,towards left, stands in spot, towards right -1, 0 , 1
+    int prevDir;
+    int currDir;
 };
 struct Road{
     struct Vector3f roadScale;

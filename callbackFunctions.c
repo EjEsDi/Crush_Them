@@ -68,9 +68,6 @@ void onReshape(int w, int h){
     glLoadIdentity();
     gluPerspective(60, gs.WindowWidth/(GLfloat)gs.WindowHeight, 1, 300.0); // angle, ratio, near clip, far clip
 }
-bool a_pressed = false;
-bool d_pressed = false;
-int av = 0, dv = 0; // its used as vector of movement of tank,towards left, stands in spot, towards right
 void onKeyboardInput(unsigned char key, int x, int y){
     NOT_USED_VAR(x);
     NOT_USED_VAR(y);
@@ -99,24 +96,14 @@ void onKeyboardInput(unsigned char key, int x, int y){
         // left
         case 'a': 
         case 'A':
-            if(d_pressed && av != 0){
-                d_pressed = !d_pressed;
-                a_pressed = !a_pressed;
-            }else{
-                a_pressed = !a_pressed;
-            }
-            av = -1;
+            gs.tankMainPlayer.prevDir = gs.tankMainPlayer.currDir;
+            gs.tankMainPlayer.currDir = -1;
             break;
         // right
         case 'd':
         case 'D':
-            if(a_pressed && dv != 0){
-                a_pressed = !a_pressed;
-                d_pressed = !d_pressed;
-            }else{
-                d_pressed = !d_pressed;
-            }
-            dv = 1;
+            gs.tankMainPlayer.prevDir = gs.tankMainPlayer.currDir;
+            gs.tankMainPlayer.currDir = 1;
             break;
     }    
     glutPostRedisplay();
@@ -128,14 +115,14 @@ void onKeyboardUp(unsigned char key, int x, int y){
         // left
         case 'a': 
         case 'A':
-            a_pressed = false;
-            av = 0;
+            if(gs.tankMainPlayer.currDir == -1)
+                gs.tankMainPlayer.currDir = gs.tankMainPlayer.prevDir;
             break;
         // right
         case 'd':
         case 'D':
-            d_pressed = false;
-            dv = 0;
+            if(gs.tankMainPlayer.currDir == 1)
+                gs.tankMainPlayer.currDir = gs.tankMainPlayer.prevDir;
             break;
     }    
     glutPostRedisplay();
@@ -162,12 +149,14 @@ void onTimer(int timer){
             return;
     }else if (timer == tankMovementTimer){
         if(gs.actionOnGoing){
-            //TODO: if A is pressed and then D is pressed, tank will keep moving to left instead right. Priority should be one who pressed 2nd
-            // moves tank left right when keyboard input comes in.
-            if(av == -1 && a_pressed){
+            // moves tank left and right when keyboard input comes in.
+            if (gs.tankMainPlayer.currDir == -1)
+            {
                 if(gs.tankMainPlayer.tankTranslate.x >= -3.8)
                     gs.tankMainPlayer.tankTranslate.x -= 0.2;
-            }else if(dv == 1 && d_pressed){
+            }
+            else if (gs.tankMainPlayer.currDir == 1)
+            {
                 if(gs.tankMainPlayer.tankTranslate.x <= 3.8)
                     gs.tankMainPlayer.tankTranslate.x += 0.2;
             }

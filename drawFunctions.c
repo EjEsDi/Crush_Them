@@ -256,7 +256,8 @@ void drawSideRoad(const struct Road road){
         glLineWidth(1);
         struct Vector3f v3f = {1, 1, 1};
         glBindTexture(GL_TEXTURE_2D, names[0]);
-        setVertexColor(.45, .27, .13);
+        //setVertexColor(.45, .27, .13);
+        setVertexColor(.5,.5,.5);
         glNormal3f(0, 1, 0);
         glBegin(GL_QUADS);
             glTexCoord2f(-2, -2);
@@ -299,6 +300,9 @@ void tankInit(){
     gs.tankMainPlayer.tankScale.z = 3;
 
     gs.tankMainPlayer.tankSpeed = 30; 
+    gs.tankMainPlayer.currDir = 0;
+    gs.tankMainPlayer.prevDir = 0;
+    gs.tankMainPlayer.v = 0;
 }
 void roadInit(){
     gs.road.roadScale.x = 6; // road width will be 6m - prone to change -- if it changes, need to account change with car positions and how much tank can move to left and right
