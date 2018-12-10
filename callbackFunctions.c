@@ -98,12 +98,14 @@ void onKeyboardInput(unsigned char key, int x, int y){
         case 'A':
             gs.tankMainPlayer.prevDir = gs.tankMainPlayer.currDir;
             gs.tankMainPlayer.currDir = -1;
+            gs.tankMainPlayer.prevDir = 0;
             break;
         // right
         case 'd':
         case 'D':
             gs.tankMainPlayer.prevDir = gs.tankMainPlayer.currDir;
             gs.tankMainPlayer.currDir = 1;
+            gs.tankMainPlayer.prevDir = 0;
             break;
     }    
     glutPostRedisplay();
@@ -115,14 +117,18 @@ void onKeyboardUp(unsigned char key, int x, int y){
         // left
         case 'a': 
         case 'A':
-            if(gs.tankMainPlayer.currDir == -1)
+            if(gs.tankMainPlayer.currDir == -1){
                 gs.tankMainPlayer.currDir = gs.tankMainPlayer.prevDir;
+                gs.tankMainPlayer.prevDir = 0;
+            }
             break;
         // right
         case 'd':
         case 'D':
-            if(gs.tankMainPlayer.currDir == 1)
+            if(gs.tankMainPlayer.currDir == 1){
                 gs.tankMainPlayer.currDir = gs.tankMainPlayer.prevDir;
+                gs.tankMainPlayer.prevDir = 0;
+            }
             break;
     }    
     glutPostRedisplay();
