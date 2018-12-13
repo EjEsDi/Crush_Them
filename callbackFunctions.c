@@ -7,6 +7,7 @@
 #include <time.h>
 #include <stdbool.h>
 #include "image.h"
+#include <unistd.h>
 
 /************************************
     Functions definitions start here
@@ -47,7 +48,6 @@ void onDisplay(void){
     lightForSun();
     drawSun();
     glDisable(GL_LIGHT1);
-
     glEnable(GL_LIGHT0);
     
     for (int i = 0; i < gs.car.numOfCars; i++){
@@ -133,23 +133,80 @@ void onKeyboardUp(unsigned char key, int x, int y){
     }    
     glutPostRedisplay();
 }
+
+void tankShoot(int button, int state, int x, int y){
+    NOT_USED_VAR(x); //TODO will be used when shooting starts
+    NOT_USED_VAR(y); // same
+    // shoot towards X Y
+    if(button == GLUT_LEFT_BUTTON){
+        if(state == GLUT_DOWN && gs.actionOnGoing){
+            gs.leftMouseDown = true;
+            gs.car.showShield = 1;
+            //TODO: add same thing as onMousePassive, so when button is held , it still keeps rotating.
+            printf("Click from tankShoot\n");
+        }else{
+            gs.leftMouseDown = false;
+        }
+    }
+}
+
+void onMousePassive(int x, int y){
+    NOT_USED_VAR(y);
+    //TODO: need to limit mouse movement on edges.
+    //TODO: when it reaches edge, even if it leaves screen, keep same X axis(-1 if needed to keep it inside)
+    gs.tankMainPlayer.rotateTurret.x = 0.1 * (gs.lastMouseX - x);
+    gs.lastMouseX = x;
+    if(gs.leftMouseDown){
+        tankShoot(GLUT_LEFT_BUTTON, GLUT_DOWN, 0, 0);
+    }
+    gs.lastMouseX = gs.WindowWidth/2;
+}
+
 void onTimer(int timer){
     if (timer == carSpeedTimer){
         //this timer moves cars
+        //TODO: This needs testing and fixing if its not good.
+        //doubt right now is that cars spawn on top of each other, or maybe too close(This isnt big deal, makes game bit harder)
+
         for(int i = 0; i < gs.car.numOfCars; i++){
             gs.carArray[i].carTranslate.z += 1;
             if(gs.carArray[i].carTranslate.z - 10 >= gs.tankMainPlayer.tankTranslate.z + 10){ // respawn car
-                gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
-                gs.carArray[i].carTranslate.z = gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint - 10;
+                if (gs.numberOfCrushes > 3){ // after 3 crushes, cars start getting shields
+                    if (gs.carArray[i].shieldOpacity < 1){
+                        gs.carArray[i].shieldOpacity += 0.5;
+                        gs.carArray[i].showShield = 1;
+                    }
+                }
+                gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[rand() % 3];
+                if (gs.car.lastZPoint != gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint)
+                    gs.carArray[i].carTranslate.z = gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint;
+                else
+                    gs.carArray[i].carTranslate.z = gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint - 50;
+                gs.car.lastZPoint = gs.carArray[i].carTranslate.z;
             }else if(collisionCheck(gs.tankMainPlayer, gs.carArray[i])){
+                
+                if(gs.carArray[i].showShield == 1 && gs.carArray[i].shieldOpacity == 1){ // If there is collision with car with full shield. Game over.
+                    //TODO give text on middle of screen that its game over
+                    sleep(3);
+                    exit(0);
+                }else{
+                    gs.carArray[i].shieldOpacity -= 0.5;
+                    if (gs.carArray[i].shieldOpacity == 0)
+                        gs.carArray[i].showShield = 0;
+                }
                 gs.numberOfCrushes++;
-                gs.carArray[i].carTranslate.z = gs.tankMainPlayer.tankTranslate.z - 70 - gs.car.ZSpawnPoint;// figure number instead -70 if needed
-                gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
+                if (gs.car.lastZPoint != gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint)
+                    gs.carArray[i].carTranslate.z = gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint;
+                else
+                    gs.carArray[i].carTranslate.z = gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint - 50;
+                gs.car.lastZPoint = gs.carArray[i].carTranslate.z;
+                gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[rand() % 3];
             }
+            
         }
-    }else if (timer == carSpawnTimer)    {
+    }else if (timer == carSpawnTimer){
         //This timer makes cars spawn in proper timers
-        if(gs.car.numOfCars <= MAX_CARS_ALLOWED)
+        if(gs.car.numOfCars < MAX_CARS_ALLOWED)
             gs.car.numOfCars++;
         else
             return;

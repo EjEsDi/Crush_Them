@@ -218,33 +218,75 @@ void drawScore(){
     glPopMatrix(); // Pop 1st copy matrix
     glutPostRedisplay(); // print all on screen
 }
-void drawCubeTank(const struct Tank tank){
+
+void drawCubeTank(const struct Tank tank)
+{   
     glPushMatrix();
+        // Start matrix at the position of the tank
         glTranslatef(tank.tankTranslate.x, tank.tankTranslate.y, tank.tankTranslate.z);
-        glScalef(tank.tankScale.x, tank.tankScale.y, tank.tankScale.z);
-        drawSquare();
-    glPopMatrix();
-    glPushMatrix();
-        glTranslatef(tank.tankTranslate.x, tank.tankTranslate.y + tank.tankScale.y, tank.tankTranslate.z);
-        glScalef(tank.tankScale.x / 1.2, tank.tankScale.y / 1.2, tank.tankScale.z / 1.2);
-        drawSquare();
-    glPopMatrix();
-    glPushMatrix();
-        glTranslatef(tank.tankTranslate.x, tank.tankTranslate.y + tank.tankScale.y*1.5, tank.tankTranslate.z-2);
-        glScalef(0.2, 0.2, 1);
-        glutSolidSphere(1, 20, 20);
+        // Save the tank-scale, we dont want that to apply to the turret and gun
+        glPushMatrix();
+            glScalef(tank.tankScale.x, tank.tankScale.y, tank.tankScale.z);
+            drawSquare();
+        glPopMatrix();
+        // Move the matrix up by the tank height, so we get the turret ontop of the tank
+        glTranslatef(0, tank.tankScale.y, 0);
+        // This will rotate the turret and gun
+        glRotatef(gs.tankMainPlayer.rotateTurret.x, 0, 1, 0);
+        struct Vector3f turretSize;
+        turretSize.x = tank.tankScale.x / 1.2;
+        turretSize.y = tank.tankScale.y / 1.2;
+        turretSize.z = tank.tankScale.z / 1.2;
+        // Save the turret-scale, we dont want that to apply to the gun
+        glPushMatrix();
+            glScalef(turretSize.x, turretSize.y, turretSize.z);
+            drawSquare();
+        glPopMatrix();
+
+        // Dont really need to save matrix here, since this is the last transformations we do anyway
+        glPushMatrix();
+            float barrelLenght = 1.5;
+
+            // Start by moving the barrel origin to the edge of the turret
+            float barrelZPosition = turretSize.z * 0.5;
+            // Then move the barrel by half its lenght, so that we push the rest of the barrel out of the turret
+            barrelZPosition += barrelLenght * 0.5;
+
+            // Move the barrel UP by half the turret-size, so that its centered on the turret
+            float barrelYPosition = turretSize.y * 0.5;
+
+            glTranslatef(0, barrelYPosition, -barrelZPosition);
+            glScalef(0.2, 0.2, barrelLenght);
+            
+            glutSolidSphere(1, 20, 20);
+            
+        glPopMatrix();
     glPopMatrix();
 }
 void drawCar(const struct Car car){
     glPushMatrix();
-        glTranslatef(car.carTranslate.x, car.carTranslate.y, car.carTranslate.z);
+    glTranslatef(car.carTranslate.x, car.carTranslate.y, car.carTranslate.z); // use same Translate for Car and for Shield
+    glPushMatrix();
         glScalef(car.carScale.x, car.carScale.y, car.carScale.z);
         glRotatef(car.carRotate.x, 1, 0, 0);
         glRotatef(car.carRotate.y, 0, 1, 0);
         glRotatef(car.carRotate.z, 0, 0, 1);
         drawSquare();
     glPopMatrix();
+    if(car.showShield == 1){//TODO: Sometimes, shields aren't fully visible, feeling that they are slowly growing around car even tho they are there
+        glPushMatrix();
+            glEnable(GL_COLOR_MATERIAL);
+            glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glColor4f(1, 0, 0, car.shieldOpacity);
+                glutSolidSphere(car.carScale.y + 0.3, 50, 50); // Spawns shield around car.
+            glDisable(GL_BLEND);
+            glDisable(GL_COLOR_MATERIAL);
+        glPopMatrix();
+    }
+    glPopMatrix();
 }
+
 void drawSideRoad(const struct Road road){
     glPushMatrix();
         glTranslatef(road.roadTranslation.x, road.roadTranslation.y, road.roadTranslation.z);
@@ -256,7 +298,6 @@ void drawSideRoad(const struct Road road){
         glLineWidth(1);
         struct Vector3f v3f = {1, 1, 1};
         glBindTexture(GL_TEXTURE_2D, names[0]);
-        //setVertexColor(.45, .27, .13);
         setVertexColor(.5,.5,.5);
         glNormal3f(0, 1, 0);
         glBegin(GL_QUADS);
@@ -299,10 +340,13 @@ void tankInit(){
     gs.tankMainPlayer.tankScale.y = 1;
     gs.tankMainPlayer.tankScale.z = 3;
 
+    gs.tankMainPlayer.rotateTurret.x = 0;
+
     gs.tankMainPlayer.tankSpeed = 30; 
     gs.tankMainPlayer.currDir = 0;
     gs.tankMainPlayer.prevDir = 0;
-    gs.tankMainPlayer.v = 0;
+
+    gs.lastMouseX = gs.WindowHeight/2;
 }
 void roadInit(){
     gs.road.roadScale.x = 6; // road width will be 6m - prone to change -- if it changes, need to account change with car positions and how much tank can move to left and right
@@ -349,11 +393,12 @@ void carsInit(){
     gs.car.numOfCars = 1; // used for drawing cars.
 
     srand(time(NULL));
-    gs.car.setOfCarXPositionsAllowedValues[0] = -3.;
+    gs.car.setOfCarXPositionsAllowedValues[0] = -4;
     gs.car.setOfCarXPositionsAllowedValues[1] = 0;
-    gs.car.setOfCarXPositionsAllowedValues[2] = 3.;
+    gs.car.setOfCarXPositionsAllowedValues[2] = 4;
     gs.car.ZSpawnPoint = 300; // How far away from tank, cars should spawn
     gs.car.carSpeed = 30; 
+    
     
     for(int i = 0; i < MAX_CARS_ALLOWED; i++){
         gs.carArray[i].carScale.x = 1;
@@ -367,9 +412,13 @@ void carsInit(){
         gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
         gs.carArray[i].carTranslate.y = -1;
         gs.carArray[i].carTranslate.z = gs.car.ZSpawnPoint;
+        gs.car.lastZPoint = gs.carArray[i].carTranslate.z;
+        gs.car.showShield = 0;
+        gs.car.shieldOpacity = 0;
     }
     //Timers for callback onTimer function
     gs.car.timeCarSpawn = 1000;   // 1 sec
+
 }
 void rightSideRoadInit(){
     //same as road, move it to side(left and right), different collor

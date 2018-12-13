@@ -33,12 +33,15 @@ struct Car{
     struct Vector3f carScale;
     struct Vector3f carTranslate;
     struct Vector3f carRotate;
+    int showShield;
+    float shieldOpacity;
+    int lastZPoint;
 };
 struct Tank{
     struct Vector3f tankTranslate;
     struct Vector3f tankScale;
+    struct Vector3f rotateTurret;
     float tankSpeed;
-    int v; // its used as vector of movement of tank,towards left, stands in spot, towards right -1, 0 , 1
     int prevDir;
     int currDir;
 };
@@ -75,6 +78,8 @@ struct gameState{
     float cameraMovement;
     int numberOfCrushes;
     float lightModifier;
+    int lastMouseX;
+    bool leftMouseDown;
 };
 
 void init(void);

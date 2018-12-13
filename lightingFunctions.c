@@ -4,8 +4,11 @@
 #include "drawFunctions.h"
 #include "callbackFunctions.h"
 
-void light(){
+//TODO: what is way to put light where sun is.
+//Issue somewhat is that sun has fixed coordinates and is being rotated?
 
+void light(){
+    //TODO: this light will need some sort of fix. Its hiting spheres around cars, and turret on tank. Why is that?
     //Light coeffs
     GLfloat light_position[] = {gs.sun.lightCoef.x, gs.sun.lightCoef.y, gs.sun.lightCoef.z, 0};
     GLfloat light_ambient[] = {0, 0, 0, 1};
