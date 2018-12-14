@@ -37,6 +37,7 @@ void drawSun(){
         glutSolidSphere(1, 50, 50);
     glPopMatrix();
 }
+
 void skyChangeFunction(){
     if (gs.sun.sunRotate.z >= 360){ // instead of moduo 360
         gs.sun.sunRotate.z = 0;
@@ -106,7 +107,7 @@ void skyChangeFunction(){
 }
 void drawSquare(){
         glBegin(GL_QUADS);
-            //green - front
+            //blue - front
             glNormal3f(0, 1, 0);
             setVertexColor(0, 0, 1);
             glVertex3f(-0.5, 0, -0.5);
@@ -115,7 +116,7 @@ void drawSquare(){
             glVertex3f(0.5, 0, -0.5);
 
             //green - back
-            glNormal3f(0, 0, -1);
+            glNormal3f(0, -1, 0);
             setVertexColor(0, 1, 0);
             glVertex3f(-0.5, 0, +0.5);
             glVertex3f(-0.5, 1, +0.5);
@@ -159,38 +160,85 @@ void drawSquare(){
 }
 void drawRoad(const struct Road road){
     glPushMatrix();
-        glTranslatef(road.roadTranslation.x, road.roadTranslation.y, road.roadTranslation.z);
-        glScalef(road.roadScale.x, road.roadScale.y, road.roadScale.z);
+        struct Vector3f v3f = {.5, .5, .5};
+
+        glTranslatef(road.roadTranslation.x, road.roadTranslation.y-1.5f, road.roadTranslation.z);
+        glScalef(road.roadScale.x * 2.f, road.roadScale.y, road.roadScale.z * 2.f);
         glRotatef(road.roadRotation.x, 1, 0, 0);
         glRotatef(road.roadRotation.y, 0, 1, 0);
         glRotatef(road.roadRotation.z, 0, 0, 1);
+
+        drawSingleColorSquare();
         
-        glLineWidth(1);
-        struct Vector3f v3f = {1, 1, 1};
-
-        setVertexColor(0.3, 0.3, 0.3);
-        glBegin(GL_POLYGON);
-            glNormal3f(0, 1, 0);
-            glVertex3f(-v3f.x,-v3f.y, v3f.z);//bottom left
-            glVertex3f(v3f.x, -v3f.y, v3f.z);//bottom right
-            glVertex3f(v3f.x, v3f.y, v3f.z);//top right
-            glVertex3f(-v3f.x, v3f.y, v3f.z);//top left
-        glEnd();
-
         glLineWidth(4);
         glBegin(GL_LINES);
                 setVertexColor(1, 1, 1);
                 //left line
                 glNormal3f(0, 1, 0);
-                glVertex3f(-v3f.x/3, -v3f.y, v3f.z-0.1); // z-axis, -0.01 is just so we see lines
-                glVertex3f(-v3f.x/3, v3f.y, v3f.z-0.1);  // they are just tiny bit above road it self
+                glVertex3f(-v3f.x/3, -v3f.y, v3f.z-1.01); // z-axis, -1.01 is just so we see lines
+                glVertex3f(-v3f.x/3, v3f.y, v3f.z-1.01);  // they are just tiny bit above road it self
                 //right line                                // better solution?
                 glNormal3f(0, 1, 0);
-                glVertex3f(v3f.x/3, -v3f.y, v3f.z-0.1); 
-                glVertex3f(v3f.x/3, v3f.y, v3f.z-0.1);
+                glVertex3f(v3f.x/3, -v3f.y, v3f.z-1.01); 
+                glVertex3f(v3f.x/3, v3f.y, v3f.z-1.01);
         glEnd();
     glPopMatrix();
 }
+
+void drawSingleColorSquare(){
+    glBegin(GL_QUADS);
+        //blue - front
+        glNormal3f(0, 1, 0);
+        setVertexColor(.3, .3, .3);
+        glVertex3f(-0.5, 0, -0.5);
+        glVertex3f(-0.5, 1, -0.5);
+        glVertex3f(0.5, 1, -0.5);
+        glVertex3f(0.5, 0, -0.5);
+
+        //green - back
+        glNormal3f(0, -1, 0);
+        setVertexColor(.3, .3, .3);
+        glVertex3f(-0.5, 0, +0.5);
+        glVertex3f(-0.5, 1, +0.5);
+        glVertex3f(0.5, 1, 0.5);
+        glVertex3f(0.5, 0, 0.5);
+
+        //sides
+        // purple - right
+        glNormal3f(1.0, 0.0, 0.0);
+        setVertexColor(.3, .3, .3);
+        glVertex3f(0.5, 0, -0.5);
+        glVertex3f(0.5, 1, -0.5);
+        glVertex3f(0.5, 1, +0.5);
+        glVertex3f(0.5, 0, +0.5);
+
+        //brown- left
+        glNormal3f(-1.0, 0.0, 0.0);
+        setVertexColor(.3, .3, .3);
+        glVertex3f(-0.5, 0, -0.5);
+        glVertex3f(-0.5, 1, -0.5);
+        glVertex3f(-0.5, 1, +0.5);
+        glVertex3f(-0.5, 0, +0.5);
+
+        // top and bottom
+        //white - bottom
+        glNormal3f(0, -1, 0);
+        setVertexColor(.3, .3, .3);
+        glVertex3f(-0.5, 0, +0.5);
+        glVertex3f(+0.5, 0, +0.5);
+        glVertex3f(+0.5, 0, -0.5);
+        glVertex3f(-0.5, 0, -0.5);
+
+        //yellow - top
+        glNormal3f(0.0, 1.0, 0.0);
+        setVertexColor(.3, .3, .3);
+        glVertex3f(0.5, 1, +0.5);
+        glVertex3f(-0.5, 1, +0.5);
+        glVertex3f(-0.5, 1, -0.5);
+        glVertex3f(0.5, 1, -0.5);
+    glEnd();
+}
+
 void drawScore(){
     glColor3f(1, 0 ,0);
     glMatrixMode(GL_PROJECTION); // Take current project matrix
@@ -218,6 +266,43 @@ void drawScore(){
         glMatrixMode(GL_MODELVIEW); // Put Model back in
     glPopMatrix(); // Pop 1st copy matrix
     glutPostRedisplay(); // print all on screen
+}
+
+void drawEndGame(){
+    glColor3f(1, 0 ,0);
+    glMatrixMode(GL_PROJECTION); // Take current project matrix
+    glPushMatrix();  // Push so we work with new "copy" matrix
+        glLoadIdentity(); // Identity
+        glMatrixMode(GL_MODELVIEW); // Add modelMatrix to it
+            glPushMatrix(); // push so we work with new "copy" matrix
+                glLoadIdentity(); // identity
+                gluOrtho2D(0.0, gs.WindowWidth, 0.0, gs.WindowHeight); // work within window
+                    //add score drawing with bitmap
+                    char gameOver[11] = "Game over!";
+                    //set the position of the text in the window using the x and y coordinates
+                    glRasterPos2i(gs.WindowWidth/2 - 60,gs.WindowHeight/2);
+                    //get the length of the string to display
+                    int len = (int)strlen(gameOver);
+                    //loop to display character by character
+                    for (int i = 0; i < len; i++){
+                        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, gameOver[i]);
+                    }
+                glMatrixMode(GL_PROJECTION); // put Projection matrix back in
+            glPopMatrix(); // Pop 2nd copy matrix
+        glMatrixMode(GL_MODELVIEW); // Put Model back in
+    glPopMatrix(); // Pop 1st copy matrix
+    glutPostRedisplay(); // print all on screen
+}
+
+void drawBullet(){
+    glPushMatrix();
+    glLoadIdentity();
+    glTranslatef(gs.bullet.position.x - gs.bullet.direction.x, gs.bullet.position.y - gs.bullet.direction.y, gs.bullet.position.z - gs.bullet.direction.z);
+    //glScalef(0.5, 0.5, 0.5);
+    //drawSquare();
+    glColor3f(.3, .3, .3);
+    glutSolidSphere(0.3, 10, 10);
+    glPopMatrix();
 }
 
 void drawCubeTank(const struct Tank tank)
@@ -257,11 +342,27 @@ void drawCubeTank(const struct Tank tank)
             float barrelYPosition = turretSize.y * 0.5;
 
             glTranslatef(0, barrelYPosition, -barrelZPosition);
+
+            GLfloat bulletMatrix[16];
+            glGetFloatv(GL_MODELVIEW_MATRIX, bulletMatrix);
+            gs.bullet.position.x = bulletMatrix[12];
+            gs.bullet.position.y = bulletMatrix[13];
+            gs.bullet.position.z = bulletMatrix[14];
+
+            gs.bullet.direction.x = bulletMatrix[8]*1.3;
+            gs.bullet.direction.y = bulletMatrix[9]*1.3;
+            gs.bullet.direction.z = bulletMatrix[10]*1.3;
+
             glScalef(0.2, 0.2, barrelLenght);
             
             glutSolidSphere(1, 20, 20);
             
         glPopMatrix();
+        if(gs.tankMainPlayer.shoot == true){
+            glPushMatrix();
+                drawBullet();
+            glPopMatrix();
+        }
     glPopMatrix();
 }
 void drawCar(const struct Car car){
@@ -299,7 +400,7 @@ void drawSideRoad(const struct Road road){
         glLineWidth(1);
         struct Vector3f v3f = {1, 1, 1};
         glBindTexture(GL_TEXTURE_2D, names[0]);
-        setVertexColor(.5,.5,.5);
+        setVertexColor(1,1,1);
         glNormal3f(0, 1, 0);
         glBegin(GL_QUADS);
             glTexCoord2f(-2, -2);
@@ -329,7 +430,17 @@ bool collisionCheck(struct Tank tank, struct Car car){
     
     return collisionX && collisionY && collisionZ;
 }
+
+struct Vector3f getDirection(struct Vector3f a, struct Vector3f b){
+    struct Vector3f result = b;
+    result.x -= a.x;
+    result.y -= a.y;
+    result.z -= a.z;
+    return normalize(result);
+}
+
 struct Vector3f normalize(struct Vector3f a){
+    // fix for 0, 0
     float len = sqrt((a.x*a.x)+(a.y*a.y)+(a.z+a.z));
     struct Vector3f result;
     result.x = a.x / len;
@@ -566,4 +677,5 @@ void initRenderingObjects(){
     gs.cameraMovement = 0;
     gs.lightModifier = 0.0;
     gs.numberOfCrushes = 0;
+    gs.gameover = false;
 }

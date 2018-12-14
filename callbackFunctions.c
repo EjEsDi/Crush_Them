@@ -14,8 +14,6 @@
 *************************************/
 
 void onDisplay(void){
-    //Light position
-    
     //remove old content
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -43,6 +41,13 @@ void onDisplay(void){
 
     glDisable(GL_LIGHTING);
     drawScore();
+    if(gs.gameover == true && gs.actionOnGoing == 0){
+        drawEndGame();
+        glutSwapBuffers();
+        sleep(3);
+        exit(0);
+    }
+
     glEnable(GL_LIGHTING);
 
     glDisable(GL_LIGHT0);
@@ -143,8 +148,10 @@ void tankShoot(int button, int state, int x, int y){
             gs.car.showShield = 1;
             //TODO: add same thing as onMousePassive, so when button is held , it still keeps rotating.
             printf("Click from tankShoot\n");
+            gs.tankMainPlayer.shoot = true;
         }else{
             gs.leftMouseDown = false;
+            gs.tankMainPlayer.shoot = false;
         }
     }
 }
@@ -163,8 +170,11 @@ void onMousePassive(int x, int y){
 
 void onTimer(int timer){
     if (timer == carSpeedTimer){
-        //this timer moves cars
+        // 14.12.2018 , did some change again , still had issues with few cars on same spot. Looking for better solution.
+        // right now if car passes u, it will go in same lane, over and over.
+        // this timer moves cars
         for(int i = 0; i < gs.car.numOfCars; i++){
+            
             gs.carArray[i].carTranslate.z += 1;
             
             if(gs.carArray[i].carTranslate.z - 10 >= gs.tankMainPlayer.tankTranslate.z + 10){ // respawn car
@@ -175,8 +185,8 @@ void onTimer(int timer){
                     }
                 }
                 
-                if (gs.car.lastZPoint != gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint)
-                    gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[rand() % 3];
+                if (gs.car.lastZPoint != gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint - 30)
+                    gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[i%3];
                 else{
                     if(gs.carArray[gs.car.lastCar].carTranslate.x == gs.car.setOfCarXPositionsAllowedValues[2]){
                         gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[1];
@@ -190,9 +200,8 @@ void onTimer(int timer){
                 gs.car.lastZPoint = gs.carArray[i].carTranslate.z;
             }else if(collisionCheck(gs.tankMainPlayer, gs.carArray[i])){
                 if(gs.carArray[i].showShield == 1 && gs.carArray[i].shieldOpacity == 1){ // If there is collision with car with full shield. Game over.
-                    //TODO give text on middle of screen that its game over
-                    sleep(3);
-                    exit(0);
+                    gs.gameover = true;
+                    gs.actionOnGoing = 0;
                 }else{
                     if(gs.carArray[i].shieldOpacity > 0)
                         gs.carArray[i].shieldOpacity -= 0.5;
@@ -200,10 +209,10 @@ void onTimer(int timer){
                         gs.carArray[i].showShield = 0;
                 }
                 gs.numberOfCrushes++;
-               
+                
                 if (gs.car.lastZPoint != gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint){
-                    gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
-                    gs.carArray[i].carTranslate.z = gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint - 10;
+                    gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[rand() % 3];
+                    gs.carArray[i].carTranslate.z = gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint;
                 }else{
                     if(gs.carArray[gs.car.lastCar].carTranslate.x == gs.car.setOfCarXPositionsAllowedValues[2]){
                         gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[1];
@@ -212,8 +221,7 @@ void onTimer(int timer){
                     }else{
                         gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[2];
                     }
-                    
-                    gs.carArray[i].carTranslate.z = gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint - 10;
+                    gs.carArray[i].carTranslate.z = gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint - 30;
                 }
                 gs.car.lastZPoint = gs.carArray[i].carTranslate.z;
             }

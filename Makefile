@@ -7,19 +7,19 @@ LDLIBS  = -lglut -lGLU -lGL -lm
 $(PROGRAM): crush_them.o drawFunctions.o callbackFunctions.o lightingFunctions.o image.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $(PROGRAM) crush_them.o drawFunctions.o callbackFunctions.o lightingFunctions.o image.o $(LDLIBS) 
 
-drawFunctions.o: drawFunctions.c
+drawFunctions.o: drawFunctions.c callbackFunctions.h lightingFunctions.h image.h
 	$(CC) $(CFLAGS) -c $(LDFLAGS) drawFunctions.c $(LDLIBS)
 
-callbackFunctions.o: callbackFunctions.c
+callbackFunctions.o: callbackFunctions.c drawFunctions.h lightingFunctions.h image.h
 	$(CC) $(CFLAGS) -c $(LDFLAGS) callbackFunctions.c $(LDLIBS)
 
-lightingFunctions.o: lightingFunctions.c
+lightingFunctions.o: lightingFunctions.c drawFunctions.h callbackFunctions.h image.h
 	$(CC) $(CFLAGS) -c $(LDFLAGS) lightingFunctions.c $(LDLIBS)
 
-image.o: image.c
+image.o: image.c lightingFunctions.c drawFunctions.h callbackFunctions.h 
 	$(CC) $(CFLAGS) -c $(LDFLAGS) image.c $(LDLIBS)
 
-crush_them.o: crush_them.c
+crush_them.o: crush_them.c lightingFunctions.h drawFunctions.h callbackFunctions.h image.o
 	$(CC) $(CFLAGS) -c $(LDFLAGS) crush_them.c $(LDLIBS)
 	
 .PHONY: beauty clean dist

@@ -10,9 +10,28 @@
 void light(){
     //TODO: this light will need some sort of fix. Its hiting spheres around cars, and turret on tank. Why is that?
     //Light coeffs
-    GLfloat light_position[] = {gs.sun.lightCoef.x, gs.sun.lightCoef.y, gs.sun.lightCoef.z, 0};
-    GLfloat light_ambient[] = {0, 0, 0, 1};
-    GLfloat light_diffuse[] = {1, 1, 1, 1};
+
+    glPushMatrix();
+        glLoadIdentity();
+        glRotatef(gs.sun.sunRotate.x, 1, 0, 0);
+        glRotatef(gs.sun.sunRotate.y, 0, 1, 0);
+        glRotatef(gs.sun.sunRotate.z, 0, 0, 1);
+        glTranslatef(gs.sun.sunTranslate.x, gs.sun.sunTranslate.y, gs.sun.sunTranslate.z + gs.tankMainPlayer.tankTranslate.z);
+        GLfloat translatedsun[16];
+        glGetFloatv(GL_MODELVIEW_MATRIX, translatedsun);
+    glPopMatrix();
+
+    gs.sun.sunPosition.x = translatedsun[12];
+    gs.sun.sunPosition.y = translatedsun[13];
+    gs.sun.sunPosition.z = translatedsun[14];
+
+    struct Vector3f direction = getDirection(gs.tankMainPlayer.tankTranslate, gs.sun.sunPosition);
+    gs.sun.lightDirection.x = direction.x;
+    gs.sun.lightDirection.y = direction.y;
+    gs.sun.lightDirection.z = direction.z;
+    GLfloat light_position[] = {gs.sun.lightDirection.x,gs.sun.lightDirection.y, gs.sun.lightDirection.z, 0};
+    GLfloat light_ambient[] = {.3, .3, .3, 1};
+    GLfloat light_diffuse[] = {.8, .8, .8, 1};
     GLfloat light_specular[] = {1, 1, 1, 1};
     
     // Light parameters
@@ -49,10 +68,10 @@ void lightForSun(){
 
 void setVertexColor(float R, float G, float B)
 {
-    GLfloat diffuse[] = {R - gs.lightModifier, G - gs.lightModifier, B - gs.lightModifier, 1};
-    GLfloat ambient[] = {R + gs.lightModifier, G + gs.lightModifier, B + gs.lightModifier, 1};
-    GLfloat specular[] = {1, 1, 1, 1};
-    GLfloat shininess = 50;
+    GLfloat diffuse[] = {R + gs.lightModifier, G + gs.lightModifier, B + gs.lightModifier, 1};
+    GLfloat ambient[] = {R - gs.lightModifier, G - gs.lightModifier, B - gs.lightModifier, 1};
+    GLfloat specular[] = {0, 0, 0, 1};
+    GLfloat shininess = 20;
     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
