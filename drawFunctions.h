@@ -36,6 +36,7 @@ struct Car{
     int showShield;
     float shieldOpacity;
     int lastZPoint;
+    int lastCar;
 };
 struct Tank{
     struct Vector3f tankTranslate;
@@ -62,6 +63,7 @@ struct Sun{
     int quadrant;
     float mod;
 };
+
 //Keeps info about whole game state
 struct gameState{
     struct Car carArray[MAX_CARS_ALLOWED];
@@ -100,4 +102,5 @@ void rightSideRoadInit();
 void leftSideRoadInit();
 void drawSideRoad(const struct Road road);
 bool collisionCheck(struct Tank tank, struct Car car);
+struct Vector3f normalize(struct Vector3f);
 #endif

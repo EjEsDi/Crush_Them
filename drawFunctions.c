@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "image.h"
+#include <math.h>
 
 /************************************
     Functions definitions start here
@@ -251,7 +252,7 @@ void drawCubeTank(const struct Tank tank)
             float barrelZPosition = turretSize.z * 0.5;
             // Then move the barrel by half its lenght, so that we push the rest of the barrel out of the turret
             barrelZPosition += barrelLenght * 0.5;
-
+            
             // Move the barrel UP by half the turret-size, so that its centered on the turret
             float barrelYPosition = turretSize.y * 0.5;
 
@@ -273,15 +274,15 @@ void drawCar(const struct Car car){
         glRotatef(car.carRotate.z, 0, 0, 1);
         drawSquare();
     glPopMatrix();
-    if(car.showShield == 1){//TODO: Sometimes, shields aren't fully visible, feeling that they are slowly growing around car even tho they are there
+    if(car.showShield == 1){
         glPushMatrix();
-            glEnable(GL_COLOR_MATERIAL);
-            glEnable(GL_BLEND);
+                glEnable(GL_BLEND);
+                glEnable(GL_COLOR_MATERIAL);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 glColor4f(1, 0, 0, car.shieldOpacity);
-                glutSolidSphere(car.carScale.y + 0.3, 50, 50); // Spawns shield around car.
-            glDisable(GL_BLEND);
-            glDisable(GL_COLOR_MATERIAL);
+                glutSolidSphere(car.carScale.y + 0.3, 10, 10); // Spawns shield around car.
+                glDisable(GL_BLEND);
+                glDisable(GL_COLOR_MATERIAL);
         glPopMatrix();
     }
     glPopMatrix();
@@ -328,8 +329,16 @@ bool collisionCheck(struct Tank tank, struct Car car){
     
     return collisionX && collisionY && collisionZ;
 }
+struct Vector3f normalize(struct Vector3f a){
+    float len = sqrt((a.x*a.x)+(a.y*a.y)+(a.z+a.z));
+    struct Vector3f result;
+    result.x = a.x / len;
+    result.y = a.y / len;
+    result.z = a.z / len;
+    return result;
+}
 
-/* Object initializer functions */ // Move these in separate file?
+/* Object initializer functions */ //?Move these in separate file?
 
 void tankInit(){
     gs.tankMainPlayer.tankTranslate.x = 0;
@@ -418,7 +427,7 @@ void carsInit(){
     }
     //Timers for callback onTimer function
     gs.car.timeCarSpawn = 1000;   // 1 sec
-
+    gs.car.lastCar = 0;
 }
 void rightSideRoadInit(){
     //same as road, move it to side(left and right), different collor
@@ -523,6 +532,7 @@ void sunInit(){
     gs.sun.mod = 0.0033; //TODO: fix math in code, this number is paper math
     gs.sun.quadrant = 1;
 }
+
 void imageInit(){
     //Code taken from class and edited for own needs.
     Image * image;

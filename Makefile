@@ -2,7 +2,7 @@ PROGRAM = crush_them
 CC      = gcc
 CFLAGS  = -g -std=c99 -Wall -Wextra -I/usr/X11R6/include -I/usr/pkg/include
 LDFLAGS = -L/usr/X11R6/lib -L/usr/pkg/lib
-LDLIBS  = -lglut -lGLU -lGL
+LDLIBS  = -lglut -lGLU -lGL -lm
 
 $(PROGRAM): crush_them.o drawFunctions.o callbackFunctions.o lightingFunctions.o image.o
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $(PROGRAM) crush_them.o drawFunctions.o callbackFunctions.o lightingFunctions.o image.o $(LDLIBS) 
