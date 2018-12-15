@@ -70,6 +70,8 @@ struct Sun{
 struct Bullet{
     struct Vector3f position;
     struct Vector3f direction;
+    struct Vector3f movement;
+    float a;
 };
 
 //Keeps info about whole game state
@@ -109,12 +111,13 @@ void drawScore();
 void sunInit();
 void skyChangeFunction();
 void rightSideRoadInit();
-void drawBullet() ;
+void drawBullet();
 struct Vector3f getDirection(struct Vector3f a, struct Vector3f b);
 void leftSideRoadInit();
 void drawSideRoad(const struct Road road);
-bool collisionCheck(struct Tank tank, struct Car car);
+bool collisionCheck(struct Vector3f a, struct Vector3f b, struct Vector3f asize, struct Vector3f bsize);
 struct Vector3f normalize(struct Vector3f);
 void drawEndGame();
 void drawSingleColorSquare();
+void bulletInit();
 #endif

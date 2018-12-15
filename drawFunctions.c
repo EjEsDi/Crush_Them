@@ -294,17 +294,6 @@ void drawEndGame(){
     glutPostRedisplay(); // print all on screen
 }
 
-void drawBullet(){
-    glPushMatrix();
-    glLoadIdentity();
-    glTranslatef(gs.bullet.position.x - gs.bullet.direction.x, gs.bullet.position.y - gs.bullet.direction.y, gs.bullet.position.z - gs.bullet.direction.z);
-    //glScalef(0.5, 0.5, 0.5);
-    //drawSquare();
-    glColor3f(.3, .3, .3);
-    glutSolidSphere(0.3, 10, 10);
-    glPopMatrix();
-}
-
 void drawCubeTank(const struct Tank tank)
 {   
     glPushMatrix();
@@ -343,28 +332,39 @@ void drawCubeTank(const struct Tank tank)
 
             glTranslatef(0, barrelYPosition, -barrelZPosition);
 
-            GLfloat bulletMatrix[16];
-            glGetFloatv(GL_MODELVIEW_MATRIX, bulletMatrix);
-            gs.bullet.position.x = bulletMatrix[12];
-            gs.bullet.position.y = bulletMatrix[13];
-            gs.bullet.position.z = bulletMatrix[14];
+            if(gs.tankMainPlayer.shoot){ // when mouse click, activate it, shoot deactivates on mouse release
+                GLfloat bulletMatrix[16];
+                glGetFloatv(GL_MODELVIEW_MATRIX, bulletMatrix);
+                gs.bullet.position.x = bulletMatrix[12] + gs.bullet.movement.x;
+                gs.bullet.position.y = bulletMatrix[13] + gs.bullet.movement.y;
+                gs.bullet.position.z = bulletMatrix[14] + gs.bullet.movement.z;
 
-            gs.bullet.direction.x = bulletMatrix[8]*1.3;
-            gs.bullet.direction.y = bulletMatrix[9]*1.3;
-            gs.bullet.direction.z = bulletMatrix[10]*1.3;
-
+                gs.bullet.direction.x = bulletMatrix[8]*1.3;
+                gs.bullet.direction.y = bulletMatrix[9]*1.3;
+                gs.bullet.direction.z = bulletMatrix[10]*1.3;
+            }
             glScalef(0.2, 0.2, barrelLenght);
-            
             glutSolidSphere(1, 20, 20);
-            
         glPopMatrix();
-        if(gs.tankMainPlayer.shoot == true){
-            glPushMatrix();
-                drawBullet();
-            glPopMatrix();
-        }
     glPopMatrix();
 }
+
+void drawBullet()
+{
+    glPushMatrix();
+        glLoadIdentity();
+        glTranslatef(gs.bullet.position.x - gs.bullet.direction.x, gs.bullet.position.y - gs.bullet.direction.y, gs.bullet.position.z - gs.bullet.direction.z);
+        glDisable(GL_LIGHT0);
+        glEnable(GL_LIGHT1);
+        glEnable(GL_COLOR_MATERIAL);
+        glColor3f(.3, .3, .3);
+        glutSolidSphere(0.3, 10, 10);
+        glDisable(GL_LIGHT1);
+        glDisable(GL_COLOR_MATERIAL);
+        glEnable(GL_LIGHT0);
+    glPopMatrix();
+}
+
 void drawCar(const struct Car car){
     glPushMatrix();
     glTranslatef(car.carTranslate.x, car.carTranslate.y, car.carTranslate.z); // use same Translate for Car and for Shield
@@ -416,22 +416,20 @@ void drawSideRoad(const struct Road road){
     glPopMatrix();
 }
 
-bool collisionCheck(struct Tank tank, struct Car car){
+bool collisionCheck(struct Vector3f a, struct Vector3f b, struct Vector3f asize, struct Vector3f bsize){
     // Collision x-axis
-    bool collisionX = tank.tankTranslate.x + tank.tankScale.x >= car.carTranslate.x &&
-        car.carTranslate.x + car.carScale.x >= tank.tankTranslate.x;
+    bool collisionX = a.x + asize.x >= b.x && b.x + bsize.x >= a.x;
     // Collision y-axis
-    bool collisionY = tank.tankTranslate.y + tank.tankScale.y >= car.carTranslate.y &&
-        car.carTranslate.y + car.carScale.y >= tank.tankTranslate.y;
+    bool collisionY = a.y + asize.y >= b.y && b.y + bsize.y >= a.y;
     //Collision z-axis
-    bool collisionZ = tank.tankTranslate.z + tank.tankScale.z >= car.carTranslate.z &&
-        car.carTranslate.z + car.carScale.z >= tank.tankTranslate.z;
+    bool collisionZ = a.z + asize.z >= b.z && b.z + bsize.z >= a.z;
     // Collision only if on all three axes
-    
+
     return collisionX && collisionY && collisionZ;
 }
 
-struct Vector3f getDirection(struct Vector3f a, struct Vector3f b){
+    struct Vector3f getDirection(struct Vector3f a, struct Vector3f b)
+{
     struct Vector3f result = b;
     result.x -= a.x;
     result.y -= a.y;
@@ -467,6 +465,8 @@ void tankInit(){
     gs.tankMainPlayer.prevDir = 0;
 
     gs.lastMouseX = gs.WindowHeight/2;
+
+    gs.tankMainPlayer.shoot = false;
 }
 void roadInit(){
     gs.road.roadScale.x = 6; // road width will be 6m - prone to change -- if it changes, need to account change with car positions and how much tank can move to left and right
@@ -508,6 +508,13 @@ void roadInit(){
     gs.road3.roadTranslation.y = 0;
     gs.road3.roadTranslation.z = -1200;
 }
+void bulletInit(){
+
+    gs.bullet.movement.x = 0;
+    gs.bullet.movement.y = 0;
+    gs.bullet.movement.z = 0;
+
+}
 void carsInit(){
     // Init cars
     gs.car.numOfCars = 1; // used for drawing cars.
@@ -518,7 +525,6 @@ void carsInit(){
     gs.car.setOfCarXPositionsAllowedValues[2] = 4;
     gs.car.ZSpawnPoint = 300; // How far away from tank, cars should spawn
     gs.car.carSpeed = 30; 
-    
     
     for(int i = 0; i < MAX_CARS_ALLOWED; i++){
         gs.carArray[i].carScale.x = 1;
@@ -673,6 +679,7 @@ void initRenderingObjects(){
     tankInit();
     skyInit();
     sunInit();
+    bulletInit();
     imageInit();
     gs.cameraMovement = 0;
     gs.lightModifier = 0.0;

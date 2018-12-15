@@ -60,6 +60,10 @@ void onDisplay(void){
         drawCar(gs.carArray[i]); 
     }
     
+    if(gs.tankMainPlayer.shoot){
+        drawBullet();
+    }
+
     drawCubeTank(gs.tankMainPlayer);
     // draw all on main buffer
     glutSwapBuffers();
@@ -141,17 +145,19 @@ void onKeyboardUp(unsigned char key, int x, int y){
 }
 
 void tankShoot(int button, int state, int x, int y){
-    // shoot towards X Y
-    if(button == GLUT_LEFT_BUTTON){
-        if(state == GLUT_DOWN){
-            gs.leftMouseDown = true;
-            gs.car.showShield = 1;
-            //TODO: add same thing as onMousePassive, so when button is held , it still keeps rotating.
-            printf("Click from tankShoot\n");
-            gs.tankMainPlayer.shoot = true;
-        }else{
-            gs.leftMouseDown = false;
-            gs.tankMainPlayer.shoot = false;
+    //NOT_USED_VAR(x); //TODO fix camera rotation while button is being held
+    NOT_USED_VAR(y);
+    if(gs.actionOnGoing == 1){
+        
+        if (button == GLUT_LEFT_BUTTON)
+        {
+            if (state == GLUT_DOWN){
+                gs.leftMouseDown = true;
+                gs.tankMainPlayer.shoot = true;
+            }
+            else{
+                gs.leftMouseDown = false;
+            }
         }
     }
 }
@@ -174,7 +180,6 @@ void onTimer(int timer){
         // right now if car passes u, it will go in same lane, over and over.
         // this timer moves cars
         for(int i = 0; i < gs.car.numOfCars; i++){
-            
             gs.carArray[i].carTranslate.z += 1;
             
             if(gs.carArray[i].carTranslate.z - 10 >= gs.tankMainPlayer.tankTranslate.z + 10){ // respawn car
@@ -198,7 +203,7 @@ void onTimer(int timer){
                 }
                 gs.carArray[i].carTranslate.z = gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint;
                 gs.car.lastZPoint = gs.carArray[i].carTranslate.z;
-            }else if(collisionCheck(gs.tankMainPlayer, gs.carArray[i])){
+            }else if(collisionCheck(gs.tankMainPlayer.tankTranslate, gs.carArray[i].carTranslate, gs.tankMainPlayer.tankScale, gs.carArray[i].carScale)){
                 if(gs.carArray[i].showShield == 1 && gs.carArray[i].shieldOpacity == 1){ // If there is collision with car with full shield. Game over.
                     gs.gameover = true;
                     gs.actionOnGoing = 0;
@@ -226,7 +231,6 @@ void onTimer(int timer){
                 gs.car.lastZPoint = gs.carArray[i].carTranslate.z;
             }
             gs.car.lastCar = i;
-            
         }
     }else if (timer == carSpawnTimer){
         //This timer makes cars spawn in proper timers
@@ -236,14 +240,23 @@ void onTimer(int timer){
             return;
     }else if (timer == tankMovementTimer){
         if(gs.actionOnGoing){
+            if (gs.tankMainPlayer.shoot && gs.bullet.movement.y >= -1){ //-1 is when bomb reaches floor, one other case to reset is collision
+                gs.bullet.movement.x -= gs.bullet.direction.x; //TODO this aint right
+                gs.bullet.movement.y -= 0.03;
+                gs.bullet.movement.z -= 1;
+            }/*else if(collisionCheck()){
+
+            }*/else{
+                gs.tankMainPlayer.shoot = false;
+                gs.bullet.movement.x = 0;
+                gs.bullet.movement.y = 0;
+                gs.bullet.movement.z = 0;
+            }
             // moves tank left and right when keyboard input comes in.
-            if (gs.tankMainPlayer.currDir == -1)
-            {
+            if (gs.tankMainPlayer.currDir == -1){
                 if(gs.tankMainPlayer.tankTranslate.x >= -3.8)
                     gs.tankMainPlayer.tankTranslate.x -= 0.2;
-            }
-            else if (gs.tankMainPlayer.currDir == 1)
-            {
+            }else if (gs.tankMainPlayer.currDir == 1){
                 if(gs.tankMainPlayer.tankTranslate.x <= 3.8)
                     gs.tankMainPlayer.tankTranslate.x += 0.2;
             }
