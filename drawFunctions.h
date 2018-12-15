@@ -72,8 +72,6 @@ struct Bullet{
     struct Vector3f direction;
     struct Vector3f movement;
     struct Vector3f scale;
-    float a;
-    bool bulletFly;
 };
 
 //Keeps info about whole game state

@@ -59,10 +59,12 @@ void onDisplay(void){
     for (int i = 0; i < gs.car.numOfCars; i++){
         drawCar(gs.carArray[i]); 
     }
+    drawCubeTank(gs.tankMainPlayer);
+
     if (gs.tankMainPlayer.shoot){
         drawBullet();
     }
-    drawCubeTank(gs.tankMainPlayer);
+    
     // draw all on main buffer
     glutSwapBuffers();
 }
@@ -143,12 +145,10 @@ void onKeyboardUp(unsigned char key, int x, int y){
 }
 
 void tankShoot(int button, int state, int x, int y){
-    NOT_USED_VAR(x); //TODO fix camera rotation while button is being held
+    NOT_USED_VAR(x);
     NOT_USED_VAR(y);
     if(gs.actionOnGoing == 1){
-        
-        if (button == GLUT_LEFT_BUTTON)
-        {
+        if (button == GLUT_LEFT_BUTTON){
             if (state == GLUT_DOWN){
                 gs.leftMouseDown = true;
                 gs.tankMainPlayer.shoot = true;
@@ -166,9 +166,6 @@ void onMousePassive(int x, int y){
         return;
     gs.tankMainPlayer.rotateTurret.x = 0.1 * (gs.lastMouseX - x);
     gs.lastMouseX = x;
-    if(gs.leftMouseDown){
-        tankShoot(GLUT_LEFT_BUTTON, GLUT_DOWN, 0, 0);
-    }
     gs.lastMouseX = gs.WindowWidth/2;
 }
 
@@ -241,10 +238,10 @@ void onTimer(int timer){
         if(gs.actionOnGoing){
             if (gs.tankMainPlayer.shoot)
             {
-                if (gs.tankMainPlayer.shoot && gs.bullet.movement.y >= -1){                                                  
+                if (gs.bullet.movement.y >= -1){                                                  
                     //-1 is when bomb reaches floor, one other case to reset is collision
                     gs.bullet.movement.x -= gs.bullet.direction.x; //TODO this aint right
-                    gs.bullet.movement.y -= 0.02;
+                    gs.bullet.movement.y -= 0.03;
                     gs.bullet.movement.z -= 1;
                 }
                 /*else if (collisionCheck(gs.bullet.position, gs.carArray[i].carTranslate, gs.bullet.scale, gs.carArray[i].carScale))
@@ -261,7 +258,6 @@ void onTimer(int timer){
                     gs.bullet.movement.x = 0;
                     gs.bullet.movement.y = 0;
                     gs.bullet.movement.z = 0;
-                    gs.bullet.bulletFly = false;
                 }
             }
 

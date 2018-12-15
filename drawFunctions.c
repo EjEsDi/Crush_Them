@@ -332,8 +332,9 @@ void drawCubeTank(const struct Tank tank)
 
             glTranslatef(0, barrelYPosition, -barrelZPosition);
 
-            if (gs.leftMouseDown) // TODO: need flag for when bullet is still flying, to not recalculate it
-            { //when mouse
+            if (gs.tankMainPlayer.shoot == false && gs.bullet.movement.y == 0) // TODO: need flag for when bullet is still flying, to not recalculate it
+            { //when mouse click calculate it
+                // but if bullet is already flying ,then don't do anything
                 GLfloat bulletMatrix[16];
                 glGetFloatv(GL_MODELVIEW_MATRIX, bulletMatrix);
                 gs.bullet.position.x = bulletMatrix[12];
@@ -350,11 +351,10 @@ void drawCubeTank(const struct Tank tank)
     glPopMatrix();
 }
 
-void drawBullet()
-{   
+void drawBullet(){  
     glPushMatrix();
         glLoadIdentity();
-        glTranslatef(gs.bullet.position.x - gs.bullet.direction.x + gs.bullet.movement.x,
+        glTranslatef(   gs.bullet.position.x - gs.bullet.direction.x + gs.bullet.movement.x,
                         gs.bullet.position.y - gs.bullet.direction.y + gs.bullet.movement.y,
                         gs.bullet.position.z - gs.bullet.direction.z + gs.bullet.movement.z);
         glDisable(GL_LIGHT0);
@@ -441,9 +441,13 @@ struct Vector3f getDirection(struct Vector3f a, struct Vector3f b)
 }
 
 struct Vector3f normalize(struct Vector3f a){
-    // fix for 0, 0
     float len = sqrt((a.x*a.x)+(a.y*a.y)+(a.z+a.z));
     struct Vector3f result;
+    if(len == 0){
+        result.x = 0;
+        result.y = 0;
+        result.z = 0;
+    }
     result.x = a.x / len;
     result.y = a.y / len;
     result.z = a.z / len;
@@ -528,9 +532,6 @@ void bulletInit(){
     gs.bullet.scale.x = 1;
     gs.bullet.scale.y = 1;
     gs.bullet.scale.z = 1;
-
-    gs.bullet.bulletFly = false;
-
 }
 void carsInit(){
     // Init cars
