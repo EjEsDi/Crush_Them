@@ -332,9 +332,8 @@ void drawCubeTank(const struct Tank tank)
 
             glTranslatef(0, barrelYPosition, -barrelZPosition);
 
-            if (gs.tankMainPlayer.shoot == false && gs.bullet.movement.y == 0) // TODO: need flag for when bullet is still flying, to not recalculate it
-            { //when mouse click calculate it
-                // but if bullet is already flying ,then don't do anything
+            if (gs.tankMainPlayer.shoot == false && gs.bullet.movement.y == 0)
+            { 
                 GLfloat bulletMatrix[16];
                 glGetFloatv(GL_MODELVIEW_MATRIX, bulletMatrix);
                 gs.bullet.position.x = bulletMatrix[12];
