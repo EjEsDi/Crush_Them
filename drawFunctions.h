@@ -71,7 +71,9 @@ struct Bullet{
     struct Vector3f position;
     struct Vector3f direction;
     struct Vector3f movement;
+    struct Vector3f scale;
     float a;
+    bool bulletFly;
 };
 
 //Keeps info about whole game state
@@ -110,6 +112,7 @@ void carInit();
 void drawScore();
 void sunInit();
 void skyChangeFunction();
+void setTankTurretMatrix(struct Tank tank);
 void rightSideRoadInit();
 void drawBullet();
 struct Vector3f getDirection(struct Vector3f a, struct Vector3f b);

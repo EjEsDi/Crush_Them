@@ -332,16 +332,17 @@ void drawCubeTank(const struct Tank tank)
 
             glTranslatef(0, barrelYPosition, -barrelZPosition);
 
-            if(gs.tankMainPlayer.shoot){ // when mouse click, activate it, shoot deactivates on mouse release
+            if (gs.leftMouseDown) // TODO: need flag for when bullet is still flying, to not recalculate it
+            { //when mouse
                 GLfloat bulletMatrix[16];
                 glGetFloatv(GL_MODELVIEW_MATRIX, bulletMatrix);
-                gs.bullet.position.x = bulletMatrix[12] + gs.bullet.movement.x;
-                gs.bullet.position.y = bulletMatrix[13] + gs.bullet.movement.y;
-                gs.bullet.position.z = bulletMatrix[14] + gs.bullet.movement.z;
+                gs.bullet.position.x = bulletMatrix[12];
+                gs.bullet.position.y = bulletMatrix[13];
+                gs.bullet.position.z = bulletMatrix[14];
 
-                gs.bullet.direction.x = bulletMatrix[8]*1.3;
-                gs.bullet.direction.y = bulletMatrix[9]*1.3;
-                gs.bullet.direction.z = bulletMatrix[10]*1.3;
+                gs.bullet.direction.x = bulletMatrix[8] * 1.3;
+                gs.bullet.direction.y = bulletMatrix[9] * 1.3;
+                gs.bullet.direction.z = bulletMatrix[10] * 1.3;
             }
             glScalef(0.2, 0.2, barrelLenght);
             glutSolidSphere(1, 20, 20);
@@ -350,10 +351,12 @@ void drawCubeTank(const struct Tank tank)
 }
 
 void drawBullet()
-{
+{   
     glPushMatrix();
         glLoadIdentity();
-        glTranslatef(gs.bullet.position.x - gs.bullet.direction.x, gs.bullet.position.y - gs.bullet.direction.y, gs.bullet.position.z - gs.bullet.direction.z);
+        glTranslatef(gs.bullet.position.x - gs.bullet.direction.x + gs.bullet.movement.x,
+                        gs.bullet.position.y - gs.bullet.direction.y + gs.bullet.movement.y,
+                        gs.bullet.position.z - gs.bullet.direction.z + gs.bullet.movement.z);
         glDisable(GL_LIGHT0);
         glEnable(GL_LIGHT1);
         glEnable(GL_COLOR_MATERIAL);
@@ -428,7 +431,7 @@ bool collisionCheck(struct Vector3f a, struct Vector3f b, struct Vector3f asize,
     return collisionX && collisionY && collisionZ;
 }
 
-    struct Vector3f getDirection(struct Vector3f a, struct Vector3f b)
+struct Vector3f getDirection(struct Vector3f a, struct Vector3f b)
 {
     struct Vector3f result = b;
     result.x -= a.x;
@@ -510,9 +513,23 @@ void roadInit(){
 }
 void bulletInit(){
 
+    gs.bullet.position.x = 0;
+    gs.bullet.position.y = 0;
+    gs.bullet.position.z = 0;
+
+    gs.bullet.direction.x = 0;
+    gs.bullet.direction.y = 0;
+    gs.bullet.direction.z = 0;
+
     gs.bullet.movement.x = 0;
     gs.bullet.movement.y = 0;
     gs.bullet.movement.z = 0;
+
+    gs.bullet.scale.x = 1;
+    gs.bullet.scale.y = 1;
+    gs.bullet.scale.z = 1;
+
+    gs.bullet.bulletFly = false;
 
 }
 void carsInit(){

@@ -59,11 +59,9 @@ void onDisplay(void){
     for (int i = 0; i < gs.car.numOfCars; i++){
         drawCar(gs.carArray[i]); 
     }
-    
-    if(gs.tankMainPlayer.shoot){
+    if (gs.tankMainPlayer.shoot){
         drawBullet();
     }
-
     drawCubeTank(gs.tankMainPlayer);
     // draw all on main buffer
     glutSwapBuffers();
@@ -145,7 +143,7 @@ void onKeyboardUp(unsigned char key, int x, int y){
 }
 
 void tankShoot(int button, int state, int x, int y){
-    //NOT_USED_VAR(x); //TODO fix camera rotation while button is being held
+    NOT_USED_VAR(x); //TODO fix camera rotation while button is being held
     NOT_USED_VAR(y);
     if(gs.actionOnGoing == 1){
         
@@ -191,7 +189,7 @@ void onTimer(int timer){
                 }
                 
                 if (gs.car.lastZPoint != gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint - 30)
-                    gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[i%3];
+                    gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[rand() % 3];
                 else{
                     if(gs.carArray[gs.car.lastCar].carTranslate.x == gs.car.setOfCarXPositionsAllowedValues[2]){
                         gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[1];
@@ -239,19 +237,34 @@ void onTimer(int timer){
         else
             return;
     }else if (timer == tankMovementTimer){
+        
         if(gs.actionOnGoing){
-            if (gs.tankMainPlayer.shoot && gs.bullet.movement.y >= -1){ //-1 is when bomb reaches floor, one other case to reset is collision
-                gs.bullet.movement.x -= gs.bullet.direction.x; //TODO this aint right
-                gs.bullet.movement.y -= 0.03;
-                gs.bullet.movement.z -= 1;
-            }/*else if(collisionCheck()){
-
-            }*/else{
-                gs.tankMainPlayer.shoot = false;
-                gs.bullet.movement.x = 0;
-                gs.bullet.movement.y = 0;
-                gs.bullet.movement.z = 0;
+            if (gs.tankMainPlayer.shoot)
+            {
+                if (gs.tankMainPlayer.shoot && gs.bullet.movement.y >= -1){                                                  
+                    //-1 is when bomb reaches floor, one other case to reset is collision
+                    gs.bullet.movement.x -= gs.bullet.direction.x; //TODO this aint right
+                    gs.bullet.movement.y -= 0.02;
+                    gs.bullet.movement.z -= 1;
+                }
+                /*else if (collisionCheck(gs.bullet.position, gs.carArray[i].carTranslate, gs.bullet.scale, gs.carArray[i].carScale))
+                {
+                    if (gs.carArray[i].shieldOpacity > 0)
+                    {
+                        gs.carArray[i].shieldOpacity -= 0.5;
+                        if (gs.carArray[i].shieldOpacity == 0)
+                            gs.carArray[i].showShield = 0;
+                    }
+                }*/
+                else{
+                    gs.tankMainPlayer.shoot = false;
+                    gs.bullet.movement.x = 0;
+                    gs.bullet.movement.y = 0;
+                    gs.bullet.movement.z = 0;
+                    gs.bullet.bulletFly = false;
+                }
             }
+
             // moves tank left and right when keyboard input comes in.
             if (gs.tankMainPlayer.currDir == -1){
                 if(gs.tankMainPlayer.tankTranslate.x >= -3.8)
