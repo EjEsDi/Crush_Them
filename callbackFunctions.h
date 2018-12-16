@@ -11,7 +11,6 @@
 #define tankMovementTimer (2)
 #define skyColorTimer (3)
 //end of timer callback func variables
-//TODO move this into callbackfunctions?
 
 // callback functions
 void onDisplay(void);

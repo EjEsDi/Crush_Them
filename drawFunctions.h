@@ -70,8 +70,9 @@ struct Sun{
 struct Bullet{
     struct Vector3f position;
     struct Vector3f direction;
-    struct Vector3f movement;
     struct Vector3f scale;
+    bool needToResetBullet;
+    int Charging;
 };
 
 //Keeps info about whole game state
@@ -97,28 +98,28 @@ struct gameState{
 };
 
 void init(void);
-void initRenderingObjects();
-void drawSquare();
+void initRenderingObjects(void);
+void drawSquare(void);
 void drawRoad(const struct Road road);
 void drawCubeTank(const struct Tank tank);
 void drawCar(const struct Car cars);
-void drawSun();
-void tankInit();
-void roadInit();
-void skyInit();
-void carInit();
-void drawScore();
-void sunInit();
-void skyChangeFunction();
-void setTankTurretMatrix(struct Tank tank);
-void rightSideRoadInit();
-void drawBullet();
+void drawSun(void);
+void tankInit(void);
+void roadInit(void);
+void skyInit(void);
+void carInit(void);
+void drawScore(void);
+void sunInit(void);
+void skyChangeFunction(void);
+void setTankTurretMatrix(void);
+void rightSideRoadInit(void);
+void drawBullet(void);
 struct Vector3f getDirection(struct Vector3f a, struct Vector3f b);
-void leftSideRoadInit();
+void leftSideRoadInit(void);
 void drawSideRoad(const struct Road road);
 bool collisionCheck(struct Vector3f a, struct Vector3f b, struct Vector3f asize, struct Vector3f bsize);
 struct Vector3f normalize(struct Vector3f);
-void drawEndGame();
-void drawSingleColorSquare();
-void bulletInit();
+void drawEndGame(void);
+void drawSingleColorSquare(void);
+void bulletInit(void);
 #endif

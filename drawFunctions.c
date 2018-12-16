@@ -331,19 +331,6 @@ void drawCubeTank(const struct Tank tank)
             float barrelYPosition = turretSize.y * 0.5;
 
             glTranslatef(0, barrelYPosition, -barrelZPosition);
-
-            if (gs.tankMainPlayer.shoot == false && gs.bullet.movement.y == 0)
-            { 
-                GLfloat bulletMatrix[16];
-                glGetFloatv(GL_MODELVIEW_MATRIX, bulletMatrix);
-                gs.bullet.position.x = bulletMatrix[12];
-                gs.bullet.position.y = bulletMatrix[13];
-                gs.bullet.position.z = bulletMatrix[14];
-
-                gs.bullet.direction.x = bulletMatrix[8] * 1.3;
-                gs.bullet.direction.y = bulletMatrix[9] * 1.3;
-                gs.bullet.direction.z = bulletMatrix[10] * 1.3;
-            }
             glScalef(0.2, 0.2, barrelLenght);
             glutSolidSphere(1, 20, 20);
         glPopMatrix();
@@ -352,10 +339,7 @@ void drawCubeTank(const struct Tank tank)
 
 void drawBullet(){  
     glPushMatrix();
-        glLoadIdentity();
-        glTranslatef(   gs.bullet.position.x - gs.bullet.direction.x + gs.bullet.movement.x,
-                        gs.bullet.position.y - gs.bullet.direction.y + gs.bullet.movement.y,
-                        gs.bullet.position.z - gs.bullet.direction.z + gs.bullet.movement.z);
+        glTranslatef(gs.bullet.position.x, gs.bullet.position.y, gs.bullet.position.z);
         glDisable(GL_LIGHT0);
         glEnable(GL_LIGHT1);
         glEnable(GL_COLOR_MATERIAL);
@@ -514,19 +498,46 @@ void roadInit(){
     gs.road3.roadTranslation.y = 0;
     gs.road3.roadTranslation.z = -1200;
 }
+
+void setTankTurretMatrix(void)
+{
+    // Start matrix at the position of the tank
+    glTranslatef(gs.tankMainPlayer.tankTranslate.x, gs.tankMainPlayer.tankTranslate.y, gs.tankMainPlayer.tankTranslate.z);
+
+    // Move the matrix up by the tank height, so we get the turret ontop of the tank
+    glTranslatef(0, gs.tankMainPlayer.tankScale.y, 0);
+
+    // This will rotate the turret and gun
+    glRotatef(gs.tankMainPlayer.rotateTurret.x, 0, 1, 0);
+    struct Vector3f turretSize;
+    turretSize.x = gs.tankMainPlayer.tankScale.x / 1.2;
+    turretSize.y = gs.tankMainPlayer.tankScale.y / 1.2;
+    turretSize.z = gs.tankMainPlayer.tankScale.z / 1.2;
+
+    float barrelLenght = 1.5;
+
+    // Start by moving the barrel origin to the edge of the turret
+    float barrelZPosition = turretSize.z * 0.5;
+    // Then move the barrel by half its lenght, so that we push the rest of the barrel out of the turret
+    barrelZPosition += barrelLenght * 0.5;
+
+    // Move the barrel UP by half the turret-size, so that its centered on the turret
+    float barrelYPosition = turretSize.y * 0.5;
+    glTranslatef(0, barrelYPosition, -barrelZPosition);
+}
+
 void bulletInit(){
 
     gs.bullet.position.x = 0;
-    gs.bullet.position.y = 0;
+    gs.bullet.position.y = 0.386667;
     gs.bullet.position.z = 0;
 
     gs.bullet.direction.x = 0;
     gs.bullet.direction.y = 0;
     gs.bullet.direction.z = 0;
 
-    gs.bullet.movement.x = 0;
-    gs.bullet.movement.y = 0;
-    gs.bullet.movement.z = 0;
+    gs.bullet.needToResetBullet = false;
+    gs.bullet.Charging = 0;
 
     gs.bullet.scale.x = 1;
     gs.bullet.scale.y = 1;
@@ -552,16 +563,17 @@ void carsInit(){
         gs.carArray[i].carRotate.y = 180; //cars need to go forward
         gs.carArray[i].carRotate.z = 0;
 
-        gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[rand()%3];
+        gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[i % 3];
         gs.carArray[i].carTranslate.y = -1;
-        gs.carArray[i].carTranslate.z = gs.car.ZSpawnPoint;
+        gs.carArray[i].carTranslate.z = gs.car.ZSpawnPoint;      
+        
         gs.car.lastZPoint = gs.carArray[i].carTranslate.z;
         gs.car.showShield = 0;
         gs.car.shieldOpacity = 0;
     }
     //Timers for callback onTimer function
     gs.car.timeCarSpawn = 1000;   // 1 sec
-    gs.car.lastCar = 0;
+    gs.car.lastCar = MAX_CARS_ALLOWED;
 }
 void rightSideRoadInit(){
     //same as road, move it to side(left and right), different collor

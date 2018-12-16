@@ -47,14 +47,12 @@ void lightForSun(){
     GLfloat light_position[] = {-gs.sun.lightCoef.x, 0, gs.sun.lightCoef.z, 0};
     GLfloat light_ambient[] = {0, 0, 0, 1};
     GLfloat light_diffuse[] = {1, 1, 1, 1};
-    //GLfloat light_specular[] = {1, 1, 1, 1};
-    //Dont need specular for sun and moon
+
 
     // Light parameters
 
     glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient);
     glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);
-    //glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
     glLightfv(GL_LIGHT1, GL_POSITION, light_position);
     //? Can be in init or main? Dont need to call light this many times from onDisplay
 

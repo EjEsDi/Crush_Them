@@ -16,10 +16,10 @@ callbackFunctions.o: callbackFunctions.c drawFunctions.h lightingFunctions.h ima
 lightingFunctions.o: lightingFunctions.c drawFunctions.h callbackFunctions.h image.h
 	$(CC) $(CFLAGS) -c $(LDFLAGS) lightingFunctions.c $(LDLIBS)
 
-image.o: image.c lightingFunctions.c drawFunctions.h callbackFunctions.h 
+image.o: image.c lightingFunctions.h drawFunctions.h callbackFunctions.h 
 	$(CC) $(CFLAGS) -c $(LDFLAGS) image.c $(LDLIBS)
 
-crush_them.o: crush_them.c lightingFunctions.h drawFunctions.h callbackFunctions.h image.o
+crush_them.o: crush_them.c lightingFunctions.h drawFunctions.h callbackFunctions.h image.h
 	$(CC) $(CFLAGS) -c $(LDFLAGS) crush_them.c $(LDLIBS)
 	
 .PHONY: beauty clean dist
