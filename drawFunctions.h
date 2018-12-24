@@ -2,23 +2,23 @@
 #define DRAWFUNCTIONS_H
 #include <GL/gl.h>
 #include <stdbool.h>
+
 /************************************
-    Macros definitions start here
+    Macro definitions start here
 *************************************/
 
 #define MAX_CARS_ALLOWED 10
 #define NOT_USED_VAR(X) (void)(X)
 
 
-
 //Create game state.
 struct gameState gs;
 GLuint names[1]; // used for texture
+
 /************************************
-    Structs definitions start here
+    Structs declarations start here
 *************************************/
 
-//3 vectors struct
 struct Vector3f{
     float x;
     float y;
@@ -31,7 +31,7 @@ struct Car{
     int numOfCars;
     int timeCarSpawn;
     struct Vector3f carScale;
-    struct Vector3f carTranslate;
+    struct Vector3f carPosition;
     struct Vector3f carRotate;
     int showShield;
     float shieldOpacity;
@@ -39,9 +39,9 @@ struct Car{
     int lastCar;
 };
 struct Tank{
-    struct Vector3f tankTranslate;
+    struct Vector3f tankPosition;
     struct Vector3f tankScale;
-    struct Vector3f rotateTurret;
+    struct Vector3f turretRotate; //can be moved to turret struct if it gets made
     float tankSpeed;
     int prevDir;
     int currDir;
@@ -50,7 +50,7 @@ struct Tank{
 struct Road{
     struct Vector3f roadScale;
     struct Vector3f roadRotation;
-    struct Vector3f roadTranslation;
+    struct Vector3f roadPosition;
 };
 struct Sky{
     struct Vector3f skyColor;
@@ -59,23 +59,20 @@ struct Sky{
 };
 struct Sun{
     struct Vector3f sunRotate;
-    struct Vector3f sunTranslate;
+    struct Vector3f sunTranslate; // its initializing suns position
+    struct Vector3f sunPosition; // its used in lighting function, after calculating direction
     struct Vector3f lightCoef;
+    struct Vector3f lightDirection;
     int quadrant;
     float mod;
-    struct Vector3f sunPosition;
-    struct Vector3f lightDirection;
 };
-
 struct Bullet{
-    struct Vector3f position;
-    struct Vector3f direction;
+    struct Vector3f bulletPosition;
+    struct Vector3f bulletDirection;
     struct Vector3f scale;
     bool needToResetBullet;
     int Charging;
 };
-
-//Keeps info about whole game state
 struct gameState{
     struct Car carArray[MAX_CARS_ALLOWED];
     struct Car car;
@@ -97,29 +94,20 @@ struct gameState{
     bool gameover;
 };
 
-void init(void);
-void initRenderingObjects(void);
-void drawSquare(void);
-void drawRoad(const struct Road road);
-void drawCubeTank(const struct Tank tank);
-void drawCar(const struct Car cars);
-void drawSun(void);
-void tankInit(void);
-void roadInit(void);
-void skyInit(void);
-void carInit(void);
-void drawScore(void);
-void sunInit(void);
-void skyChangeFunction(void);
-void setTankTurretMatrix(void);
-void rightSideRoadInit(void);
+
+/************************************
+    Functionss declarations start here
+*************************************/
+
 void drawBullet(void);
-struct Vector3f getDirection(struct Vector3f a, struct Vector3f b);
-void leftSideRoadInit(void);
-void drawSideRoad(const struct Road road);
-bool collisionCheck(struct Vector3f a, struct Vector3f b, struct Vector3f asize, struct Vector3f bsize);
-struct Vector3f normalize(struct Vector3f);
+void drawSquare(void);
+void drawRoad(struct Road road);
+void drawSideRoad(struct Road road);
+void drawCubeTank(struct Tank tank);
+void drawCar(struct Car cars);
+void drawSun(void);
+void drawScore(void);
 void drawEndGame(void);
-void drawSingleColorSquare(void);
-void bulletInit(void);
+void skyChangeFunction(void);
+
 #endif

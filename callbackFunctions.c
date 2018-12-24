@@ -1,14 +1,13 @@
 #include "callbackFunctions.h"
 #include "drawFunctions.h"
 #include "lightingFunctions.h"
+#include "mathFunctions.h"
 #include <GL/glut.h>
 #include <GL/gl.h>
 #include <stdio.h>
 #include <time.h>
 #include <stdbool.h>
-#include "image.h"
 #include <unistd.h>
-#include <math.h>
 
 /************************************
     Functions definitions start here
@@ -21,7 +20,7 @@ void onDisplay(void){
     //setting camera position and where it looks at
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(  0, 3, gs.tankMainPlayer.tankTranslate.z+8, // camera position 
+    gluLookAt(  0, 3, gs.tankMainPlayer.tankPosition.z+8, // camera position
                 0, 0, gs.cameraMovement-10, // camera looks at this spot
                 0, 1, 0  // normal vector 
             );
@@ -69,7 +68,6 @@ void onDisplay(void){
     // draw all on main buffer
     glutSwapBuffers();
 }
-
 void onReshape(int w, int h){
     gs.WindowWidth = w;
     gs.WindowHeight = h;
@@ -86,14 +84,13 @@ void onKeyboardInput(unsigned char key, int x, int y){
         case 27: // ESC BUTTON
             glDeleteTextures(2, names);
             exit(0);
-            break;
         case 'g': // GO
         case 'G':
             if(gs.actionOnGoing == 0){
-                glutTimerFunc(gs.car.timeCarSpawn, onTimer, carSpeedTimer);
-                glutTimerFunc(gs.car.carSpeed, onTimer, carSpawnTimer);
-                glutTimerFunc(gs.tankMainPlayer.tankSpeed, onTimer, tankMovementTimer);
-                glutTimerFunc(gs.sky.dayTimer, onTimer, skyColorTimer);
+                glutTimerFunc((unsigned)gs.car.timeCarSpawn, onTimer, carSpeedTimer);
+                glutTimerFunc((unsigned)gs.car.carSpeed, onTimer, carSpawnTimer);
+                glutTimerFunc((unsigned)gs.tankMainPlayer.tankSpeed, onTimer, tankMovementTimer);
+                glutTimerFunc((unsigned)gs.sky.dayTimer, onTimer, skyColorTimer);
                 glutPostRedisplay();
                 gs.actionOnGoing = 1;
             }
@@ -118,6 +115,8 @@ void onKeyboardInput(unsigned char key, int x, int y){
             gs.tankMainPlayer.currDir = 1;
             gs.tankMainPlayer.prevDir = 0;
             break;
+        default:
+            break;
     }    
     glutPostRedisplay();
 }
@@ -141,11 +140,12 @@ void onKeyboardUp(unsigned char key, int x, int y){
                 gs.tankMainPlayer.prevDir = 0;
             }
             break;
+        default:
+            break;
     }    
     glutPostRedisplay();
 }
-void tankShoot(int button, int state, int x, int y)
-{
+void tankShoot(int button, int state, int x, int y){
     NOT_USED_VAR(x);
     NOT_USED_VAR(y);
     if (gs.actionOnGoing == 1)
@@ -164,13 +164,13 @@ void tankShoot(int button, int state, int x, int y)
                     GLfloat bulletMatrix[16];
                     glGetFloatv(GL_MODELVIEW_MATRIX, bulletMatrix);
                     
-                    gs.bullet.position.x = bulletMatrix[12];
-                    gs.bullet.position.y = bulletMatrix[13];
-                    gs.bullet.position.z = bulletMatrix[14];
+                    gs.bullet.bulletPosition.x = bulletMatrix[12];
+                    gs.bullet.bulletPosition.y = bulletMatrix[13];
+                    gs.bullet.bulletPosition.z = bulletMatrix[14];
 
-                    gs.bullet.direction.x = bulletMatrix[8] * 1.3;
-                    gs.bullet.direction.y = bulletMatrix[9] * 1.3;
-                    gs.bullet.direction.z = bulletMatrix[10] * 1.3;
+                    gs.bullet.bulletDirection.x = (float)(bulletMatrix[8] * 1.3);
+                    gs.bullet.bulletDirection.y = (float)(bulletMatrix[9] * 1.3);
+                    gs.bullet.bulletDirection.z = (float)(bulletMatrix[10] * 1.3);
                     
                 glPopMatrix();
                 }
@@ -182,16 +182,14 @@ void tankShoot(int button, int state, int x, int y)
         }
     }
 }
-
 void onMousePassive(int x, int y){
     NOT_USED_VAR(y);
     if(gs.actionOnGoing == 0)
         return;
-    gs.tankMainPlayer.rotateTurret.x = 0.1 * (gs.lastMouseX - x);
+    gs.tankMainPlayer.turretRotate.x = (float)0.1 * (gs.lastMouseX - x);
     gs.lastMouseX = x;
     gs.lastMouseX = gs.WindowWidth/2;
 }
-
 void onTimer(int timer){
     if (timer == carSpeedTimer){
         //TODO 16.12.2018 , did some change again , needs new tests if cars spawn inside each other
@@ -199,27 +197,27 @@ void onTimer(int timer){
         if(gs.actionOnGoing){
             if (gs.tankMainPlayer.shoot)
             {
-                gs.bullet.position.x -= gs.bullet.direction.x;
-                gs.bullet.position.y -= 0.03;
-                gs.bullet.position.z -= gs.bullet.direction.z;
+                gs.bullet.bulletPosition.x -= gs.bullet.bulletDirection.x;
+                gs.bullet.bulletPosition.y -= 0.03;
+                gs.bullet.bulletPosition.z -= gs.bullet.bulletDirection.z;
                 gs.bullet.Charging++;
                 gs.bullet.needToResetBullet = false;
 
-                if (gs.bullet.position.y <= -1){ // -1 on Y is when bomb reaches floor
+                if (gs.bullet.bulletPosition.y <= -1){ // -1 on Y is when bomb reaches floor
                     gs.bullet.needToResetBullet = true;
                     gs.bullet.Charging = 0;
                 }
             }
                 for (int i = 0; i < gs.car.numOfCars; i++)
                 {
-                    if (!gs.bullet.needToResetBullet && collisionCheck(gs.bullet.position, gs.carArray[i].carTranslate, gs.bullet.scale, gs.carArray[i].carScale)){
+                    if (!gs.bullet.needToResetBullet && collisionCheck(gs.bullet.bulletPosition, gs.carArray[i].carPosition, gs.bullet.scale, gs.carArray[i].carScale)){
                         gs.bullet.needToResetBullet = true;
                         gs.bullet.Charging = 0;
                         if (gs.carArray[i].showShield == 0)
                         {
-                            gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[(i + 1) % 3];
-                            gs.carArray[i].carTranslate.z = gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint; // if car passed tank, move it for 340 infront of tank.
-                            gs.car.lastZPoint = gs.carArray[i].carTranslate.z;                                      // last car that went by, his Z position
+                            gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[(i + 1) % 3];
+                            gs.carArray[i].carPosition.z = gs.tankMainPlayer.tankPosition.z - gs.car.ZSpawnPoint; // if car passed tank, move it for Z amount infront of tank.
+                            gs.car.lastZPoint = (int)gs.carArray[i].carPosition.z;                                      // last car that went by, his Z position
                             gs.numberOfCrushes++;
                         }
                         if (gs.carArray[i].shieldOpacity > 0)
@@ -231,8 +229,8 @@ void onTimer(int timer){
                         break;
                     }
                     
-                    gs.carArray[i].carTranslate.z += 1;
-                    if (gs.carArray[i].carTranslate.z - 10 >= gs.tankMainPlayer.tankTranslate.z + 10)
+                    gs.carArray[i].carPosition.z += 1;
+                    if (gs.carArray[i].carPosition.z - 10 >= gs.tankMainPlayer.tankPosition.z + 10)
                     { //if car is behind tank -> respawn car
                         if (gs.numberOfCrushes >= 10)
                         {
@@ -242,11 +240,11 @@ void onTimer(int timer){
                                 gs.carArray[i].showShield = 1;
                             }
                         }
-                        gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[(i + 1) % 3];
-                        gs.carArray[i].carTranslate.z = gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint; // if car passed tank, move it for 340 infront of tank.
-                        gs.car.lastZPoint = gs.carArray[i].carTranslate.z;                                      // last car that went by, his Z position
+                        gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[(i + 1) % 3];
+                        gs.carArray[i].carPosition.z = gs.tankMainPlayer.tankPosition.z - gs.car.ZSpawnPoint; // if car passed tank, move it for 340 infront of tank.
+                        gs.car.lastZPoint = (int)gs.carArray[i].carPosition.z;                                      // last car that went by, his Z position
                     }
-                    else if (collisionCheck(gs.tankMainPlayer.tankTranslate, gs.carArray[i].carTranslate, gs.tankMainPlayer.tankScale, gs.carArray[i].carScale))
+                    else if (collisionCheck(gs.tankMainPlayer.tankPosition, gs.carArray[i].carPosition, gs.tankMainPlayer.tankScale, gs.carArray[i].carScale))
                     {
                         if (gs.carArray[i].showShield == 1 && gs.carArray[i].shieldOpacity == 1)
                         { // If there is collision with car with full shield. Game over.
@@ -261,9 +259,9 @@ void onTimer(int timer){
                                 gs.carArray[i].showShield = 0;
                         }
                         gs.numberOfCrushes++;
-                        gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[(i + 1) % 3];
-                        gs.carArray[i].carTranslate.z = gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint;
-                        gs.car.lastZPoint = gs.carArray[i].carTranslate.z;
+                        gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[(i + 1) % 3];
+                        gs.carArray[i].carPosition.z = gs.tankMainPlayer.tankPosition.z - gs.car.ZSpawnPoint;
+                        gs.car.lastZPoint = (int)gs.carArray[i].carPosition.z;
                     }
             }
             if (gs.tankMainPlayer.shoot && gs.bullet.needToResetBullet)
@@ -282,25 +280,25 @@ void onTimer(int timer){
         if(gs.actionOnGoing){
             if (gs.tankMainPlayer.shoot)
             {                                              
-                gs.bullet.position.x -= gs.bullet.direction.x;
-                gs.bullet.position.y -= 0.03;
-                gs.bullet.position.z -= gs.bullet.direction.z;
+                gs.bullet.bulletPosition.x -= gs.bullet.bulletDirection.x;
+                gs.bullet.bulletPosition.y -= 0.03;
+                gs.bullet.bulletPosition.z -= gs.bullet.bulletDirection.z;
                 gs.bullet.Charging++;
                 gs.bullet.needToResetBullet = false;
-                if(gs.bullet.position.y <= -1){ // -1 on Y is when bomb reaches floor
+                if(gs.bullet.bulletPosition.y <= -1){ // -1 on Y is when bomb reaches floor
                     gs.bullet.needToResetBullet = true;
                     gs.bullet.Charging = 0;
                 }
                 for (int i = 0; i < gs.car.numOfCars; i++)
                 {
-                    if (collisionCheck(gs.bullet.position, gs.carArray[i].carTranslate, gs.bullet.scale, gs.carArray[i].carScale))
+                    if (collisionCheck(gs.bullet.bulletPosition, gs.carArray[i].carPosition, gs.bullet.scale, gs.carArray[i].carScale))
                     {   
                         gs.bullet.Charging = 0;
                         if (gs.carArray[i].showShield == 0)
                         {
-                            gs.carArray[i].carTranslate.x = gs.car.setOfCarXPositionsAllowedValues[(i + 1) % 3];
-                            gs.carArray[i].carTranslate.z = gs.tankMainPlayer.tankTranslate.z - gs.car.ZSpawnPoint; // if car passed tank, move it for 340 infront of tank.
-                            gs.car.lastZPoint = gs.carArray[i].carTranslate.z;                                      // last car that went by, his Z position
+                            gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[(i + 1) % 3];
+                            gs.carArray[i].carPosition.z = gs.tankMainPlayer.tankPosition.z - gs.car.ZSpawnPoint; // if car passed tank, move it for 340 infront of tank.
+                            gs.car.lastZPoint = (int)gs.carArray[i].carPosition.z;                                      // last car that went by, his Z position
                             gs.numberOfCrushes++;
                         }
                         if (gs.carArray[i].shieldOpacity > 0)
@@ -320,30 +318,30 @@ void onTimer(int timer){
 
             // moves tank left and right when keyboard input comes in.
             if (gs.tankMainPlayer.currDir == -1){
-                if(gs.tankMainPlayer.tankTranslate.x >= -3.8)
-                    gs.tankMainPlayer.tankTranslate.x -= 0.2;
+                if(gs.tankMainPlayer.tankPosition.x >= -3.8)
+                    gs.tankMainPlayer.tankPosition.x -= 0.2;
             }else if (gs.tankMainPlayer.currDir == 1){
-                if(gs.tankMainPlayer.tankTranslate.x <= 3.8)
-                    gs.tankMainPlayer.tankTranslate.x += 0.2;
+                if(gs.tankMainPlayer.tankPosition.x <= 3.8)
+                    gs.tankMainPlayer.tankPosition.x += 0.2;
             }
-            gs.tankMainPlayer.tankTranslate.z -= 1; // keeps moving tank forward
+            gs.tankMainPlayer.tankPosition.z -= 1; // keeps moving tank forward
             gs.cameraMovement -= 1; // keeps moving camera with tank
             //makes road infinite
-            if(gs.tankMainPlayer.tankTranslate.z == gs.road2.roadTranslation.z){
+            if(gs.tankMainPlayer.tankPosition.z == gs.road2.roadPosition.z){
                 // Road 1 should be copied in back, behind road 3
-                gs.road.roadTranslation.z = gs.road3.roadTranslation.z - 2*gs.road.roadScale.z;
-                gs.leftSideRoad.roadTranslation.z = gs.leftSideRoad3.roadTranslation.z - 2 * gs.leftSideRoad.roadScale.z;
-                gs.rightSideRoad.roadTranslation.z = gs.rightSideRoad3.roadTranslation.z - 2 * gs.rightSideRoad.roadScale.z;
-            }else if(gs.tankMainPlayer.tankTranslate.z == gs.road3.roadTranslation.z){
+                gs.road.roadPosition.z = gs.road3.roadPosition.z - 2*gs.road.roadScale.z;
+                gs.leftSideRoad.roadPosition.z = gs.leftSideRoad3.roadPosition.z - 2 * gs.leftSideRoad.roadScale.z;
+                gs.rightSideRoad.roadPosition.z = gs.rightSideRoad3.roadPosition.z - 2 * gs.rightSideRoad.roadScale.z;
+            }else if(gs.tankMainPlayer.tankPosition.z == gs.road3.roadPosition.z){
                 // Road 2 should be copied in back, behind road 1
-                gs.road2.roadTranslation.z = gs.road.roadTranslation.z - 2*gs.road2.roadScale.z;
-                gs.leftSideRoad2.roadTranslation.z = gs.leftSideRoad.roadTranslation.z - 2 * gs.leftSideRoad2.roadScale.z;
-                gs.rightSideRoad2.roadTranslation.z = gs.rightSideRoad.roadTranslation.z - 2 * gs.rightSideRoad2.roadScale.z;
-            }else if(gs.tankMainPlayer.tankTranslate.z == gs.road.roadTranslation.z){
+                gs.road2.roadPosition.z = gs.road.roadPosition.z - 2*gs.road2.roadScale.z;
+                gs.leftSideRoad2.roadPosition.z = gs.leftSideRoad.roadPosition.z - 2 * gs.leftSideRoad2.roadScale.z;
+                gs.rightSideRoad2.roadPosition.z = gs.rightSideRoad.roadPosition.z - 2 * gs.rightSideRoad2.roadScale.z;
+            }else if(gs.tankMainPlayer.tankPosition.z == gs.road.roadPosition.z){
                 // Road 3 should be copied in back, behind road 2
-                gs.road3.roadTranslation.z = gs.road2.roadTranslation.z - 2*gs.road3.roadScale.z;
-                gs.leftSideRoad3.roadTranslation.z = gs.leftSideRoad2.roadTranslation.z - 2 * gs.leftSideRoad3.roadScale.z;
-                gs.rightSideRoad3.roadTranslation.z = gs.rightSideRoad2.roadTranslation.z - 2 * gs.rightSideRoad3.roadScale.z;
+                gs.road3.roadPosition.z = gs.road2.roadPosition.z - 2*gs.road3.roadScale.z;
+                gs.leftSideRoad3.roadPosition.z = gs.leftSideRoad2.roadPosition.z - 2 * gs.leftSideRoad3.roadScale.z;
+                gs.rightSideRoad3.roadPosition.z = gs.rightSideRoad2.roadPosition.z - 2 * gs.rightSideRoad3.roadScale.z;
             }
         }
     }else if(timer == skyColorTimer){
@@ -354,12 +352,12 @@ void onTimer(int timer){
     if(gs.actionOnGoing){
         glutPostRedisplay();
         if (timer == carSpeedTimer)
-            glutTimerFunc(gs.car.carSpeed, onTimer, carSpeedTimer);
+            glutTimerFunc((unsigned)gs.car.carSpeed, onTimer, carSpeedTimer);
         else if (timer == carSpawnTimer)
-            glutTimerFunc(gs.car.timeCarSpawn, onTimer, carSpawnTimer);
+            glutTimerFunc((unsigned)gs.car.timeCarSpawn, onTimer, carSpawnTimer);
         else if(timer == tankMovementTimer)
-            glutTimerFunc(gs.tankMainPlayer.tankSpeed, onTimer, tankMovementTimer);
+            glutTimerFunc((unsigned)gs.tankMainPlayer.tankSpeed, onTimer, tankMovementTimer);
         else if (timer == skyColorTimer)
-            glutTimerFunc(gs.sky.dayTimer, onTimer, skyColorTimer);
+            glutTimerFunc((unsigned)gs.sky.dayTimer, onTimer, skyColorTimer);
     }
 }
