@@ -75,7 +75,7 @@ void onReshape(int w, int h){
     //projection of what camera sees
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(60, gs.WindowWidth/(GLfloat)gs.WindowHeight, 1, 300.0); // angle, ratio, near clip, far clip
+    gluPerspective(60, gs.WindowWidth/(GLfloat)gs.WindowHeight, 1, 300.0f); // angle, ratio, near clip, far clip
 }
 void onKeyboardInput(unsigned char key, int x, int y){
     NOT_USED_VAR(x);
@@ -168,9 +168,9 @@ void tankShoot(int button, int state, int x, int y){
                     gs.bullet.bulletPosition.y = bulletMatrix[13];
                     gs.bullet.bulletPosition.z = bulletMatrix[14];
 
-                    gs.bullet.bulletDirection.x = (float)(bulletMatrix[8] * 1.3);
-                    gs.bullet.bulletDirection.y = (float)(bulletMatrix[9] * 1.3);
-                    gs.bullet.bulletDirection.z = (float)(bulletMatrix[10] * 1.3);
+                    gs.bullet.bulletDirection.x = bulletMatrix[8] * 1.3f;
+                    gs.bullet.bulletDirection.y = bulletMatrix[9] * 1.3f;
+                    gs.bullet.bulletDirection.z = bulletMatrix[10] * 1.3f;
                     
                 glPopMatrix();
                 }
@@ -186,7 +186,7 @@ void onMousePassive(int x, int y){
     NOT_USED_VAR(y);
     if(gs.actionOnGoing == 0)
         return;
-    gs.tankMainPlayer.turretRotate.x = (float)0.1 * (gs.lastMouseX - x);
+    gs.tankMainPlayer.turretRotate.x = 0.1f * (gs.lastMouseX - x);
     gs.lastMouseX = x;
     gs.lastMouseX = gs.WindowWidth/2;
 }
@@ -198,7 +198,7 @@ void onTimer(int timer){
             if (gs.tankMainPlayer.shoot)
             {
                 gs.bullet.bulletPosition.x -= gs.bullet.bulletDirection.x;
-                gs.bullet.bulletPosition.y -= 0.03;
+                gs.bullet.bulletPosition.y -= 0.03f;
                 gs.bullet.bulletPosition.z -= gs.bullet.bulletDirection.z;
                 gs.bullet.Charging++;
                 gs.bullet.needToResetBullet = false;
@@ -222,7 +222,7 @@ void onTimer(int timer){
                         }
                         if (gs.carArray[i].shieldOpacity > 0)
                         {
-                            gs.carArray[i].shieldOpacity -= 0.5;
+                            gs.carArray[i].shieldOpacity -= 0.5f;
                             if (gs.carArray[i].shieldOpacity == 0)
                                 gs.carArray[i].showShield = 0;
                         }
@@ -236,7 +236,7 @@ void onTimer(int timer){
                         {
                             if (gs.carArray[i].shieldOpacity < 1)
                             {
-                                gs.carArray[i].shieldOpacity += 0.5;
+                                gs.carArray[i].shieldOpacity += 0.5f;
                                 gs.carArray[i].showShield = 1;
                             }
                         }
@@ -254,7 +254,7 @@ void onTimer(int timer){
                         else
                         {
                             if (gs.carArray[i].shieldOpacity > 0)
-                                gs.carArray[i].shieldOpacity -= 0.5;
+                                gs.carArray[i].shieldOpacity -= 0.5f;
                             if (gs.carArray[i].shieldOpacity == 0)
                                 gs.carArray[i].showShield = 0;
                         }
@@ -281,7 +281,7 @@ void onTimer(int timer){
             if (gs.tankMainPlayer.shoot)
             {                                              
                 gs.bullet.bulletPosition.x -= gs.bullet.bulletDirection.x;
-                gs.bullet.bulletPosition.y -= 0.03;
+                gs.bullet.bulletPosition.y -= 0.03f;
                 gs.bullet.bulletPosition.z -= gs.bullet.bulletDirection.z;
                 gs.bullet.Charging++;
                 gs.bullet.needToResetBullet = false;
@@ -303,7 +303,7 @@ void onTimer(int timer){
                         }
                         if (gs.carArray[i].shieldOpacity > 0)
                         {                                
-                            gs.carArray[i].shieldOpacity -= 0.5;
+                            gs.carArray[i].shieldOpacity -= 0.5f;
                             if (gs.carArray[i].shieldOpacity == 0)
                                 gs.carArray[i].showShield = 0;
                         }
@@ -318,11 +318,11 @@ void onTimer(int timer){
 
             // moves tank left and right when keyboard input comes in.
             if (gs.tankMainPlayer.currDir == -1){
-                if(gs.tankMainPlayer.tankPosition.x >= -3.8)
-                    gs.tankMainPlayer.tankPosition.x -= 0.2;
+                if(gs.tankMainPlayer.tankPosition.x >= -3.8f)
+                    gs.tankMainPlayer.tankPosition.x -= 0.2f;
             }else if (gs.tankMainPlayer.currDir == 1){
-                if(gs.tankMainPlayer.tankPosition.x <= 3.8)
-                    gs.tankMainPlayer.tankPosition.x += 0.2;
+                if(gs.tankMainPlayer.tankPosition.x <= 3.8f)
+                    gs.tankMainPlayer.tankPosition.x += 0.2f;
             }
             gs.tankMainPlayer.tankPosition.z -= 1; // keeps moving tank forward
             gs.cameraMovement -= 1; // keeps moving camera with tank
@@ -357,7 +357,7 @@ void onTimer(int timer){
             glutTimerFunc((unsigned)gs.car.timeCarSpawn, onTimer, carSpawnTimer);
         else if(timer == tankMovementTimer)
             glutTimerFunc((unsigned)gs.tankMainPlayer.tankSpeed, onTimer, tankMovementTimer);
-        else if (timer == skyColorTimer)
+        else if(timer == skyColorTimer)
             glutTimerFunc((unsigned)gs.sky.dayTimer, onTimer, skyColorTimer);
     }
 }

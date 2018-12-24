@@ -54,18 +54,18 @@ void setTankTurretMatrix(void)
     // This will rotate the turret and gun
     glRotatef(gs.tankMainPlayer.turretRotate.x, 0, 1, 0);
     struct Vector3f turretSize;
-    turretSize.x = (float)(gs.tankMainPlayer.tankScale.x / 1.2);
-    turretSize.y = (float)(gs.tankMainPlayer.tankScale.y / 1.2);
-    turretSize.z = (float)(gs.tankMainPlayer.tankScale.z / 1.2);
+    turretSize.x = (float)(gs.tankMainPlayer.tankScale.x / 1.2f);
+    turretSize.y = (float)(gs.tankMainPlayer.tankScale.y / 1.2f);
+    turretSize.z = (float)(gs.tankMainPlayer.tankScale.z / 1.2f);
 
-    float barrelLength = 1.5;
+    float barrelLength = 1.5f;
 
     // Start by moving the barrel origin to the edge of the turret
-    float barrelZPosition = (float)(turretSize.z * 0.5);
+    float barrelZPosition = (float)(turretSize.z * 0.5f);
     // Then move the barrel by half its lenght, so that we push the rest of the barrel out of the turret
-    barrelZPosition += barrelLength * 0.5;
+    barrelZPosition += barrelLength * 0.5f;
 
     // Move the barrel UP by half the turret-size, so that its centered on the turret
-    float barrelYPosition = (float)(turretSize.y * 0.5);
+    float barrelYPosition = (float)(turretSize.y * 0.5f);
     glTranslatef(0, barrelYPosition, -barrelZPosition);
 }

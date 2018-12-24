@@ -12,7 +12,7 @@
 void init(void){
     initRenderingObjects();
     glClearColor(gs.sky.skyColor.x, gs.sky.skyColor.y, gs.sky.skyColor.z, 0);
-    glClearDepth(1.0);
+    glClearDepth(1.0f);
     glLineWidth(1);
     glShadeModel(GL_SMOOTH);
     glEnable(GL_DEPTH_TEST);
@@ -96,9 +96,9 @@ void bulletInit(){
     gs.bullet.bulletPosition.y = bulletMatrix[13];
     gs.bullet.bulletPosition.z = bulletMatrix[14];
 
-    gs.bullet.bulletDirection.x = (float)(bulletMatrix[8] * 1.3);
-    gs.bullet.bulletDirection.y = (float)(bulletMatrix[9] * 1.3);
-    gs.bullet.bulletDirection.z = (float)(bulletMatrix[10] * 2.3);
+    gs.bullet.bulletDirection.x = (bulletMatrix[8] * 1.3f);
+    gs.bullet.bulletDirection.y = (bulletMatrix[9] * 1.3f);
+    gs.bullet.bulletDirection.z = (bulletMatrix[10] * 2.3f);
     glPopMatrix();
 
     gs.bullet.needToResetBullet = false;
@@ -224,8 +224,8 @@ void leftSideRoadInit()
     gs.leftSideRoad3.roadPosition.z = -1200;
 }
 void skyInit(){
-    gs.sky.skyColor.x = 0.6;
-    gs.sky.skyColor.y = 0.8;
+    gs.sky.skyColor.x = 0.6f;
+    gs.sky.skyColor.y = 0.8f;
     gs.sky.skyColor.z = 1;
     gs.sky.dayTimer = 30;
     gs.sky.flag = 0; // while its 0 its peak of day, when 1 its peak of night
@@ -240,7 +240,7 @@ void sunInit(){
     gs.sun.lightCoef.x = 0;
     gs.sun.lightCoef.y = 1;
     gs.sun.lightCoef.z = 1;
-    gs.sun.mod = 0.0030; //Math done on paper for this number
+    gs.sun.mod = 0.003f; //Math done on paper for this number
     gs.sun.quadrant = 1;
 }
 

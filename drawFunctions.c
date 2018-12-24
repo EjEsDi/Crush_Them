@@ -26,26 +26,26 @@ void skyChangeFunction(){
     if (gs.sun.sunRotate.z >= 360){ // instead of moduo 360
         gs.sun.sunRotate.z = 0;
     }
-    gs.sun.sunRotate.z += 0.30;   //Math done on paper for this number
+    gs.sun.sunRotate.z += 0.3f;   //Math done on paper for this number
     //Decrement until first reaches 0, that will be night color
     if (gs.sky.flag == 0)
     {
-        gs.sky.skyColor.x = (float)(gs.sky.skyColor.x - 0.001);
-        gs.sky.skyColor.y = (float)(gs.sky.skyColor.y - 0.001);
-        gs.sky.skyColor.z = (float)(gs.sky.skyColor.z - 0.001);
-        if (gs.lightModifier < 0.4)
-            gs.lightModifier += 0.001;
+        gs.sky.skyColor.x = (gs.sky.skyColor.x - 0.001f);
+        gs.sky.skyColor.y = (gs.sky.skyColor.y - 0.001f);
+        gs.sky.skyColor.z = (gs.sky.skyColor.z - 0.001f);
+        if (gs.lightModifier < 0.4f)
+            gs.lightModifier += 0.001f;
         if (gs.sky.skyColor.x < 0)
             gs.sky.flag = 1;
     }
     if (gs.sky.flag == 1)
     {
-        gs.sky.skyColor.x = (float)(gs.sky.skyColor.x + 0.001);
-        gs.sky.skyColor.y = (float)(gs.sky.skyColor.y + 0.001);
-        gs.sky.skyColor.z = (float)(gs.sky.skyColor.z + 0.001);
+        gs.sky.skyColor.x = (gs.sky.skyColor.x + 0.001f);
+        gs.sky.skyColor.y = (gs.sky.skyColor.y + 0.001f);
+        gs.sky.skyColor.z = (gs.sky.skyColor.z + 0.001f);
         if (gs.lightModifier > 0)
-            gs.lightModifier -= 0.001;
-        if (gs.sky.skyColor.x > 0.6)
+            gs.lightModifier -= 0.001f;
+        if (gs.sky.skyColor.x > 0.6f)
             gs.sky.flag = 0;
     }
     //Increment until u reach day.. (0.6, 0.8, 1, 0) <- day color
@@ -119,7 +119,7 @@ void drawSquare(){
 
             //brown- left
             glNormal3f(-1.0f, 0.0, 0.0);
-            setVertexColor(1, 0.6, 0);
+            setVertexColor(1, 0.6f, 0);
             glVertex3f(-v3f.x, 0, -v3f.z);
             glVertex3f(-v3f.x, 1, -v3f.z);
             glVertex3f(-v3f.x, 1, +v3f.z);
@@ -145,7 +145,7 @@ void drawSquare(){
 }
 void drawRoad(struct Road road){
     glPushMatrix();
-        struct Vector3f v3f = {.5, .5, .5};
+        struct Vector3f v3f = {.5f, .5f, .5f};
 
         glTranslatef(road.roadPosition.x, road.roadPosition.y-1.5f, road.roadPosition.z);
         glScalef(road.roadScale.x * 2.f, road.roadScale.y, road.roadScale.z * 2.f);
@@ -153,7 +153,7 @@ void drawRoad(struct Road road){
         glRotatef(road.roadRotation.y, 0, 1, 0);
         glRotatef(road.roadRotation.z, 0, 0, 1);
 
-        setVertexColor(0.3, 0.3, 0.3);
+        setVertexColor(0.3f, 0.3f, 0.3f);
         glutSolidCube(1);
         
         glLineWidth(4);
@@ -161,12 +161,12 @@ void drawRoad(struct Road road){
                 setVertexColor(1, 1, 1);
                 //left line
                 glNormal3f(0, 1, 0);
-                glVertex3f(-v3f.x/3, -v3f.y, (float)(v3f.z-1.01)); // z-axis, -1.01 is just so we see lines
-                glVertex3f(-v3f.x/3, v3f.y, (float)(v3f.z-1.01));  // they are just tiny bit above road it self
+                glVertex3f(-v3f.x/3, -v3f.y, (v3f.z-1.01f)); // z-axis, -1.01 is just so we see lines
+                glVertex3f(-v3f.x/3, v3f.y, (v3f.z-1.01f));  // they are just tiny bit above road it self
                 //right line                                // better solution?
                 glNormal3f(0, 1, 0);
-                glVertex3f(v3f.x/3, -v3f.y, (float)(v3f.z-1.01));
-                glVertex3f(v3f.x/3, v3f.y, (float)(v3f.z-1.01));
+                glVertex3f(v3f.x/3, -v3f.y, (v3f.z-1.01f));
+                glVertex3f(v3f.x/3, v3f.y, (v3f.z-1.01f));
         glEnd();
     glPopMatrix();
 }
@@ -237,9 +237,9 @@ void drawCubeTank(struct Tank tank){
         // This will rotate the turret and gun
         glRotatef(gs.tankMainPlayer.turretRotate.x, 0, 1, 0);
         struct Vector3f turretSize;
-        turretSize.x = (float)(tank.tankScale.x / 1.2);
-        turretSize.y = (float)(tank.tankScale.y / 1.2);
-        turretSize.z = (float)(tank.tankScale.z / 1.2);
+        turretSize.x = (tank.tankScale.x / 1.2f);
+        turretSize.y = (tank.tankScale.y / 1.2f);
+        turretSize.z = (tank.tankScale.z / 1.2f);
         // Save the turret-scale, we dont want that to apply to the gun
         glPushMatrix();
             glScalef(turretSize.x, turretSize.y, turretSize.z);
@@ -248,18 +248,18 @@ void drawCubeTank(struct Tank tank){
 
         // Dont really need to save matrix here, since this is the last transformations we do anyway
         glPushMatrix();
-            float barrelLenght = 1.5;
+            float barrelLenght = 1.5f;
 
             // Start by moving the barrel origin to the edge of the turret
-            float barrelZPosition = (float)(turretSize.z * 0.5);
+            float barrelZPosition = (turretSize.z * 0.5f);
             // Then move the barrel by half its lenght, so that we push the rest of the barrel out of the turret
-            barrelZPosition += barrelLenght * 0.5;
+            barrelZPosition += barrelLenght * 0.5f;
             
             // Move the barrel UP by half the turret-size, so that its centered on the turret
-            float barrelYPosition = (float)(turretSize.y * 0.5);
+            float barrelYPosition = (turretSize.y * 0.5f);
 
             glTranslatef(0, barrelYPosition, -barrelZPosition);
-            glScalef(0.2, 0.2, barrelLenght);
+            glScalef(0.2f, 0.2f, barrelLenght);
             glutSolidSphere(1, 20, 20);
         glPopMatrix();
     glPopMatrix();
@@ -270,8 +270,8 @@ void drawBullet(){
         glDisable(GL_LIGHT0);
         glEnable(GL_LIGHT1);
         glEnable(GL_COLOR_MATERIAL);
-        glColor3f(.3, .3, .3);
-        glutSolidSphere(0.3, 10, 10);
+        glColor3f(.3f, .3f, .3f);
+        glutSolidSphere(0.3f, 10, 10);
         glDisable(GL_LIGHT1);
         glDisable(GL_COLOR_MATERIAL);
         glEnable(GL_LIGHT0);
@@ -293,7 +293,7 @@ void drawCar(struct Car cars){
                 glEnable(GL_COLOR_MATERIAL);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 glColor4f(1, 0, 0, cars.shieldOpacity);
-                glutSolidSphere(cars.carScale.y + 0.3, 10, 10); // Spawns shield around car.
+                glutSolidSphere(cars.carScale.y + 0.3f, 10, 10); // Spawns shield around car.
                 glDisable(GL_BLEND);
                 glDisable(GL_COLOR_MATERIAL);
         glPopMatrix();

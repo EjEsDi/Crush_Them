@@ -25,8 +25,8 @@ void light(){
     gs.sun.lightDirection.y = direction.y;
     gs.sun.lightDirection.z = direction.z;
     GLfloat light_position[] = {gs.sun.lightDirection.x,gs.sun.lightDirection.y, gs.sun.lightDirection.z, 0};
-    GLfloat light_ambient[] = {.3, .3, .3, 1};
-    GLfloat light_diffuse[] = {.8, .8, .8, 1};
+    GLfloat light_ambient[] = {.3f, .3f, .3f, 1};
+    GLfloat light_diffuse[] = {.8f, .8f, .8f, 1};
     GLfloat light_specular[] = {1, 1, 1, 1};
     
     // Light parameters
@@ -42,8 +42,8 @@ void light(){
 void lightForSun(){
     //Light coeffs
     GLfloat light_position[] = {-gs.sun.lightCoef.x, 0, gs.sun.lightCoef.z, 0};
-    GLfloat light_ambient[] = {0.2, 0.2, 0.2, 1};
-    GLfloat light_diffuse[] = {0.8, 0.8, 0.8, 1};
+    GLfloat light_ambient[] = {0.2f, 0.2f, 0.2f, 1};
+    GLfloat light_diffuse[] = {0.8f, 0.8f, 0.8f, 1};
 
     // Light parameters
 
