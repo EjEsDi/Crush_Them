@@ -3,3 +3,16 @@
 
 # vscode #
 .vscode
+
+# .idea #
+.idea
+
+#file name
+crush_them
+
+#Build directories
+/build
+/cmake-build-*
+
+#cmake file
+CMakeLists.txt
