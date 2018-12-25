@@ -11,6 +11,7 @@
 
 void init(void){
     initRenderingObjects();
+    srand(time(NULL));
     glClearColor(gs.sky.skyColor.x, gs.sky.skyColor.y, gs.sky.skyColor.z, 0);
     glClearDepth(1.0f);
     glLineWidth(1);
@@ -87,18 +88,7 @@ void bulletInit(){
 
     glPushMatrix();
     glLoadIdentity();
-    setTankTurretMatrix();
-
-    GLfloat bulletMatrix[16];
-    glGetFloatv(GL_MODELVIEW_MATRIX, bulletMatrix);
-
-    gs.bullet.bulletPosition.x = bulletMatrix[12];
-    gs.bullet.bulletPosition.y = bulletMatrix[13];
-    gs.bullet.bulletPosition.z = bulletMatrix[14];
-
-    gs.bullet.bulletDirection.x = (bulletMatrix[8] * 1.3f);
-    gs.bullet.bulletDirection.y = (bulletMatrix[9] * 1.3f);
-    gs.bullet.bulletDirection.z = (bulletMatrix[10] * 2.3f);
+        setTankTurretMatrix();
     glPopMatrix();
 
     gs.bullet.needToResetBullet = false;
@@ -108,17 +98,16 @@ void bulletInit(){
     gs.bullet.scale.y = 1;
     gs.bullet.scale.z = 1;
 }
+
 void carsInit(){
     // Init cars
     gs.car.numOfCars = 1; // used for drawing cars.
 
-    srand(time(NULL));
-    gs.car.setOfCarXPositionsAllowedValues[0] = -4;
+    gs.car.setOfCarXPositionsAllowedValues[0] = -3.2;
     gs.car.setOfCarXPositionsAllowedValues[1] = 0;
-    gs.car.setOfCarXPositionsAllowedValues[2] = 4;
+    gs.car.setOfCarXPositionsAllowedValues[2] = 3.2;
     gs.car.ZSpawnPoint = 300; // How far away from tank, cars should spawn
     gs.car.carSpeed = 30;
-
     for(int i = 0; i < MAX_CARS_ALLOWED; i++){
         gs.carArray[i].carScale.x = 1;
         gs.carArray[i].carScale.y = 1;
@@ -130,15 +119,14 @@ void carsInit(){
 
         gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[i % 3];
         gs.carArray[i].carPosition.y = -1;
-        gs.carArray[i].carPosition.z = gs.car.ZSpawnPoint;
+        gs.carArray[i].carPosition.z = gs.car.ZSpawnPoint + i*20;
 
-        gs.car.lastZPoint =(int)gs.carArray[i].carPosition.z;
         gs.car.showShield = 0;
         gs.car.shieldOpacity = 0;
     }
     //Timers for callback onTimer function
     gs.car.timeCarSpawn = 1000;   // 1 sec
-    gs.car.lastCar = MAX_CARS_ALLOWED;
+    gs.car.lastZPoint = -200;
 }
 void rightSideRoadInit(){
     //same as road, move it to side(left and right), different collor
@@ -237,11 +225,6 @@ void sunInit(){
     gs.sun.sunTranslate.x = 0;
     gs.sun.sunTranslate.y = 45; // it doesnt go trough road with this value
     gs.sun.sunTranslate.z = -50;
-    gs.sun.lightCoef.x = 0;
-    gs.sun.lightCoef.y = 1;
-    gs.sun.lightCoef.z = 1;
-    gs.sun.mod = 0.003f; //Math done on paper for this number
-    gs.sun.quadrant = 1;
 }
 
 void imageInit(){
@@ -276,7 +259,6 @@ void initRenderingObjects(){
     bulletInit();
     imageInit();
     gs.cameraMovement = 0;
-    gs.lightModifier = 0.0;
     gs.numberOfCrushes = 0;
     gs.gameover = false;
 }

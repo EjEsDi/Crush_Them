@@ -35,8 +35,7 @@ struct Car{
     struct Vector3f carRotate;
     int showShield;
     float shieldOpacity;
-    int lastZPoint;
-    int lastCar;
+    long long lastZPoint;
 };
 struct Tank{
     struct Vector3f tankPosition;
@@ -61,10 +60,7 @@ struct Sun{
     struct Vector3f sunRotate;
     struct Vector3f sunTranslate; // its initializing suns position
     struct Vector3f sunPosition; // its used in lighting function, after calculating direction
-    struct Vector3f lightCoef;
     struct Vector3f lightDirection;
-    int quadrant;
-    float mod;
 };
 struct Bullet{
     struct Vector3f bulletPosition;
@@ -88,9 +84,7 @@ struct gameState{
     int actionOnGoing;
     float cameraMovement;
     int numberOfCrushes;
-    float lightModifier;
     int lastMouseX;
-    bool leftMouseDown;
     bool gameover;
 };
 

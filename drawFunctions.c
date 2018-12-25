@@ -23,71 +23,34 @@ void drawSun(){
     glPopMatrix();
 }
 void skyChangeFunction(){
+    /* When sun is in center of sky, flag is 0 and after that sun is going down->light decreasing
+     * When sun is down, flag is 1 and after that sun is going up -> light increasing
+     * Quadrants are used to help in lighting sun it self. It could've been done better probably with -direction of sun.*/
+
     if (gs.sun.sunRotate.z >= 360){ // instead of moduo 360
         gs.sun.sunRotate.z = 0;
     }
     gs.sun.sunRotate.z += 0.3f;   //Math done on paper for this number
+
     //Decrement until first reaches 0, that will be night color
     if (gs.sky.flag == 0)
     {
-        gs.sky.skyColor.x = (gs.sky.skyColor.x - 0.001f);
-        gs.sky.skyColor.y = (gs.sky.skyColor.y - 0.001f);
-        gs.sky.skyColor.z = (gs.sky.skyColor.z - 0.001f);
-        if (gs.lightModifier < 0.4f)
-            gs.lightModifier += 0.001f;
+        gs.sky.skyColor.x -= 0.001f;
+        gs.sky.skyColor.y -= 0.001f;
+        gs.sky.skyColor.z -= 0.001f;
         if (gs.sky.skyColor.x < 0)
             gs.sky.flag = 1;
     }
     if (gs.sky.flag == 1)
     {
-        gs.sky.skyColor.x = (gs.sky.skyColor.x + 0.001f);
-        gs.sky.skyColor.y = (gs.sky.skyColor.y + 0.001f);
-        gs.sky.skyColor.z = (gs.sky.skyColor.z + 0.001f);
-        if (gs.lightModifier > 0)
-            gs.lightModifier -= 0.001f;
+        gs.sky.skyColor.x += 0.001f;
+        gs.sky.skyColor.y += 0.001f;
+        gs.sky.skyColor.z += 0.001f;
         if (gs.sky.skyColor.x > 0.6f)
             gs.sky.flag = 0;
     }
     //Increment until u reach day.. (0.6, 0.8, 1, 0) <- day color
     glClearColor(gs.sky.skyColor.x, gs.sky.skyColor.y, gs.sky.skyColor.z, 0);
-    
-
-    if (gs.sun.quadrant == 1)
-    {
-        gs.sun.lightCoef.x -= gs.sun.mod;
-        if (gs.sun.lightCoef.x <= -1)
-        {
-            gs.sun.lightCoef.x = -1;
-            gs.sun.quadrant = 2;
-        }
-    }
-    else if (gs.sun.quadrant == 2)
-    {
-        gs.sun.lightCoef.x += gs.sun.mod;
-        if (gs.sun.lightCoef.x >= 0)
-        {
-            gs.sun.lightCoef.x = 0;
-            gs.sun.quadrant = 3;
-        }
-    }
-    else if (gs.sun.quadrant == 3)
-    {
-        gs.sun.lightCoef.x += gs.sun.mod;
-        if (gs.sun.lightCoef.x >= 1)
-        {
-            gs.sun.lightCoef.x = 1;
-            gs.sun.quadrant = 4;
-        }
-    }
-    else if (gs.sun.quadrant == 4)
-    {
-        gs.sun.lightCoef.x -= gs.sun.mod;
-        if (gs.sun.lightCoef.x <= 0)
-        {
-            gs.sun.lightCoef.x = 0;
-            gs.sun.quadrant = 1;
-        }
-    }
 }
 void drawSquare(){
         struct Vector3f v3f = {.5, .5, .5};
@@ -248,18 +211,18 @@ void drawCubeTank(struct Tank tank){
 
         // Dont really need to save matrix here, since this is the last transformations we do anyway
         glPushMatrix();
-            float barrelLenght = 1.5f;
+            float barrelLength = 1.5f;
 
             // Start by moving the barrel origin to the edge of the turret
             float barrelZPosition = (turretSize.z * 0.5f);
             // Then move the barrel by half its lenght, so that we push the rest of the barrel out of the turret
-            barrelZPosition += barrelLenght * 0.5f;
+            barrelZPosition += barrelLength * 0.5f;
             
             // Move the barrel UP by half the turret-size, so that its centered on the turret
             float barrelYPosition = (turretSize.y * 0.5f);
 
             glTranslatef(0, barrelYPosition, -barrelZPosition);
-            glScalef(0.2f, 0.2f, barrelLenght);
+            glScalef(0.2f, 0.2f, barrelLength);
             glutSolidSphere(1, 20, 20);
         glPopMatrix();
     glPopMatrix();
@@ -311,7 +274,7 @@ void drawSideRoad(struct Road road){
         glLineWidth(1);
         struct Vector3f v3f = {1, 1, 1};
         glBindTexture(GL_TEXTURE_2D, names[0]);
-        setVertexColor(1,1,1);
+        setVertexColor(.7f,.7f,.7f);
         glNormal3f(0, 1, 0);
         glBegin(GL_QUADS);
             glTexCoord2f(-1, -1);

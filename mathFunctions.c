@@ -54,18 +54,55 @@ void setTankTurretMatrix(void)
     // This will rotate the turret and gun
     glRotatef(gs.tankMainPlayer.turretRotate.x, 0, 1, 0);
     struct Vector3f turretSize;
-    turretSize.x = (float)(gs.tankMainPlayer.tankScale.x / 1.2f);
-    turretSize.y = (float)(gs.tankMainPlayer.tankScale.y / 1.2f);
-    turretSize.z = (float)(gs.tankMainPlayer.tankScale.z / 1.2f);
+    turretSize.x = gs.tankMainPlayer.tankScale.x / 1.2f;
+    turretSize.y = gs.tankMainPlayer.tankScale.y / 1.2f;
+    turretSize.z = gs.tankMainPlayer.tankScale.z / 1.2f;
 
     float barrelLength = 1.5f;
 
     // Start by moving the barrel origin to the edge of the turret
-    float barrelZPosition = (float)(turretSize.z * 0.5f);
+    float barrelZPosition = turretSize.z * 0.5f;
     // Then move the barrel by half its lenght, so that we push the rest of the barrel out of the turret
     barrelZPosition += barrelLength * 0.5f;
 
     // Move the barrel UP by half the turret-size, so that its centered on the turret
-    float barrelYPosition = (float)(turretSize.y * 0.5f);
+    float barrelYPosition = turretSize.y * 0.5f;
     glTranslatef(0, barrelYPosition, -barrelZPosition);
+
+    GLfloat bulletMatrix[16];
+    glGetFloatv(GL_MODELVIEW_MATRIX, bulletMatrix);
+
+    gs.bullet.bulletPosition.x = bulletMatrix[12];
+    gs.bullet.bulletPosition.y = bulletMatrix[13];
+    gs.bullet.bulletPosition.z = bulletMatrix[14];
+
+    gs.bullet.bulletDirection.x = (bulletMatrix[8] * 1.3f);
+    gs.bullet.bulletDirection.y = (bulletMatrix[9] * 1.3f);
+    gs.bullet.bulletDirection.z = (bulletMatrix[10] * 2.3f);
+}
+
+void setSunMatrix(void){
+    glRotatef(gs.sun.sunRotate.x, 1, 0, 0);
+    glRotatef(gs.sun.sunRotate.y, 0, 1, 0);
+    glRotatef(gs.sun.sunRotate.z, 0, 0, 1);
+    glTranslatef(gs.sun.sunTranslate.x, gs.sun.sunTranslate.y, gs.sun.sunTranslate.z + gs.tankMainPlayer.tankPosition.z);
+    GLfloat sunPositionMatrix[16];
+    glGetFloatv(GL_MODELVIEW_MATRIX, sunPositionMatrix);
+
+    gs.sun.sunPosition.x = sunPositionMatrix[12];
+    gs.sun.sunPosition.y = sunPositionMatrix[13];
+    gs.sun.sunPosition.z = sunPositionMatrix[14];
+}
+
+void setBulletMatrix(void){
+    GLfloat bulletMatrix[16];
+    glGetFloatv(GL_MODELVIEW_MATRIX, bulletMatrix);
+
+    gs.bullet.bulletPosition.x = bulletMatrix[12];
+    gs.bullet.bulletPosition.y = bulletMatrix[13];
+    gs.bullet.bulletPosition.z = bulletMatrix[14];
+
+    gs.bullet.bulletDirection.x = bulletMatrix[8] * 1.3f;
+    gs.bullet.bulletDirection.y = bulletMatrix[9] * 1.3f;
+    gs.bullet.bulletDirection.z = bulletMatrix[10] * 1.3f;
 }

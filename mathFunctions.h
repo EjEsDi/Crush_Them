@@ -8,8 +8,11 @@
 #include "drawFunctions.h"
 
 void setTankTurretMatrix(void);
+void setSunMatrix(void);
+void setBulletMatrix(void);
 bool collisionCheck(struct Vector3f a, struct Vector3f b, struct Vector3f aSize, struct Vector3f bSize);
 struct Vector3f normalize(struct Vector3f);
 struct Vector3f getDirection(struct Vector3f a, struct Vector3f b);
+
 
 #endif //CRUSH_THEM_MATHFUNCTIONS_H
