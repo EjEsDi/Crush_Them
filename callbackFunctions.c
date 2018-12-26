@@ -30,25 +30,28 @@ void onDisplay(void){
 
     //Rendering section
 
-    drawRoad(gs.road);
-    drawRoad(gs.road2);
-    drawRoad(gs.road3);
-    drawSideRoad(gs.rightSideRoad);
-    drawSideRoad(gs.rightSideRoad2);
-    drawSideRoad(gs.rightSideRoad3);
-    drawSideRoad(gs.leftSideRoad);
-    drawSideRoad(gs.leftSideRoad2);
-    drawSideRoad(gs.leftSideRoad3);
+    drawRoad(gs.road, false);
+    drawRoad(gs.leftSideRoad, true);
+    drawRoad(gs.rightSideRoad, true);
+    drawRoad(gs.road2, false);
+    drawRoad(gs.rightSideRoad2, true);
+    drawRoad(gs.leftSideRoad2, true);
+    drawRoad(gs.road3, false);
+    drawRoad(gs.rightSideRoad3, true);
+    drawRoad(gs.leftSideRoad3, true);
 
     glDisable(GL_LIGHTING);
-    drawScore();
+    char scoreAsString[32];
+    int a = sprintf(scoreAsString,"Crushed: %d",gs.numberOfCrushes);
+    if(a < 0)
+        exit(1);
+    drawMessage(scoreAsString, gs.WindowWidth-(13*12),gs.WindowHeight-30);
     if(gs.gameover == true && gs.actionOnGoing == 0){
-        drawEndGame();
+        drawMessage("Game over", gs.WindowWidth/2 - 60,gs.WindowHeight/2);
         glutSwapBuffers();
         sleep(3);
         exit(0);
     }
-
     glEnable(GL_LIGHTING);
 
     glDisable(GL_LIGHT0);
@@ -60,13 +63,12 @@ void onDisplay(void){
     for (int i = 0; i < gs.car.numOfCars; i++){
         drawCar(gs.carArray[i]); 
     }
+
     drawCubeTank(gs.tankMainPlayer);
 
-    if (gs.tankMainPlayer.shoot){
+    if(gs.tankMainPlayer.shoot)
         drawBullet();
-    }
-    
-    // draw all on main buffer
+
     glutSwapBuffers();
 }
 void onReshape(int w, int h){
@@ -88,10 +90,9 @@ void onKeyboardInput(unsigned char key, int x, int y){
         case 'g': // GO
         case 'G':
             if(gs.actionOnGoing == 0){
-                glutTimerFunc((unsigned)gs.car.timeCarSpawn, onTimer, carSpeedTimer);
-                glutTimerFunc((unsigned)gs.car.carSpeed, onTimer, carSpawnTimer);
+                glutTimerFunc((unsigned)gs.car.carSpeed, onTimer, carSpeedTimer);
+                if(gs.car.numOfCars < MAX_CARS_ALLOWED)glutTimerFunc((unsigned)gs.car.timeCarSpawn, onTimer, carSpawnTimer);
                 glutTimerFunc((unsigned)gs.tankMainPlayer.tankSpeed, onTimer, tankMovementTimer);
-                glutTimerFunc((unsigned)gs.sky.dayTimer, onTimer, skyColorTimer);
                 glutPostRedisplay();
                 gs.actionOnGoing = 1;
             }
@@ -159,10 +160,7 @@ void tankShoot(int button, int state, int x, int y){
                 if(gs.bullet.Charging == 0 && gs.tankMainPlayer.shoot){
                 glPushMatrix();
                     glLoadIdentity();
-                    setTankTurretMatrix();
-                    
                     setBulletMatrix();
-                    
                 glPopMatrix();
                 }
             }
@@ -179,7 +177,8 @@ void onMousePassive(int x, int y){
 }
 void onTimer(int timer){
     if (timer == carSpeedTimer){
-        // this timer moves cars
+        skyChangeFunction();
+        // this timer moves cars, checks collisions with tank/bomb and re spawns cars.
         if(gs.actionOnGoing){
             if (gs.tankMainPlayer.shoot)
             {
@@ -194,76 +193,65 @@ void onTimer(int timer){
                     gs.bullet.Charging = 0;
                 }
             }
-                for (int i = 0; i < gs.car.numOfCars; i++)
-                {
-                    if (!gs.bullet.needToResetBullet && collisionCheck(gs.bullet.bulletPosition, gs.carArray[i].carPosition, gs.bullet.scale, gs.carArray[i].carScale)){
-                        gs.bullet.needToResetBullet = true;
-                        gs.bullet.Charging = 0;
-                        if (gs.carArray[i].showShield == 0)
-                        {
-                            gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[rand() % 3];
-                            gs.carArray[i].carPosition.z = gs.car.lastZPoint - 10; // reposition car
-                            gs.car.lastZPoint = (int)gs.carArray[i].carPosition.z; // last car spawn point.
-                            gs.numberOfCrushes++;
-                        }
-                        if (gs.carArray[i].shieldOpacity > 0)
-                        {
-                            gs.carArray[i].shieldOpacity -= 0.5f;
-                            if (gs.carArray[i].shieldOpacity == 0)
-                                gs.carArray[i].showShield = 0;
-                        }
-                        break;
-                    }
-                    
-                    gs.carArray[i].carPosition.z += 1;
-                    if (gs.carArray[i].carPosition.z - 10 >= gs.tankMainPlayer.tankPosition.z + 10){
-                        if (gs.numberOfCrushes >= 10)
-                        {
-                            if (gs.carArray[i].shieldOpacity < 1)
-                            {
-                                gs.carArray[i].shieldOpacity += 0.5f;
-                                gs.carArray[i].showShield = 1;
-                            }
-                        }
-                        gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[rand() % 3];
-                        gs.carArray[i].carPosition.z = gs.car.lastZPoint - 10; // reposition car
-                        gs.car.lastZPoint = (int)gs.carArray[i].carPosition.z;  // last car spawn point.
-                    }
-                    else if (collisionCheck(gs.tankMainPlayer.tankPosition, gs.carArray[i].carPosition,
-                            gs.tankMainPlayer.tankScale, gs.carArray[i].carScale)){
-                        if (gs.carArray[i].showShield == 1 && gs.carArray[i].shieldOpacity == 1)
-                        { // If there is collision with car with full shield. Game over.
-                            gs.gameover = true;
-                            gs.actionOnGoing = 0;
-                        }
-                        else
-                        {
-                            if (gs.carArray[i].shieldOpacity > 0)
-                                gs.carArray[i].shieldOpacity -= 0.5f;
-                            if (gs.carArray[i].shieldOpacity == 0)
-                                gs.carArray[i].showShield = 0;
-                        }
-                        gs.numberOfCrushes++;
-                        gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[rand() % 3];
-                        gs.carArray[i].carPosition.z = gs.car.lastZPoint - 10; // reposition car
-                        gs.car.lastZPoint = (int)gs.carArray[i].carPosition.z; // last car spawn point.
-                    }
-            }
-            if (gs.tankMainPlayer.shoot && gs.bullet.needToResetBullet)
+            for (int i = 0; i < gs.car.numOfCars; i++)
             {
+                if (!gs.bullet.needToResetBullet && collisionCheck(gs.bullet.bulletPosition, gs.carArray[i].carPosition, gs.bullet.scale, gs.carArray[i].carScale)){
+                    gs.bullet.needToResetBullet = true;
+                    gs.bullet.Charging = 0;
+                    if (gs.carArray[i].showShield == 0)
+                    {
+                        resetCar(i);
+                        gs.numberOfCrushes++;
+                    }
+                    if (gs.carArray[i].shieldOpacity > 0)
+                    {
+                        gs.carArray[i].shieldOpacity -= 0.5f;
+                        if (gs.carArray[i].shieldOpacity == 0)
+                            gs.carArray[i].showShield = 0;
+                    }
+                    break;
+                }
+                gs.carArray[i].carPosition.z += 1;
+                if (gs.carArray[i].carPosition.z - 10 >= gs.tankMainPlayer.tankPosition.z + 10){
+                    if (gs.numberOfCrushes >= 10)
+                    {
+                        if (gs.carArray[i].shieldOpacity < 1)
+                        {
+                            gs.carArray[i].shieldOpacity += 0.5f;
+                            gs.carArray[i].showShield = 1;
+                        }
+                    }
+                    resetCar(i);
+                }
+                else if (collisionCheck(gs.tankMainPlayer.tankPosition, gs.carArray[i].carPosition,
+                        gs.tankMainPlayer.tankScale, gs.carArray[i].carScale)){
+                    if (gs.carArray[i].showShield == 1 && gs.carArray[i].shieldOpacity == 1)
+                    { // If there is collision with car with full shield. Game over.
+                        gs.gameover = true;
+                        gs.actionOnGoing = 0;
+                    }
+                    else
+                    {
+                        if (gs.carArray[i].shieldOpacity > 0)
+                            gs.carArray[i].shieldOpacity -= 0.5f;
+                        if (gs.carArray[i].shieldOpacity == 0)
+                            gs.carArray[i].showShield = 0;
+                    }
+                    gs.numberOfCrushes++;
+                    resetCar(i);
+                }
+            }
+            if (gs.bullet.needToResetBullet){
                 gs.tankMainPlayer.shoot = false;
             }
         }
-    }else if (timer == carSpawnTimer){
-        //This timer makes cars spawn in proper timers
-        if(gs.car.numOfCars < MAX_CARS_ALLOWED)
-            gs.car.numOfCars++;
-        else
-            return;
+    }else if (timer == carSpawnTimer){//This timer makes cars spawn nicely on beginning
+        gs.car.numOfCars++;
     }else if (timer == tankMovementTimer){
+        //this timer moves tank left right on keyboard press, keeps tank moving forward and makes road infinite length
         if(gs.actionOnGoing){
             if (gs.tankMainPlayer.shoot)
-            {                                              
+            {
                 gs.bullet.bulletPosition.x -= gs.bullet.bulletDirection.x;
                 gs.bullet.bulletPosition.y -= 0.03f;
                 gs.bullet.bulletPosition.z -= gs.bullet.bulletDirection.z;
@@ -273,20 +261,15 @@ void onTimer(int timer){
                     gs.bullet.needToResetBullet = true;
                     gs.bullet.Charging = 0;
                 }
-                for (int i = 0; i < gs.car.numOfCars; i++)
-                {
-                    if (collisionCheck(gs.bullet.bulletPosition, gs.carArray[i].carPosition,
-                            gs.bullet.scale, gs.carArray[i].carScale)){
+                for (int i = 0; i < gs.car.numOfCars; i++){
+                    if (!gs.bullet.needToResetBullet && collisionCheck(gs.bullet.bulletPosition, gs.carArray[i].carPosition,
+                                                        gs.bullet.scale, gs.carArray[i].carScale)){
                         gs.bullet.Charging = 0;
-                        if (gs.carArray[i].showShield == 0)
-                        {
-                            gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[rand() % 3];
-                            gs.carArray[i].carPosition.z = gs.car.lastZPoint - 10; // reposition car
-                            gs.car.lastZPoint = (int)gs.carArray[i].carPosition.z; // last car spawn point.
+                        if (gs.carArray[i].showShield == 0){
+                            resetCar(i);
                             gs.numberOfCrushes++;
                         }
-                        if (gs.carArray[i].shieldOpacity > 0)
-                        {                                
+                        if (gs.carArray[i].shieldOpacity > 0){
                             gs.carArray[i].shieldOpacity -= 0.5f;
                             if (gs.carArray[i].shieldOpacity == 0)
                                 gs.carArray[i].showShield = 0;
@@ -299,7 +282,6 @@ void onTimer(int timer){
                     gs.tankMainPlayer.shoot = false;
                 }
             }
-
             // moves tank left and right when keyboard input comes in.
             if (gs.tankMainPlayer.currDir == -1){
                 if(gs.tankMainPlayer.tankPosition.x >= -3.8f)
@@ -313,35 +295,30 @@ void onTimer(int timer){
             //makes road infinite
             if(gs.tankMainPlayer.tankPosition.z == gs.road2.roadPosition.z){
                 // Road 1 should be copied in back, behind road 3
-                gs.road.roadPosition.z = gs.road3.roadPosition.z - 2*gs.road.roadScale.z;
+                gs.road.roadPosition.z = gs.road3.roadPosition.z - 2 * gs.road.roadScale.z;
                 gs.leftSideRoad.roadPosition.z = gs.leftSideRoad3.roadPosition.z - 2 * gs.leftSideRoad.roadScale.z;
                 gs.rightSideRoad.roadPosition.z = gs.rightSideRoad3.roadPosition.z - 2 * gs.rightSideRoad.roadScale.z;
             }else if(gs.tankMainPlayer.tankPosition.z == gs.road3.roadPosition.z){
                 // Road 2 should be copied in back, behind road 1
-                gs.road2.roadPosition.z = gs.road.roadPosition.z - 2*gs.road2.roadScale.z;
+                gs.road2.roadPosition.z = gs.road.roadPosition.z - 2 * gs.road2.roadScale.z;
                 gs.leftSideRoad2.roadPosition.z = gs.leftSideRoad.roadPosition.z - 2 * gs.leftSideRoad2.roadScale.z;
                 gs.rightSideRoad2.roadPosition.z = gs.rightSideRoad.roadPosition.z - 2 * gs.rightSideRoad2.roadScale.z;
             }else if(gs.tankMainPlayer.tankPosition.z == gs.road.roadPosition.z){
                 // Road 3 should be copied in back, behind road 2
-                gs.road3.roadPosition.z = gs.road2.roadPosition.z - 2*gs.road3.roadScale.z;
+                gs.road3.roadPosition.z = gs.road2.roadPosition.z - 2 * gs.road3.roadScale.z;
                 gs.leftSideRoad3.roadPosition.z = gs.leftSideRoad2.roadPosition.z - 2 * gs.leftSideRoad3.roadScale.z;
                 gs.rightSideRoad3.roadPosition.z = gs.rightSideRoad2.roadPosition.z - 2 * gs.rightSideRoad3.roadScale.z;
             }
         }
-    }else if(timer == skyColorTimer){
-        if(gs.actionOnGoing)
-            skyChangeFunction();
     }else
         return;
     if(gs.actionOnGoing){
         glutPostRedisplay();
         if (timer == carSpeedTimer)
             glutTimerFunc((unsigned)gs.car.carSpeed, onTimer, carSpeedTimer);
-        else if (timer == carSpawnTimer)
+        else if (timer == carSpawnTimer &&  (gs.car.numOfCars < MAX_CARS_ALLOWED))
             glutTimerFunc((unsigned)gs.car.timeCarSpawn, onTimer, carSpawnTimer);
         else if(timer == tankMovementTimer)
             glutTimerFunc((unsigned)gs.tankMainPlayer.tankSpeed, onTimer, tankMovementTimer);
-        else if(timer == skyColorTimer)
-            glutTimerFunc((unsigned)gs.sky.dayTimer, onTimer, skyColorTimer);
-    }
+        }
 }

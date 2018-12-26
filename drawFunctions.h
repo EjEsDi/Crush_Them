@@ -1,6 +1,6 @@
 #ifndef DRAWFUNCTIONS_H
 #define DRAWFUNCTIONS_H
-#include <GL/gl.h>
+#include <GL/glut.h>
 #include <stdbool.h>
 
 /************************************
@@ -9,7 +9,7 @@
 
 #define MAX_CARS_ALLOWED 10
 #define NOT_USED_VAR(X) (void)(X)
-
+#define MAX_LEN 50
 
 //Create game state.
 struct gameState gs;
@@ -24,6 +24,7 @@ struct Vector3f{
     float y;
     float z;
 };
+
 struct Car{
     float carSpeed;
     int setOfCarXPositionsAllowedValues[3];
@@ -37,6 +38,7 @@ struct Car{
     float shieldOpacity;
     long long lastZPoint;
 };
+
 struct Tank{
     struct Vector3f tankPosition;
     struct Vector3f tankScale;
@@ -46,22 +48,25 @@ struct Tank{
     int currDir;
     bool shoot;
 };
+
 struct Road{
     struct Vector3f roadScale;
     struct Vector3f roadRotation;
     struct Vector3f roadPosition;
 };
+
 struct Sky{
     struct Vector3f skyColor;
-    int dayTimer;
     int flag;
 };
+
 struct Sun{
     struct Vector3f sunRotate;
-    struct Vector3f sunTranslate; // its initializing suns position
-    struct Vector3f sunPosition; // its used in lighting function, after calculating direction
+    struct Vector3f sunTranslate;
+    struct Vector3f sunPosition;
     struct Vector3f lightDirection;
 };
+
 struct Bullet{
     struct Vector3f bulletPosition;
     struct Vector3f bulletDirection;
@@ -69,6 +74,7 @@ struct Bullet{
     bool needToResetBullet;
     int Charging;
 };
+
 struct gameState{
     struct Car carArray[MAX_CARS_ALLOWED];
     struct Car car;
@@ -95,13 +101,12 @@ struct gameState{
 
 void drawBullet(void);
 void drawSquare(void);
-void drawRoad(struct Road road);
-void drawSideRoad(struct Road road);
+void drawRoad(struct Road road, bool texturesEnabled);
 void drawCubeTank(struct Tank tank);
 void drawCar(struct Car cars);
 void drawSun(void);
-void drawScore(void);
-void drawEndGame(void);
+void drawMessage(char string[MAX_LEN], int x, int y);
+void resetCar(int i);
 void skyChangeFunction(void);
 
 #endif

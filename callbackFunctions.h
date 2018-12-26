@@ -9,7 +9,6 @@
 #define carSpeedTimer (0)
 #define carSpawnTimer (1)
 #define tankMovementTimer (2)
-#define skyColorTimer (3)
 //end of timer callback func variables
 
 // callback functions

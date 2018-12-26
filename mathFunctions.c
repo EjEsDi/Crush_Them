@@ -43,7 +43,7 @@ struct Vector3f normalize(struct Vector3f a){
     return result;
 }
 
-void setTankTurretMatrix(void)
+void setBulletMatrix(void)
 {
     // Start matrix at the position of the tank
     glTranslatef(gs.tankMainPlayer.tankPosition.x, gs.tankMainPlayer.tankPosition.y, gs.tankMainPlayer.tankPosition.z);
@@ -78,7 +78,7 @@ void setTankTurretMatrix(void)
 
     gs.bullet.bulletDirection.x = (bulletMatrix[8] * 1.3f);
     gs.bullet.bulletDirection.y = (bulletMatrix[9] * 1.3f);
-    gs.bullet.bulletDirection.z = (bulletMatrix[10] * 2.3f);
+    gs.bullet.bulletDirection.z = (bulletMatrix[10] * 1.3f);
 }
 
 void setSunMatrix(void){
@@ -94,15 +94,3 @@ void setSunMatrix(void){
     gs.sun.sunPosition.z = sunPositionMatrix[14];
 }
 
-void setBulletMatrix(void){
-    GLfloat bulletMatrix[16];
-    glGetFloatv(GL_MODELVIEW_MATRIX, bulletMatrix);
-
-    gs.bullet.bulletPosition.x = bulletMatrix[12];
-    gs.bullet.bulletPosition.y = bulletMatrix[13];
-    gs.bullet.bulletPosition.z = bulletMatrix[14];
-
-    gs.bullet.bulletDirection.x = bulletMatrix[8] * 1.3f;
-    gs.bullet.bulletDirection.y = bulletMatrix[9] * 1.3f;
-    gs.bullet.bulletDirection.z = bulletMatrix[10] * 1.3f;
-}

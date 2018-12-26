@@ -70,7 +70,7 @@ void image_read(Image *image, char *filename) {
   else if (bih.bitcount == 32)
     image->pixels = (char *)malloc(4 * bih.width * bih.height * sizeof(char));
   else {
-    fprintf(stderr, "image_read(): Podrzane su samo slike koje po pikselu cuvaju 24 ili 32 bita podataka.\n");
+    fprintf(stderr, "image_read(): Only 24 or 32 bit pics are allowed.\n");
     exit(1);
   }
   assert(image->pixels != NULL);
