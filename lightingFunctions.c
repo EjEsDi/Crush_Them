@@ -59,6 +59,7 @@ void lightForSun(){
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT1);
 }
+
 void setVertexColor(float R, float G, float B){
     GLfloat diffuse[] = {R, G, B, 1};
     GLfloat ambient[] = {R, G, B, 1};

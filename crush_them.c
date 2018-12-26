@@ -5,15 +5,15 @@
 #include "drawInitFunctions.h"
 #include "drawFunctions.h"
 
-int main(int argc, char** argv){
-    
+int main(int argc, char **argv) {
+
     //initialization of glut
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     //initialize Window
     glutInitWindowSize(1300, 700);
-    glutInitWindowPosition(gs.WindowWidth/2, gs.WindowHeight/2);
-    
+    glutInitWindowPosition(gs.WindowWidth / 2, gs.WindowHeight / 2);
+
     glutCreateWindow("Crush them!");
     //glutFullScreen();
 
@@ -25,9 +25,9 @@ int main(int argc, char** argv){
     glutMouseFunc(tankShoot);
     glutKeyboardUpFunc(onKeyboardUp);
     // initialize stuff
-    
+
     init();
     // start program
-    glutMainLoop(); 
+    glutMainLoop();
     return 0;
 }

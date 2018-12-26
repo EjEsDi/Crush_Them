@@ -1,5 +1,6 @@
 #ifndef DRAWFUNCTIONS_H
 #define DRAWFUNCTIONS_H
+
 #include <GL/glut.h>
 #include <stdbool.h>
 
@@ -10,6 +11,7 @@
 #define MAX_CARS_ALLOWED 10
 #define NOT_USED_VAR(X) (void)(X)
 #define MAX_LEN 50
+#define MAX_FENCE_ALLOWED 45
 
 //Create game state.
 struct gameState gs;
@@ -19,13 +21,13 @@ GLuint names[1]; // used for texture
     Structs declarations start here
 *************************************/
 
-struct Vector3f{
+struct Vector3f {
     float x;
     float y;
     float z;
 };
 
-struct Car{
+struct Car {
     float carSpeed;
     int setOfCarXPositionsAllowedValues[3];
     int ZSpawnPoint;
@@ -39,7 +41,7 @@ struct Car{
     long long lastZPoint;
 };
 
-struct Tank{
+struct Tank {
     struct Vector3f tankPosition;
     struct Vector3f tankScale;
     struct Vector3f turretRotate; //can be moved to turret struct if it gets made
@@ -49,33 +51,38 @@ struct Tank{
     bool shoot;
 };
 
-struct Road{
+struct Road {
     struct Vector3f roadScale;
     struct Vector3f roadRotation;
     struct Vector3f roadPosition;
 };
 
-struct Sky{
+struct Sky {
     struct Vector3f skyColor;
     int flag;
 };
 
-struct Sun{
+struct Sun {
     struct Vector3f sunRotate;
     struct Vector3f sunTranslate;
     struct Vector3f sunPosition;
     struct Vector3f lightDirection;
 };
 
-struct Bullet{
+struct Bullet {
     struct Vector3f bulletPosition;
     struct Vector3f bulletDirection;
-    struct Vector3f scale;
+    struct Vector3f bulletScale;
     bool needToResetBullet;
     int Charging;
 };
 
-struct gameState{
+struct Fence {
+    struct Vector3f fencePosition;
+    struct Vector3f fenceScale;
+};
+
+struct gameState {
     struct Car carArray[MAX_CARS_ALLOWED];
     struct Car car;
     struct Sun sun;
@@ -85,6 +92,7 @@ struct gameState{
     struct Road leftSideRoad, leftSideRoad2, leftSideRoad3;
     struct Tank tankMainPlayer;
     struct Bullet bullet;
+    struct Fence fenceLeftArray[MAX_FENCE_ALLOWED], fenceRightArray[MAX_FENCE_ALLOWED];
     int WindowWidth;
     int WindowHeight;
     int actionOnGoing;
@@ -100,13 +108,23 @@ struct gameState{
 *************************************/
 
 void drawBullet(void);
+
 void drawSquare(void);
+
 void drawRoad(struct Road road, bool texturesEnabled);
+
 void drawCubeTank(struct Tank tank);
+
 void drawCar(struct Car cars);
+
 void drawSun(void);
+
 void drawMessage(char string[MAX_LEN], int x, int y);
+
 void resetCar(int i);
+
 void skyChangeFunction(void);
+
+void drawFence(struct Fence fence);
 
 #endif

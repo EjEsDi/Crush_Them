@@ -26,7 +26,7 @@ void init(void){
 
 void tankInit(){
     gs.tankMainPlayer.tankPosition.x = 0;
-    gs.tankMainPlayer.tankPosition.y = -1;
+    gs.tankMainPlayer.tankPosition.y = 0;
     gs.tankMainPlayer.tankPosition.z = 280;
 
     gs.tankMainPlayer.tankScale.x = 1;
@@ -54,15 +54,15 @@ void bulletInit(){
     gs.bullet.needToResetBullet = false;
     gs.bullet.Charging = 0;
 
-    gs.bullet.scale.x = 1;
-    gs.bullet.scale.y = 1;
-    gs.bullet.scale.z = 1;
+    gs.bullet.bulletScale.x = 1;
+    gs.bullet.bulletScale.y = 1;
+    gs.bullet.bulletScale.z = 1;
 }
 
 void roadInit(struct Road *road1, struct Road *road2, struct Road *road3, int posX, int sizeX){
     road1->roadScale.x = road2->roadScale.x = road3->roadScale.x = sizeX;
     road1->roadScale.y = road2->roadScale.y = road3->roadScale.y = 1;
-    road1->roadScale.z = road2->roadScale.z = road3->roadScale.z = 300; // road goes from 300 to -300
+    road1->roadScale.z = road2->roadScale.z = road3->roadScale.z = 600; // road goes from 300 to -300
 
     road1->roadRotation.x = road2->roadRotation.x = road3->roadRotation.x = 90;
     road1->roadRotation.y = road2->roadRotation.y = road3->roadRotation.y = 0;
@@ -72,17 +72,17 @@ void roadInit(struct Road *road1, struct Road *road2, struct Road *road3, int po
     road1->roadPosition.y = road2->roadPosition.y = road3->roadPosition.y = 0;
 
     road1->roadPosition.z = 0;
-    road2->roadPosition.z = -2*road2->roadScale.z;
-    road3->roadPosition.z = -2*road3->roadScale.z;
+    road2->roadPosition.z = road1->roadPosition.z - road2->roadScale.z;
+    road3->roadPosition.z = road2->roadPosition.z - road3->roadScale.z;
 }
 
 void carsInit(){
     // Init cars
     gs.car.numOfCars = 1; // used for drawing cars.
 
-    gs.car.setOfCarXPositionsAllowedValues[0] = -3.5;
+    gs.car.setOfCarXPositionsAllowedValues[0] = -4;
     gs.car.setOfCarXPositionsAllowedValues[1] = 0;
-    gs.car.setOfCarXPositionsAllowedValues[2] = 3.5;
+    gs.car.setOfCarXPositionsAllowedValues[2] = 4;
     gs.car.ZSpawnPoint = 300; // How far away from tank, cars should spawn
     gs.car.carSpeed = 30;
     for(int i = 0; i < MAX_CARS_ALLOWED; i++){
@@ -95,7 +95,7 @@ void carsInit(){
         gs.carArray[i].carRotate.z = 0;
 
         gs.carArray[i].carPosition.x = gs.car.setOfCarXPositionsAllowedValues[i % 3];
-        gs.carArray[i].carPosition.y = -1;
+        gs.carArray[i].carPosition.y = 0;
         gs.carArray[i].carPosition.z = gs.car.ZSpawnPoint + i*30;
 
         gs.car.showShield = 0;
@@ -105,12 +105,14 @@ void carsInit(){
     gs.car.timeCarSpawn = 1000;   // 1 sec
     gs.car.lastZPoint = -200;
 }
+
 void skyInit(){
     gs.sky.skyColor.x = 0.6f;
     gs.sky.skyColor.y = 0.8f;
     gs.sky.skyColor.z = 1;
     gs.sky.flag = 0; // while its 0 its peak of day, when 1 its peak of night
 }
+
 void sunInit(){
     gs.sun.sunRotate.x = 0;
     gs.sun.sunRotate.y = 0;
@@ -124,7 +126,7 @@ void imageInit(){
     //Code taken from class and edited for own needs.
     Image * image;
     image = image_init(0,0);
-    image_read(image, "/home/aleksandar/Desktop/Crush_Them/sand.bmp");//TODO MAKE IT WORK HERE FOR ALL USERS WITH MAKEFILE
+    image_read(image, "/home/aleksandar/Desktop/Crush_Them/sand.bmp");//TODO ABS PATH FOR CMAKE, RELATIVE OTHERWISE?
     glGenTextures(2, names);
 
     glBindTexture(GL_TEXTURE_2D, names[0]);
@@ -141,12 +143,27 @@ void imageInit(){
     glBindTexture(GL_TEXTURE_2D, 0);
     image_done(image);
 }
+
+void fenceInit(float x, int z, struct Fence *fence1){
+    for(int i = 0; i<MAX_FENCE_ALLOWED; i++) {
+        fence1[i].fencePosition.x = x;
+        fence1[i].fencePosition.y = 0;
+        fence1[i].fencePosition.z = z - i * 20;
+
+        fence1[i].fenceScale.x = .5f;
+        fence1[i].fenceScale.y = 3;
+        fence1[i].fenceScale.z = 5;
+    }
+}
+
 void initRenderingObjects(){
-    roadInit(&gs.road, &gs.road2, &gs.road3, 0, 6);
-    roadInit(&gs.leftSideRoad, &gs.leftSideRoad2, &gs.leftSideRoad3, -24, 18);
-    roadInit(&gs.rightSideRoad, &gs.rightSideRoad2, &gs.rightSideRoad3, 24, 18);
+    roadInit(&gs.road, &gs.road2, &gs.road3, 0, 12);
+    roadInit(&gs.leftSideRoad, &gs.leftSideRoad2, &gs.leftSideRoad3, -24, 36);
+    roadInit(&gs.rightSideRoad, &gs.rightSideRoad2, &gs.rightSideRoad3, 24, 36);
     carsInit();
     tankInit();
+    fenceInit(-6.2f, (int)gs.tankMainPlayer.tankPosition.z, gs.fenceLeftArray);
+    fenceInit(+6.2f, (int)gs.tankMainPlayer.tankPosition.z, gs.fenceRightArray);
     skyInit();
     sunInit();
     bulletInit();

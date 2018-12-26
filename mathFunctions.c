@@ -8,7 +8,7 @@
 #include <GL/glut.h>
 #include <math.h>
 
-bool collisionCheck(struct Vector3f a, struct Vector3f b, struct Vector3f aSize, struct Vector3f bSize){
+bool collisionCheck(struct Vector3f a, struct Vector3f b, struct Vector3f aSize, struct Vector3f bSize) {
     // Collision x-axis
     bool collisionX = a.x + aSize.x >= b.x && b.x + bSize.x >= a.x;
     // Collision y-axis
@@ -20,8 +20,7 @@ bool collisionCheck(struct Vector3f a, struct Vector3f b, struct Vector3f aSize,
     return collisionX && collisionY && collisionZ;
 }
 
-struct Vector3f getDirection(struct Vector3f a, struct Vector3f b)
-{
+struct Vector3f getDirection(struct Vector3f a, struct Vector3f b) {
     struct Vector3f result = b;
     result.x -= a.x;
     result.y -= a.y;
@@ -29,10 +28,10 @@ struct Vector3f getDirection(struct Vector3f a, struct Vector3f b)
     return normalize(result);
 }
 
-struct Vector3f normalize(struct Vector3f a){
-    float len = (float)(sqrt((a.x*a.x)+(a.y*a.y)+(a.z+a.z)));
+struct Vector3f normalize(struct Vector3f a) {
+    float len = (float) (sqrt((a.x * a.x) + (a.y * a.y) + (a.z + a.z)));
     struct Vector3f result;
-    if(len == 0){
+    if (len == 0) {
         result.x = 0;
         result.y = 0;
         result.z = 0;
@@ -43,8 +42,7 @@ struct Vector3f normalize(struct Vector3f a){
     return result;
 }
 
-void setBulletMatrix(void)
-{
+void setBulletMatrix(void) {
     // Start matrix at the position of the tank
     glTranslatef(gs.tankMainPlayer.tankPosition.x, gs.tankMainPlayer.tankPosition.y, gs.tankMainPlayer.tankPosition.z);
 
@@ -81,11 +79,12 @@ void setBulletMatrix(void)
     gs.bullet.bulletDirection.z = (bulletMatrix[10] * 1.3f);
 }
 
-void setSunMatrix(void){
+void setSunMatrix(void) {
     glRotatef(gs.sun.sunRotate.x, 1, 0, 0);
     glRotatef(gs.sun.sunRotate.y, 0, 1, 0);
     glRotatef(gs.sun.sunRotate.z, 0, 0, 1);
-    glTranslatef(gs.sun.sunTranslate.x, gs.sun.sunTranslate.y, gs.sun.sunTranslate.z + gs.tankMainPlayer.tankPosition.z);
+    glTranslatef(gs.sun.sunTranslate.x, gs.sun.sunTranslate.y,
+                 gs.sun.sunTranslate.z + gs.tankMainPlayer.tankPosition.z);
     GLfloat sunPositionMatrix[16];
     glGetFloatv(GL_MODELVIEW_MATRIX, sunPositionMatrix);
 
