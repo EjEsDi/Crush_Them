@@ -80,9 +80,9 @@ void carsInit(){
     // Init cars
     gs.car.numOfCars = 1; // used for drawing cars.
 
-    gs.car.setOfCarXPositionsAllowedValues[0] = -4;
+    gs.car.setOfCarXPositionsAllowedValues[0] = -3;
     gs.car.setOfCarXPositionsAllowedValues[1] = 0;
-    gs.car.setOfCarXPositionsAllowedValues[2] = 4;
+    gs.car.setOfCarXPositionsAllowedValues[2] = 3;
     gs.car.ZSpawnPoint = 300; // How far away from tank, cars should spawn
     gs.car.carSpeed = 30;
     for(int i = 0; i < MAX_CARS_ALLOWED; i++){
@@ -171,4 +171,5 @@ void initRenderingObjects(){
     gs.cameraMovement = 0;
     gs.numberOfCrushes = 0;
     gs.gameover = false;
+    gs.fullscreen = false;
 }
