@@ -126,7 +126,7 @@ void imageInit(){
     //Code taken from class and edited for own needs.
     Image * image;
     image = image_init(0,0);
-    image_read(image, "/home/aleksandar/Desktop/Crush_Them/sand.bmp");//TODO ABS PATH FOR CMAKE, RELATIVE OTHERWISE?
+    image_read(image, "sand.bmp");//TODO ABS PATH FOR CMAKE, RELATIVE OTHERWISE?
     glGenTextures(2, names);
 
     glBindTexture(GL_TEXTURE_2D, names[0]);

@@ -72,7 +72,7 @@ void setBulletMatrix(void) {
 
     gs.bullet.bulletPosition.x = bulletMatrix[12];
     gs.bullet.bulletPosition.y = bulletMatrix[13];
-    gs.bullet.bulletPosition.z = bulletMatrix[14];
+    gs.bullet.bulletPosition.z = bulletMatrix[14]-1;
     
     gs.bullet.bulletDirection.x = (bulletMatrix[8]*1.3);
     gs.bullet.bulletDirection.y = (bulletMatrix[9]*1.3);

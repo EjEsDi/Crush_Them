@@ -182,7 +182,6 @@ void drawCubeTank(struct Tank tank) {
     // Dont really need to save matrix here, since this is the last transformations we do anyway
     glPushMatrix();
     float barrelLength = 1.5f;
-
     // Start by moving the barrel origin to the edge of the turret
     float barrelZPosition = (turretSize.z * 0.5f);
     // Then move the barrel by half its length, so that we push the rest of the barrel out of the turret
@@ -190,9 +189,9 @@ void drawCubeTank(struct Tank tank) {
 
     // Move the barrel UP by half the turret-size, so that its centered on the turret
     float barrelYPosition = (turretSize.y * 0.5f);
-
     glTranslatef(0, barrelYPosition, -barrelZPosition);
     glScalef(0.2f, 0.2f, barrelLength);
+    setVertexColor(1, 1, 0);
     glutSolidSphere(1, 20, 20);
     glPopMatrix();
     glPopMatrix();
@@ -273,7 +272,7 @@ void skyChangeFunction(void) {
         gs.sun.sunRotate.z = 0;
     }
     gs.sun.sunRotate.z += 0.3f;   //Math done on paper for this number
-
+                                  // It makes day-night swap seem "real"
     //Decrement until first reaches 0, that will be night color
     if (gs.sky.flag == 0) {
         gs.sky.skyColor.x -= 0.001f;
