@@ -7,11 +7,14 @@
 # .idea #
 .idea
 
-#file name
-crush_them
-
 #Build directories
 /cmake-build-*
 
 #cmake file
 CMakeLists.txt
+
+#git
+.git
+
+#gitignore
+.gitignore
